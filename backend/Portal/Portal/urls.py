@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from apps.posts.views import PostAPIList
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    #api для постов
+    path('api/v1/post/', PostAPIList.as_view()),
+
 ]
