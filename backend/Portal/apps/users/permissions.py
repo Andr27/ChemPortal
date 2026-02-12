@@ -26,7 +26,7 @@ class IsModerator(permissions.BasePermission):
     allowed_roles = {'moderator', 'admin'}
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.profile.role == 'moderator'
+        return request.user.is_authenticated and request.user.profile.role in self.allowed_roles
 
 #Только админ
 class IsAdmin(permissions.BasePermission):

@@ -25,7 +25,8 @@ class Post(models.Model):
     status = models.CharField(choices=[
         ('draft', "Черновик"),
         ("moderation", "На модерации"),
-        ("published", "Опубликовано")
+        ("published", "Опубликовано"),
+        ("rejected", "Отклонено")
     ])
 
     class Meta:

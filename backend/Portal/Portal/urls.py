@@ -15,26 +15,40 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from apps.posts.views import PostAPIList, PostAPI, PostAPICreate, PostAPIDestroy, PostAPIUpdate
+from django.urls import path, include
+from apps.posts.views import PostViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework.routers import DefaultRouter
 
+
+
+router = DefaultRouter()
+router.register(r'api/v1/posts', PostViewSet, basename='posts')
 urlpatterns = [
     path('admin/', admin.site.urls),
     #jwt
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-
-    #api для постов
-    #список постов
-    path('api/v1/post/', PostAPIList.as_view()),
-    #конкретный пост
-    path('api/v1/post/<int:pk>/', PostAPI.as_view()),
-    #создать пост
-    path('api/v1/post/create/', PostAPICreate.as_view()),
-    #удалить пост
-    path('api/v1/post/delete/<int:pk>/', PostAPIDestroy.as_view()),
-    #обновить пост
-    path('api/v1/post/update/<int:pk>/', PostAPIUpdate.as_view()),
+    #api
+    path("", include(router.urls)),
 ]
+
+
+'''
+get /api/v1/posts/ - все посты
+post /api/v1/posts/ - создать пост
+get /api/v1/posts/{id}/ - конкретный пост
+delete /api/v1/posts/{id}/ - удалить пост
+put /api/v1/posts/{id}/ - изменить пост
+
+
+post /api/v1/posts/{id}/send_to_moderation/ - отправить на модерацию конкретный пост
+post /api/v1/posts/{id}/approve/ - утвердить пост
+post /api/v1/posts/{id}/reject/ - отклонить пост
+
+
+get /api/v1/posts/moderation_list/ - список постов на модерации
+get /api/v1/posts/my_posts/ - все посты конкретного автора
+
+'''
