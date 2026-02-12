@@ -13,7 +13,7 @@ class Post(models.Model):
 
     type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES)
     title = models.CharField(max_length=255)
-    text = models.TextField(blank=True)
+    body = models.TextField(blank=True)
     video_url = models.URLField(blank=True)
     link_url = models.URLField(blank=True)
 
