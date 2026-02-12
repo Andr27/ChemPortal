@@ -5,14 +5,14 @@ from rest_framework.response import Response
 from .models import Post
 from .serializers import PostSerializer
 from rest_framework import generics
-
+from apps.users.permissions import *
 
 
 
 class PostAPIList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+
 
 
 
@@ -25,22 +25,20 @@ class PostAPI(generics.GenericAPIView):
         return Response(serializer.data)
 
 
-
-
 class PostAPICreate(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsCreator, )
 
 
 class PostAPIDestroy(generics.DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsOwnerOrAdmin, )
 
 
 
 class PostAPIUpdate(generics.UpdateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsOwnerOrAdmin, )

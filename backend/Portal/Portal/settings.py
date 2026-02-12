@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'apps.posts.apps.PostsConfig',
+    'apps.users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -192,3 +193,6 @@ REST_FRAMEWORK = {
 
 #CORS(ПОМЕНЯТЬ ПЕРЕД ОКОНЧАНИЕМ))!!!!!
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+
