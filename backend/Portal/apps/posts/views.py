@@ -111,7 +111,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         post_id = self.kwargs["post_pk"]
         post = get_object_or_404(Post, id=post_id, status='published')
-        return Comment.objects.filter(post=post, parent__isnull=True).prefetch_related("children")
+        if self.action == 'list':
+            return Comment.objects.filter(post=post, parent__isnull=True).prefetch_related("children")
+        return Comment.objects.filter(post=post)
 
     def perform_create(self, serializer):
         post_id = self.kwargs["post_pk"]
