@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     #api
     path("", include(router.urls)),
+    path('api/v1/auth/', include("apps.users.urls")),
 ]
 
 
@@ -50,5 +51,6 @@ post /api/v1/posts/{id}/reject/ - отклонить пост
 
 get /api/v1/posts/moderation_list/ - список постов на модерации
 get /api/v1/posts/my_posts/ - все посты конкретного автора
+get /api/v1/posts/rejected_posts/ - отклоненные посты
 
 '''

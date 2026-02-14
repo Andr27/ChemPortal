@@ -27,7 +27,7 @@ class Post(models.Model):
         ("moderation", "На модерации"),
         ("published", "Опубликовано"),
         ("rejected", "Отклонено")
-    ])
+    ], default="draft")
 
     class Meta:
         ordering = ['-created_at']

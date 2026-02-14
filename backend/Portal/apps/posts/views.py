@@ -1,18 +1,10 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Post
 from .serializers import PostSerializer
 from rest_framework import generics, viewsets
 from apps.users.permissions import *
-
-
-
-
-
-
-
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -23,6 +15,9 @@ class PostViewSet(viewsets.ModelViewSet):
     #queryset
 
     def get_queryset(self):
+
+        if self.action == 'rejected_posts':
+            return Post.objects.filter(status='rejected')
         #очередь модерации
         if self.action == 'moderation_list':
             return Post.objects.filter(status='moderation')
@@ -92,7 +87,16 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+    @action(detail=False, methods=['get'], permission_classes=[IsOwnerOrAdmin])
+    def rejected_posts(self, request):
+        posts = Post.objects.filter(status='rejected')
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
 
 
-
+    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
+    def my_posts(self, request):
+        posts = Post.objects.filter(author=self.request.user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
 
