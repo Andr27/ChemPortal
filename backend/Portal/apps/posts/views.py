@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Post
-from .serializers import PostSerializer
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
 from rest_framework import generics, viewsets
 from apps.users.permissions import *
 
@@ -100,3 +101,30 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
 
+
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        post_id = self.kwargs["post_pk"]
+        post = get_object_or_404(Post, id=post_id, status='published')
+        return Comment.objects.filter(post=post, parent__isnull=True).prefetch_related("children")
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs["post_pk"]
+        post = get_object_or_404(Post, id=post_id, status='published')
+        parent_id = self.request.data.get("parent")
+        parent = None
+
+        if parent_id:
+            parent = get_object_or_404(Comment, id=parent_id, post=post)
+
+        serializer.save(author=self.request.user, post=post, parent=parent)
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.text = "[comment deleted]"
+        instance.save()
