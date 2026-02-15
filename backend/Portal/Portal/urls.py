@@ -31,7 +31,7 @@ post /api/v1/posts/{id}/send_to_moderation/ - отправить на модер
 post /api/v1/posts/{id}/approve/ - утвердить пост
 post /api/v1/posts/{id}/reject/ - отклонить пост
 
-
+get /api/v1/posts/{post.id}/moderation_detail/ - конкретный пост на модерции 
 get /api/v1/posts/moderation_list/ - список постов на модерации
 get /api/v1/posts/my_posts/ - все посты конкретного автора
 get /api/v1/posts/rejected_posts/ - отклоненные посты
@@ -69,6 +69,20 @@ PUT /api/v1/posts/{post_id}/comments/{comment.id}/ - изменить текст
 LIKES!!!
 
 POST /api/v1/posts/{post_id}/like/ - лайкнуть ( повторная отправка - отменить лайк)
+
+
+
+СБРОС ПАРОЛЯ!!!
+POST /api/v1/auth/password-reset/ - получить ссылку на почту для восстановления пароля. Надо сохранить токен и передать его позже
+
+ссылка которая приходит - https://localhost:3000/reset-password/!!!85fd524f-1222-46c5-abe3-6e5fe753f664!!! -  тут я сразу редирект на фронт делаю, на окно ввода нового пароля 
+                                                                            токен
+                                                
+POST /api/v1/auth/password-reset/confirm - подтвердить пароль - надо отправить в виде 
+{
+    "token": "85fd524f-1222-46c5-abe3-6e5fe753f664",
+    "new_password": "User1234"
+}
 
 
 '''

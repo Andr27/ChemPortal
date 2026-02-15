@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Post, Comment, Like
@@ -46,7 +47,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action == "send_to_moderation":
             return [IsCreator()]
 
-        if self.action in ['approve', 'reject', 'moderation_list']:
+        if self.action in ['approve', 'reject', 'moderation_list', 'moderation_detail']:
             return [IsModerator()]
 
         return super().get_permissions()
@@ -85,6 +86,14 @@ class PostViewSet(viewsets.ModelViewSet):
     def moderation_list(self, request):
         posts = Post.objects.filter(status='moderation')
         serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def moderation_detail(self, request, pk=None):
+        post = Post.objects.filter(pk=pk, status='moderation').first()
+        if not post:
+            return NotFound("Пост не найден или не находится на модерации")
+        serializer = self.get_serializer(post)
         return Response(serializer.data)
 
 
