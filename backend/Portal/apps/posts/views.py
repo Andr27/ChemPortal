@@ -2,9 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from apps.users.permissions import *
 
 
@@ -13,8 +13,15 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     permission_classes = [ReadOnlyOrCreator]
 
-    #queryset
 
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
+
+    #queryset
     def get_queryset(self):
 
         if self.action == 'rejected_posts':
@@ -100,6 +107,20 @@ class PostViewSet(viewsets.ModelViewSet):
         posts = Post.objects.filter(author=self.request.user)
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
+
+    #like
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        like, created = Like.objects.get_or_create(user=user, post=post)
+
+        if not created:
+            like.delete()
+            return Response({'liked': False}, status=status.HTTP_200_OK)
+
+        return Response({'liked': True}, status=status.HTTP_201_CREATED)
 
 
 

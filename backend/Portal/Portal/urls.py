@@ -62,4 +62,13 @@ GET /api/v1/posts/{post_id}/comments/ - ВСЕ КОММЕНТЫ ПОЛУЧИТЬ
 DELETE /api/v1/posts/{post_id}/comments/{comment.id}/ - текст комментария будет заменен на 'comment deleted'
 PUT /api/v1/posts/{post_id}/comments/{comment.id}/ - изменить текст комментария
 
+
+
+
+
+LIKES!!!
+
+POST /api/v1/posts/{post_id}/like/ - лайкнуть ( повторная отправка - отменить лайк)
+
+
 '''
