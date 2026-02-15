@@ -31,7 +31,7 @@ post /api/v1/posts/{id}/send_to_moderation/ - отправить на модер
 post /api/v1/posts/{id}/approve/ - утвердить пост
 post /api/v1/posts/{id}/reject/ - отклонить пост
 
-get /api/v1/posts/{post.id}/moderation_detail/ - конкретный пост на модерции 
+get /api/v1/posts/{post.id}/moderation_detail/ - конкретный пост на модерации 
 get /api/v1/posts/moderation_list/ - список постов на модерации
 get /api/v1/posts/my_posts/ - все посты конкретного автора
 get /api/v1/posts/rejected_posts/ - отклоненные посты
@@ -39,7 +39,7 @@ get /api/v1/posts/rejected_posts/ - отклоненные посты
 
 
 POST /api/v1/posts/{post_id}/comments/ - создать коммент корневой (( в json "text": "текст комментария")
-POST /api/v1/posts/{post_id}/comments/ - создать дочерний коммент (( json :     "text": "текст комментария", "parent": {parent.id}
+POST /api/v1/posts/{post_id}/comments/ - создать дочерний коммент (( json : "text": "текст комментария", "parent": {parent.id}
 GET /api/v1/posts/{post_id}/comments/ - ВСЕ КОММЕНТЫ ПОЛУЧИТЬ [
     {
         "id": 1,

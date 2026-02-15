@@ -19,7 +19,7 @@ class RegistrationAPIView(APIView):
 
         token = EmailConfirmationToken.objects.create(user=user)
 
-        confirm_url = f"http://localhost:3000/api/v1/auth/confirm-email/{token.token}"
+        confirm_url = f"http://localhost:3000/confirm-email?token={token.token}"
 
         send_mail(
             subject="Confirm Email",
@@ -28,21 +28,30 @@ class RegistrationAPIView(APIView):
             recipient_list=[user.email],
         )
         return Response(
-            {"message": "Confirmation email sent!"},
+            {"message": "Письмо подтверждения отправлено на ваш Email"},
             status=status.HTTP_201_CREATED,
         )
 
 class ConfirmEmailAPIView(APIView):
     permission_classes = []
 
-    def get(self, request, token):
-        confirmation = get_object_or_404(EmailConfirmationToken, token=token)
-        user = confirmation.user
+    def post(self, request):
+        token = request.data.get("token")
+
+        if not token:
+            return Response({"detail": 'Требуется токен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        token_obj = EmailConfirmationToken.objects.filter(token=token).first()
+        if not token_obj:
+            return Response({"detail": "Недействительный или просроченный токен"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = token_obj.user
         user.is_active = True
         user.save()
-        confirmation.delete()
 
-        return Response({"message": "Email confirmed!"}, status=status.HTTP_200_OK)
+        token_obj.delete()
+
+        return Response({"message": "Email подтвержден успешно"}, status=status.HTTP_200_OK)
 
 
 
