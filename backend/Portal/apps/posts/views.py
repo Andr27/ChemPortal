@@ -130,7 +130,7 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
-    def my_accepted_posts(self, request):
+    def my_published_posts(self, request):
         posts = Post.objects.filter(status='published', author=self.request.user)
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
