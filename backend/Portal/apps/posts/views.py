@@ -7,12 +7,14 @@ from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework import generics, viewsets, status
 from apps.users.permissions import *
+from .pagination import PostAPIListPagination
 
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     queryset = Post.objects.all()
     permission_classes = [ReadOnlyOrCreator]
+    pagination_class = PostAPIListPagination
 
 
 

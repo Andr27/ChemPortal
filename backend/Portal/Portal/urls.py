@@ -21,7 +21,7 @@ urlpatterns = [
 
 
 '''
-get /api/v1/posts/ - все посты
+get /api/v1/posts/ - все посты (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)
 post /api/v1/posts/ - создать пост
 get /api/v1/posts/{id}/ - конкретный пост
 delete /api/v1/posts/{id}/ - удалить пост
