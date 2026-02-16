@@ -47,6 +47,19 @@ class PasswordResetToken(models.Model):
         return timezone.now() >= self.created_at + timedelta(hours=1)
 
 
+class PendingUser(models.Model):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(hours=24)
+
+
 
 
 

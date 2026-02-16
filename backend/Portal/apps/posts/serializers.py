@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import Post, Comment, Like
+from ..subscriptions.models import Subscription
 
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -46,6 +48,12 @@ class PostSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return False
         return obj.likes.filter(user=user).exists()
+
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return False
+        return Subscription.objects.filter(user=user, author=obj.author).exists()
 
 
 class RecursiveCommentSerializer(serializers.ModelSerializer):

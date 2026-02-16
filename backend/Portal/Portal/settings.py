@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'apps.posts.apps.PostsConfig',
     'apps.users.apps.UsersConfig',
+    'apps.subscriptions.apps.SubscriptionsConfig',
 ]
 
 MIDDLEWARE = [

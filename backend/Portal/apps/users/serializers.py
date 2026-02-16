@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from apps.subscriptions.models import Subscription
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -45,3 +46,15 @@ class PasswordResetSerializer(serializers.Serializer):
 class PasswordResetConfirmSerializer(serializers.Serializer):
     token = serializers.UUIDField()
     new_password = serializers.CharField(min_length=8)
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    subscribers_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ("id", "first_name", "last_name", "subscribers_count")
+
+    def get_subscribers_count(self, obj):
+        return Subscription.objects.filter(author=obj).count()

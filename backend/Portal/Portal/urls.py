@@ -16,6 +16,7 @@ urlpatterns = [
     #api
     path('api/v1/', include("apps.posts.urls")),
     path('api/v1/auth/', include("apps.users.urls")),
+    path("api/v1/", include("apps.subscriptions.urls")),
 ]
 
 
@@ -85,4 +86,11 @@ POST /api/v1/auth/password-reset/confirm - подтвердить пароль -
 }
 
 
+
+
+#ПОДПИСКИ!!!
+POST /api/v1/subscriptions/  - подписаться на автора. в body json надо указать {"author": {author.id}}
+POST /api/v1/subscriptions/unsubscribe/ - отписаться в body json надо указать {"author": {author.id}}
+GET /api/v1/subscriptions/ - посмотреть мои подписки
+GET /api/v1/auth/authors/{id}/ - посмотреть профиль человека и там будет кол-во его подписчиков.
 '''

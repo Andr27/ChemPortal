@@ -1,8 +1,8 @@
 from django.urls import path
 
 
-from .views import RegistrationAPIView, MeAPIView, ConfirmEmailAPIView, PasswordResetConfirmAPIView, PasswordResetRequestAPIView
-
+from .views import RegistrationAPIView, MeAPIView, ConfirmEmailAPIView, PasswordResetConfirmAPIView, \
+    PasswordResetRequestAPIView, AuthorProfileAPIView
 
 urlpatterns = [
 
@@ -10,7 +10,8 @@ urlpatterns = [
     path('confirm-email/', ConfirmEmailAPIView.as_view()), #post
     path('me/', MeAPIView.as_view()), #get
     path("password-reset/", PasswordResetRequestAPIView.as_view()), #post
-    path("password-reset/confirm/", PasswordResetConfirmAPIView.as_view()) #post
+    path("password-reset/confirm/", PasswordResetConfirmAPIView.as_view()), #post
+    path("authors/<int:pk>/", AuthorProfileAPIView.as_view()),
 ]
 
 
