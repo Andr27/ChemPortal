@@ -119,6 +119,22 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
+    def my_rejected_posts(self, request):
+        posts = Post.objects.filter(status='rejected', author=self.request.user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
+    def my_draft_posts(self, request):
+        posts = Post.objects.filter(status='draft', author=self.request.user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
+    def my_accepted_posts(self, request):
+        posts = Post.objects.filter(status='published', author=self.request.user)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+
     #like
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
@@ -132,6 +148,7 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response({'liked': False}, status=status.HTTP_200_OK)
 
         return Response({'liked': True}, status=status.HTTP_201_CREATED)
+
 
 
 

@@ -27,6 +27,10 @@ get /api/v1/posts/{id}/ - конкретный пост
 delete /api/v1/posts/{id}/ - удалить пост
 put /api/v1/posts/{id}/ - изменить пост
 
+GET /api/v1/posts/my_draft_posts/ - черновики конкретного автора
+GET /api/v1/posts/my_accepted_posts/ - опубликованные посты конкретного автора
+GET /api/v1/posts/my_rejected_posts/ - отклоненные посты конкретного пользователя
+
 
 post /api/v1/posts/{id}/send_to_moderation/ - отправить на модерацию конкретный пост
 post /api/v1/posts/{id}/approve/ - утвердить пост
