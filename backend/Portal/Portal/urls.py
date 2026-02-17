@@ -98,4 +98,12 @@ POST /api/v1/subscriptions/  - подписаться на автора. в body
 POST /api/v1/subscriptions/unsubscribe/ - отписаться в body json надо указать {"author": {author.id}}
 GET /api/v1/subscriptions/ - посмотреть мои подписки
 GET /api/v1/auth/authors/{id}/ - посмотреть профиль человека и там будет кол-во его подписчиков.
+
+
+
+#ЗАКЛАДКИ!!!!!!!!!!!
+POST api/v1/posts/{post.id}/bookmark/ - добавить в закладки
+DELETE api/v1/posts/{post.id}/unbookmark/ -удалить закладку
+GET api/v1/posts/bookmarks/ - посмотреть мои закладки
+
 '''

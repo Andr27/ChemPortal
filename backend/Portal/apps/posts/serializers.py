@@ -8,11 +8,18 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
+    is_bookmarked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = '__all__'
         read_only_fields = ('author',)
+
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+
 
 
     def validate(self, data):
@@ -54,6 +61,12 @@ class PostSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return False
         return Subscription.objects.filter(user=user, author=obj.author).exists()
+
+    def get_is_bookmarked(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return False
+        return obj.bookmarked_by.filter(user=user).exists()
 
 
 class RecursiveCommentSerializer(serializers.ModelSerializer):

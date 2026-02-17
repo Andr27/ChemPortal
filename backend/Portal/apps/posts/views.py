@@ -8,6 +8,7 @@ from .serializers import PostSerializer, CommentSerializer
 from rest_framework import generics, viewsets, status
 from apps.users.permissions import *
 from .pagination import PostAPIListPagination
+from apps.bookmarks.models import Bookmark
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -166,7 +167,29 @@ class PostViewSet(viewsets.ModelViewSet):
 
         return Response({'liked': True}, status=status.HTTP_201_CREATED)
 
+    #bookmarks
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def bookmark(self, request, pk=None):
+        post = self.get_object()
+        bookmark, created = Bookmark.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            return Response({"detail": "Уже добавлен в закладки"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Пост добавлен в закладки"}, status=status.HTTP_201_CREATED)
 
+
+    @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated])
+    def unbookmark(self, request, pk=None):
+        post = self.get_object()
+        deleted, _ = Bookmark.objects.filter(user=request.user, post=post).delete()
+        if not deleted:
+            return Response({"detail": "Закладка не найдена"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Закладка удалена"}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def bookmarks(self, request, pk=None):
+        posts = Post.objects.filter(bookmarked_by__user=request.user, status='published').distinct()
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
 
 
 

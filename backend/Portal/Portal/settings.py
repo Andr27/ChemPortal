@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.posts.apps.PostsConfig',
     'apps.users.apps.UsersConfig',
     'apps.subscriptions.apps.SubscriptionsConfig',
+    "apps.bookmarks.apps.BookmarksConfig",
 ]
 
 MIDDLEWARE = [
