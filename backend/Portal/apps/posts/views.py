@@ -179,3 +179,15 @@ class CommentViewSet(viewsets.ModelViewSet):
         instance.is_deleted = True
         instance.text = "[comment deleted]"
         instance.save()
+
+
+class AllPostsViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [ReadOnlyOrCreator]
+    queryset = Post.objects.all()
+    pagination_class = PostAPIListPagination
+    def get_queryset(self):
+        return Post.objects.all()
+
+
+
