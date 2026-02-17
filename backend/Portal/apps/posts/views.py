@@ -122,16 +122,33 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_rejected_posts(self, request):
         posts = Post.objects.filter(status='rejected', author=self.request.user)
+        page = self.paginate_queryset(posts)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_draft_posts(self, request):
         posts = Post.objects.filter(status='draft', author=self.request.user)
+        page = self.paginate_queryset(posts)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_published_posts(self, request):
         posts = Post.objects.filter(status='published', author=self.request.user)
+        page = self.paginate_queryset(posts)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+    @action(detail=False, methods=['get'], permission_classes=[ReadOnlyOrCreator])
+    def all_posts(self, request):
+        posts = Post.objects.all()
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
 
@@ -181,13 +198,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         instance.save()
 
 
-class AllPostsViewSet(viewsets.ModelViewSet):
-    serializer_class = PostSerializer
-    permission_classes = [ReadOnlyOrCreator]
-    queryset = Post.objects.all()
-    pagination_class = PostAPIListPagination
-    def get_queryset(self):
-        return Post.objects.all()
+
 
 
 
