@@ -152,6 +152,12 @@ class PostViewSet(viewsets.ModelViewSet):
         posts = Post.objects.all()
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
+    @action(detail=True, methods=['get'], permission_classes=[ReadOnlyOrCreator])
+    def all_posts_detail(self, request, pk=None):
+        post = Post.objects.get(pk=pk)
+        self.check_object_permissions(request, post)
+        serializer = self.get_serializer(post)
+        return Response(serializer.data)
 
     #like
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])

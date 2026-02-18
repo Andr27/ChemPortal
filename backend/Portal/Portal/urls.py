@@ -22,6 +22,7 @@ urlpatterns = [
 
 '''
 get /api/v1/posts/all_posts/ - ВСЕ ПОСТЫ 
+get /api/v1/posts/{post.id}/all_posts_detail/ - конкретный пост из любых вообще
 get /api/v1/posts/ - все опубликованные посты (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)
 post /api/v1/posts/ - создать пост
 get /api/v1/posts/{id}/ - конкретный пост
