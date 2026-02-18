@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, Dislike
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework import generics, viewsets, status
 from apps.users.permissions import *
@@ -164,14 +164,24 @@ class PostViewSet(viewsets.ModelViewSet):
     def like(self, request, pk=None):
         post = self.get_object()
         user = request.user
-
+        Dislike.objects.filter(user=user, post=post).delete()
         like, created = Like.objects.get_or_create(user=user, post=post)
-
         if not created:
             like.delete()
             return Response({'liked': False}, status=status.HTTP_200_OK)
 
         return Response({'liked': True}, status=status.HTTP_201_CREATED)
+    #dislike
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def dislike(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+        Like.objects.filter(user=user, post=post).delete()
+        dislike, created = Dislike.objects.get_or_create(user=user, post=post)
+        if not created:
+            dislike.delete()
+            return Response({'disliked': False}, status=status.HTTP_200_OK)
+        return Response({'disliked': True}, status=status.HTTP_201_CREATED)
 
     #bookmarks
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])

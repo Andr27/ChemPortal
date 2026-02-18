@@ -63,7 +63,12 @@ class Like(models.Model):
         unique_together = ('user', 'post')
 
 
-
+class Dislike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='dislikes')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='dislikes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ('user', 'post')
 
 
 

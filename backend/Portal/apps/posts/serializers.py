@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, Dislike
 from ..subscriptions.models import Subscription
 
 
@@ -7,6 +7,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    is_disliked = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     is_bookmarked = serializers.SerializerMethodField()
 
@@ -14,12 +15,6 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = '__all__'
         read_only_fields = ('author',)
-
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-
 
 
     def validate(self, data):
@@ -55,6 +50,12 @@ class PostSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return False
         return obj.likes.filter(user=user).exists()
+
+    def get_is_disliked(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return False
+        return obj.dislikes.filter(user=user).exists()
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
@@ -94,4 +95,9 @@ class CommentSerializer(serializers.ModelSerializer):
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
+        fields = ("id", "user", "post", "created_at")
+
+class DislikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dislike
         fields = ("id", "user", "post", "created_at")
