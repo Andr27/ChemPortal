@@ -77,6 +77,8 @@ LIKES!!!
 
 POST /api/v1/posts/{post_id}/like/ - лайкнуть ( повторная отправка - отменить лайк)
 
+DISLIKES!!!!
+POST /api/v1/posts/{post.id}/dislike/ - дизлайк (повтор - отмена)
 
 
 СБРОС ПАРОЛЯ!!!
