@@ -4,7 +4,7 @@ from ..subscriptions.models import Subscription
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    author = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_disliked = serializers.SerializerMethodField()
@@ -68,6 +68,13 @@ class PostSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return False
         return obj.bookmarked_by.filter(user=user).exists()
+
+    def get_author(self, obj):
+        return {
+            "id": obj.author.id,
+            "first_name": obj.author.first_name,
+            "last_name": obj.author.last_name,
+        }
 
 
 class RecursiveCommentSerializer(serializers.ModelSerializer):

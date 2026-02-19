@@ -9,6 +9,7 @@ from rest_framework import generics, viewsets, status
 from apps.users.permissions import *
 from .pagination import PostAPIListPagination
 from apps.bookmarks.models import Bookmark
+from django.db.models import Q
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -27,13 +28,19 @@ class PostViewSet(viewsets.ModelViewSet):
 
     #queryset
     def get_queryset(self):
-
+        user = self.request.user
         if self.action == 'rejected_posts':
             return Post.objects.filter(status='rejected')
         #очередь модерации
         if self.action == 'moderation_list':
             return Post.objects.filter(status='moderation')
-
+        if self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
+            if not user.is_authenticated:
+                return Post.objects.filter(status='published')
+            profile = getattr(user, 'profile', None)
+            if profile and profile.role == 'admin':
+                return Post.objects.all()
+            return Post.objects.filter(Q(status='published') & Q(author=user))
         #главная лента(ток опубликованные)
         return Post.objects.filter(status='published')
 
@@ -44,7 +51,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return [IsCreator()]
 
-        if self.action in ["update", "partial_update", "destroy"]:
+        if self.action in ["destroy", "update", "partial_update"]:
             return [IsOwnerOrAdmin()]
 
         if self.action == "send_to_moderation":
@@ -52,6 +59,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         if self.action in ['approve', 'reject', 'moderation_list', 'moderation_detail']:
             return [IsModerator()]
+
 
         return super().get_permissions()
 
@@ -98,6 +106,7 @@ class PostViewSet(viewsets.ModelViewSet):
             return NotFound("Пост не найден или не находится на модерации")
         serializer = self.get_serializer(post)
         return Response(serializer.data)
+
 
 
     @action(detail=True, methods=['get'])
