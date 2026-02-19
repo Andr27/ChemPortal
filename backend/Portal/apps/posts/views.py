@@ -18,7 +18,8 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [ReadOnlyOrCreator]
     pagination_class = PostAPIListPagination
 
-
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
