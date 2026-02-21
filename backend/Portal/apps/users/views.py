@@ -95,11 +95,11 @@ class PasswordResetRequestAPIView(APIView):
         user = User.objects.get(email=serializer.validated_data['email'])
         token = PasswordResetToken.objects.create(user=user)
 
-        reset_link = f"https://localhost:3000/reset-password/{token.token}"
+        reset_link = f"http://localhost:3000/reset-password?token={token.token}"
 
         send_mail(
             subject="Сброс пароля",
-            message=f"Перейдите по ссылке для сброса пароля:\n\n{reset_link}",
+            message=f"URL FOR RESET PASSWORD:\n\n{reset_link}",
             from_email="noreply@chemport.com",
             recipient_list=[user.email],
         )

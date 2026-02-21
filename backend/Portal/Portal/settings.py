@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.users.apps.UsersConfig',
     'apps.subscriptions.apps.SubscriptionsConfig',
     "apps.bookmarks.apps.BookmarksConfig",
+    'apps.education.apps.EducationConfig',
 ]
 
 MIDDLEWARE = [
@@ -198,4 +199,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 #email(((пока консоль))))
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+
+from decouple import config
+# ...
+# Конфигурация сервера электронной почты
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')

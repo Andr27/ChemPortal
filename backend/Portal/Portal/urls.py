@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/v1/', include("apps.posts.urls")),
     path('api/v1/auth/', include("apps.users.urls")),
     path("api/v1/", include("apps.subscriptions.urls")),
+    path("api/v1/", include("apps.education.urls")),
 ]
 
 
@@ -108,5 +109,47 @@ GET /api/v1/auth/authors/{id}/ - посмотреть профиль челов�
 POST api/v1/posts/{post.id}/bookmark/ - добавить в закладки
 DELETE api/v1/posts/{post.id}/unbookmark/ -удалить закладку
 GET api/v1/posts/bookmarks/ - посмотреть мои закладки
+
+
+
+
+
+
+
+
+
+ОБРАЗОВАТЕЛЬНЫЙ РАЗДЕЛ!"!!!!!!!
+
+GET    api/v1/education/sections/ - ПОЛУЧИТЬ ВСЕ РАЗДЕЛЫ 
+GET    api/v1/education/sections/{id}/ - ПОЛУЧИТЬ КОНКЕРТНЫЙ РАЗДЕЛ
+POST   api/v1/education/sections/ - СОЗДАТЬ РАЗДЕЛ
+PUT    api/v1/education/sections/{id}/ - ИЗМЕНИТЬ РАЗДЕЛ
+DELETE api/v1/education/sections/{id}/ - УДАЛИТЬ РАЗДЕЛ
+
+
+
+GET    api/v1/education/sections/{section.id}/materials/ - ПОЛУЧИТЬ ВСЕ МАТЕРИАЛЫ В РАЗДЕЛЕ
+POST   api/v1/education/sections/{section.id}/materials/ - СОЗДАТЬ МАТЕРИАЛ
+GET    api/v1/education/sections/{section.id}/materials/{material.id}/ - получить конкретный материал в конкретном разделе
+PUT    api/v1/education/sections/{section.id}/materials/{material.id}/ - ИЗМЕНИТЬ МАТЕРИАЛ
+DELETE api/v1/education/sections/{section.id}/materials/{material.id}/ - УДАЛИТЬ МАТЕРИАЛ
+
+
+GET    api/v1/education/sections/{section.id}/courses/ - ПОЛУЧИТЬ ВСЕ КУРСЫ В РАЗДЕЛЕ
+POST   api/v1/education/sections/{section.id}/courses/ - СОЗДАТЬ КУРС В РАЗДЕЛЕ
+GET    api/v1/education/sections/{section.id}/courses/{course.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ КУРС
+PUT    api/v1/education/sections/{section.id}/courses/{course.id}/ - ИЗМЕНИТЬ КУРС
+DELETE api/v1/education/sections/{section.id}/courses/{course.id}/- УДАЛИТЬ КУРС
+
+
+
+GET     api/v1/education/sections/{section.id}/courses/{course.id}/modules/ - ПОЛУЧИТЬ МОДУЛИ КУРСА
+POST    api/v1/education/sections/{section.id}/courses/{course.id}/modules/ - СОЗДАТЬ МОДУЛЬ В КУРСЕ
+GET     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ МОДУЛЬ ИЗ КУРСА
+PUT     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ИЗМЕНИТЬ МОДУЛЬ
+DELETE  api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - УДАЛИТЬ МОДУЛЬ
+
+
+
 
 '''
