@@ -22,29 +22,23 @@ urlpatterns = [
 
 
 '''
-get /api/v1/posts/all_posts/ - ВСЕ ПОСТЫ 
-get /api/v1/posts/{post.id}/all_posts_detail/ - конкретный пост из любых вообще
-get /api/v1/posts/ - все опубликованные посты (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)
-post /api/v1/posts/ - создать пост
-get /api/v1/posts/{id}/ - конкретный пост
-delete /api/v1/posts/{id}/ - удалить пост
-put /api/v1/posts/{id}/ - изменить пост
-
-GET /api/v1/posts/my_draft_posts/ - черновики конкретного автора
-GET /api/v1/posts/my_published_posts/ - опубликованные посты конкретного автора
-GET /api/v1/posts/my_rejected_posts/ - отклоненные посты конкретного пользователя
-
-
-post /api/v1/posts/{id}/send_to_moderation/ - отправить на модерацию конкретный пост
-post /api/v1/posts/{id}/approve/ - утвердить пост
-post /api/v1/posts/{id}/reject/ - отклонить пост
-
-get /api/v1/posts/{post.id}/moderation_detail/ - конкретный пост на модерации 
-get /api/v1/posts/moderation_list/ - список постов на модерации
-get /api/v1/posts/my_posts/ - все посты конкретного автора
-get /api/v1/posts/rejected_posts/ - отклоненные посты
+get /api/v1/posts/{post.id}/all_posts_detail/ - конкретный пост из любых вообще !!!
+get /api/v1/posts/ - все опубликованные посты (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)!!!
+post /api/v1/posts/ - создать пост !!!
+get /api/v1/posts/{id}/ - конкретный пост!!!
+delete /api/v1/posts/{id}/ - удалить пост!!!
+put /api/v1/posts/{id}/ - изменить пост!!!
+GET /api/v1/posts/my_draft_posts/ - черновики конкретного автора!!!
+GET /api/v1/posts/my_published_posts/ - опубликованные посты конкретного автора!!!
+GET /api/v1/posts/my_rejected_posts/ - отклоненные посты конкретного пользователя!!!
+post /api/v1/posts/{id}/send_to_moderation/ - отправить на модерацию конкретный пост!!!
+post /api/v1/posts/{id}/approve/ - утвердить пост!!!
+post /api/v1/posts/{id}/reject/ - отклонить пост!!!
+get /api/v1/posts/moderation_list/ - список постов на модерации!!!
+get /api/v1/posts/my_posts/ - все посты конкретного автора!!!
 
 
+GET /api/v1/auth/me/ - сведения о пользователе
 
 POST /api/v1/posts/{post_id}/comments/ - создать коммент корневой (( в json "text": "текст комментария")
 POST /api/v1/posts/{post_id}/comments/ - создать дочерний коммент (( json : "text": "текст комментария", "parent": {parent.id}
@@ -120,12 +114,20 @@ GET api/v1/posts/bookmarks/ - посмотреть мои закладки
 
 ОБРАЗОВАТЕЛЬНЫЙ РАЗДЕЛ!"!!!!!!!
 
-GET    api/v1/education/sections/ - ПОЛУЧИТЬ ВСЕ РАЗДЕЛЫ 
-GET    api/v1/education/sections/{id}/ - ПОЛУЧИТЬ КОНКЕРТНЫЙ РАЗДЕЛ
+GET    api/v1/education/sections/ - ПОЛУЧИТЬ ВСЕ РАЗДЕЛЫ опубликованные
+GET    api/v1/education/sections/{id}/ - ПОЛУЧИТЬ КОНКЕРТНЫЙ РАЗДЕЛ опубликованный
 POST   api/v1/education/sections/ - СОЗДАТЬ РАЗДЕЛ
 PUT    api/v1/education/sections/{id}/ - ИЗМЕНИТЬ РАЗДЕЛ
 DELETE api/v1/education/sections/{id}/ - УДАЛИТЬ РАЗДЕЛ
-
+POST   api/v1/education/sections/{id}/approve/ - подтвердить РАЗДЕЛ
+POST   api/v1/education/sections/{id}/reject/ - отклонить раздел
+GET    api/v1/education/sections/moderation_list/ - список разделов на модерации
+POST   api/v1/education/sections/{id}/send_to_moderation/ - отравить раздел на модерацию
+GET    api/v1/education/sections/my_rejected_sections/ - Отклоненные разделы конкретного автора
+GET    api/v1/education/sections/my_education_sections/ - Все разделы конкретного автора
+GET    api/v1/education/sections/my_published_sections/- Все опубликованные разделы конкретного автора
+GET    api/v1/education/sections/my_draft_sections/ - Все черновики разделы конкретного автора
+GET    api/v1/education/sections/all_sections_detail/ - любой пост
 
 
 GET    api/v1/education/sections/{section.id}/materials/ - ПОЛУЧИТЬ ВСЕ МАТЕРИАЛЫ В РАЗДЕЛЕ

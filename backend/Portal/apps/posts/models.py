@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-
+from Portal.choices import ModerationStatus
 
 
 class Post(models.Model):
@@ -22,12 +22,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-    status = models.CharField(choices=[
-        ('draft', "Черновик"),
-        ("moderation", "На модерации"),
-        ("published", "Опубликовано"),
-        ("rejected", "Отклонено")
-    ], default="draft")
+    status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
 
     class Meta:
         ordering = ['-created_at']

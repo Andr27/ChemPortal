@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from Portal.choices import ModerationStatus
 
 
 User = get_user_model()
@@ -14,8 +14,7 @@ class EducationSection(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education_sections')
     created_at = models.DateTimeField(auto_now_add=True)
 
-    is_published = models.BooleanField(default=True)
-
+    status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
     class Meta:
         ordering = ["-created_at"]
 
@@ -42,6 +41,7 @@ class SectionMaterial(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         ordering = ["order", "created_at"]
 
@@ -51,13 +51,18 @@ class SectionMaterial(models.Model):
 
 
 class Course(models.Model):
+    STATUS_CHOICES = [
+        ("draft", "Черновик"),
+        ("published", "Опубликовано"),
+        ("moderation", "На модерации"),
+        ("rejected", "Отклонено"),
+    ]
     section = models.ForeignKey(EducationSection, on_delete=models.CASCADE, related_name='courses')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     created_at = models.DateTimeField(auto_now_add=True)
-    is_published = models.BooleanField(default=False)
-
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     class Meta:
         ordering = ["-created_at"]
 

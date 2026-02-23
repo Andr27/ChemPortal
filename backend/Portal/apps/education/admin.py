@@ -8,10 +8,10 @@ class PostAdmin(admin.ModelAdmin):
         'title',
         "description",
         "created_at",
-        "is_published",
+        "status",
         "created_by"
         ]
-    list_filter = ["title", "created_by", "description", "created_at", 'is_published']
+    list_filter = ["title", "created_by", "description", "created_at", "status"]
 
 
 @admin.register(Course)
@@ -20,8 +20,8 @@ class PostAdmin(admin.ModelAdmin):
         'title',
         "description",
         "created_at",
-        "is_published",
+        "status",
         "created_by",
         'section'
     ]
-    list_filter = ["title", "created_by", "section"]
+    list_filter = ["title", "created_by", "section", "status"]

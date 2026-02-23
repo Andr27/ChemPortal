@@ -3,22 +3,16 @@ from django.utils import timezone
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
-
+from Portal.choices import UserRole
 
 
 class Profile(models.Model):
-    ROLE_CHOICES = [
-        ('guest', 'Гость'),
-        ('user', 'Пользователь'),
-        ('creator', 'Создатель контента'),
-        ('moderator', 'Модератор'),
-        ('admin', 'Админ'),
-    ]
+
 
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+    role = models.CharField(max_length=20, choices=UserRole.choices, default=UserRole.USER)
 
     def __str__(self):
         return f"{self.role}"

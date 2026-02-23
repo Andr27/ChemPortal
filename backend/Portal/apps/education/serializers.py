@@ -7,7 +7,7 @@ class EducationSectionSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     class Meta:
         model = EducationSection
-        fields = ("id", "title", "description", "created_by", "created_at", "is_published")
+        fields = ("id", "title", "description", "created_by", "created_at", "status")
         read_only_fields = ("created_by", "created_at")
 
     def get_created_by(self, obj):
@@ -30,7 +30,7 @@ class CourseSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     class Meta:
         model = Course
-        fields = ("id", "title", "description", "created_by", "created_at", "is_published")
+        fields = ("id", "title", "description", "created_by", "created_at", "status")
         read_only_fields = ("created_by", "created_at")
 
     def get_created_by(self, obj):
@@ -74,7 +74,7 @@ class EducationSectionDetailSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "created_at",
-            "is_published",
+            "status",
             'materials',
             'courses',
             'modules',
