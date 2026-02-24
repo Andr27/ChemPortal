@@ -1,0 +1,9 @@
+.info_board {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: lightgray;
+    padding: 30px;
+    border-radius: 12px;
+    width: fit-content;
+}

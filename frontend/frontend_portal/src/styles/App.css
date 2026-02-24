@@ -1,0 +1,504 @@
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.App {
+    width: 800px;
+    margin: auto;
+}
+
+.post {
+    display: flex;
+    padding: 15px;
+    border: 2px solid teal;
+    margin-top: 15px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post__btns {
+    display: flex;
+}
+
+.post-enter {
+    opacity: 0;
+}
+.post-enter-active {
+    opacity: 1;
+    transition: opacity 500ms ease-in;
+}
+.post-exit {
+    opacity: 1;
+}
+.post-exit-active {
+    opacity: 0;
+    transition: opacity 500ms ease-in;
+}
+/* Основной контейнер для страницы поста */
+.post-page-layout {
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+    padding: 10px;
+    margin-left: 150px;
+}
+
+
+/* Левая колонка с контентом */
+.post-content-column {
+    flex: 1;
+    min-width: 0; /* предотвращает переполнение */
+}
+
+/* Правая колонка с карточкой автора */
+.author-sidebar {
+    flex-shrink: 0;
+    width: 240px; /* ширина карточки */
+}
+
+/* Контейнер для кнопок действий */
+.post-actions {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .post-page-layout {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .author-sidebar {
+        width: 100%;
+    }
+}
+
+.page__wrapper {
+    margin-top: 30px;
+    display: flex;
+}
+
+.page {
+    padding: 10px;
+    border: 1px solid teal;
+    cursor: pointer;
+}
+
+.page__current {
+    border: 2px solid orange;
+    font-weight: bold;
+}
+
+
+.account-page {
+    width: 98%;
+    margin: auto;
+    padding: 15px;
+    display: flex;
+}
+
+.account-content {
+    margin-right: auto;
+}
+
+/* ===== TIPTAP EDITOR STYLES ===== */
+
+/* Базовые стили для редактора */
+.ProseMirror {
+    padding: 16px;
+    min-height: 150px;
+    outline: none;
+    background-color: #ffffff;
+    color: #212529;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Плейсхолдер для пустого редактора */
+
+/* Для отображения в редакторе */
+.video-embed {
+    margin: 20px 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.video-embed:hover {
+    opacity: 0.9;
+}
+
+.video-embed iframe {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Когда выделено в редакторе */
+.ProseMirror-selectednode .video-embed {
+    outline: 2px solid teal;
+}
+
+
+.tiptap p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    font-style: italic;
+}
+
+.authorCard {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid teal;
+    border-radius: 16px;
+    padding: 10px;
+    margin: 15px 0;
+    box-shadow: 0 4px 15px rgba(0,128,128,0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 240px;
+    position: relative;
+    overflow: hidden;
+}
+
+.authorCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, teal, #40e0d0);
+}
+
+.authorCard:hover {
+    box-shadow: 0 8px 25px rgba(0,128,128,0.2);
+    border-color: #008b8b;
+}
+
+.authorCard strong {
+    display: block;
+    font-size: 14px;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #e0e0e0;
+    line-height: 1.4;
+}
+
+.authorCard p {
+    margin: 0 0 20px 0;
+    color: #5a6a7a;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.authorCard p::before {
+    margin-bottom: 6px;
+    content: '👥';
+    font-size: 15px;
+    opacity: 0.8;
+}
+
+.authorCard small {
+    color: #666;
+    font-weight: 500;
+}
+
+.authorCard .loading {
+    text-align: center;
+    padding: 15px;
+    color: #666;
+    font-style: italic;
+}
+
+.authorCard button {
+    width: 100%;
+    padding: 6px !important;
+    background: teal !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+    font-weight: 300 !important;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s !important;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0,128,128,0.2);
+}
+
+.authorCard button:hover:not(:disabled) {
+    background: #008b8b !important;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,128,128,0.3);
+}
+
+.authorCard button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.authorCard button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #b0b0b0 !important;
+}
+
+/* Анимация загрузки */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.authorCard .loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .authorCard {
+        padding: 15px;
+        max-width: 100%;
+        margin: 10px 0;
+    }
+
+    .authorCard strong {
+        font-size: 16px;
+    }
+
+    .authorCard p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .authorCard {
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .authorCard button {
+        padding: 10px !important;
+        font-size: 13px !important;
+    }
+}
+/* Стили для текста внутри редактора */
+.ProseMirror p {
+    margin: 0 0 8px 0;
+}
+
+.ProseMirror h1 {
+    font-size: 1.8em;
+    margin: 0 0 12px 0;
+}
+
+.ProseMirror h2 {
+    font-size: 1.4em;
+    margin: 0 0 10px 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.ProseMirror blockquote {
+    border-left: 3px solid #dee2e6;
+    margin: 12px 0;
+    padding: 6px 12px;
+    color: #495057;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.ProseMirror code {
+    background-color: #f1f3f5;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #d63384;
+}
+
+.ProseMirror pre {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0;
+}
+
+.ProseMirror pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+
+.comments-list {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+}
+
+.comments-list h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.comment {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.comment:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.comment__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #eee;
+}
+
+.comment__header strong {
+    background: teal;
+    color: white;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.comment__header span {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.comment__body {
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.comment__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #888;
+    font-size: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.comment__footer small {
+    color: #999;
+}
+
+.comment__footer button {
+    padding: 4px 12px;
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.comment__footer button:hover {
+    background: teal;
+    color: white;
+    border-color: teal;
+}
+
+.comments-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.comments-error {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+    background: #f8d7da;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+}
+
+.comments-empty {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+    background: white;
+    border-radius: 8px;
+    border: 2px dashed #e0e0e0;
+    font-size: 16px;
+}
+
+.comment__children {
+    margin-left: 2px;
+    margin-top: 2px;
+    padding-left: 5px;
+}
+
+.comment__children .comment {
+    background: #fafafa;
+}
+
+@media (max-width: 768px) {
+
+    .comments-list {
+        padding: 15px;
+    }
+
+    .comment {
+        padding: 12px;
+    }
+
+    .comment__header strong {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+
+    .comment__body {
+        font-size: 13px;
+    }
+}
