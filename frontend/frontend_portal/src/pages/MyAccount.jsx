@@ -41,7 +41,7 @@ const MyAccount = () => {
                     </div>
                 </InformationBoard>
             </div>
-            {isModerator || isCreator &&(<>
+            {(isModerator || isCreator) &&(<>
             <div>
                 <Mybutton onClick = {() => setModalContentType('draft')} style = {{ marginLeft: "auto", padding: 10, marginRight: 60}}>Мои черновики</Mybutton>
                 <Mybutton onClick = {() => setModalContentType('published')} style = {{ marginLeft: "auto", padding: 10, }}>Мои публикации</Mybutton>

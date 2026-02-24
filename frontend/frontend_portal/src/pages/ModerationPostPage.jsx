@@ -31,7 +31,7 @@ const ModerationPostPage = () => {
         try {
             const response = await PostService.approvePost(post.id);
 
-            if (response.data && response.data.status === "approved post") {
+            if (response.data.detail === "Подтверждено") {
 
                 setModalMessage('Пост успешно принят!');
                 setModalVisible(true);
@@ -66,7 +66,7 @@ const ModerationPostPage = () => {
         try {
             const response = await PostService.rejectPost(post.id);
 
-            if (response.data && response.data.status === "rejected post") {
+            if (response.data.detail  === "Отклонено") {
                 // Успех
                 setModalMessage('Пост успешно отклонён!');
                 setModalVisible(true);
