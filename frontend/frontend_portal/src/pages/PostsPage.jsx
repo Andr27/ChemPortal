@@ -24,9 +24,9 @@ const PostsPage = () => {
         setPost(response.data);
     });
 
-    const sendToModeration = async (id) => {
+    const sendToModeration = async () => {
         try {
-            const response = await UserService.sendToModeration(post.id);
+            await UserService.sendToModeration(post.id);
         } catch (error) {
             console.error(error);
         } finally {
@@ -35,9 +35,9 @@ const PostsPage = () => {
     }
 
 
-    const deletePost = async (id) => {
+    const deletePost = async () => {
         try {
-            const response = await UserService.DeletePost(post.id);
+            await UserService.DeletePost(post.id);
         } catch (error) {
             console.log(error);
         } finally {

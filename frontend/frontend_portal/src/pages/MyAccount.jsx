@@ -41,33 +41,21 @@ const MyAccount = () => {
                     </div>
                 </InformationBoard>
             </div>
-            {(isModerator || isCreator) && (
-                <>
-                    <div>
-                        <Mybutton onClick={() => setModalContentType('draft')} style={{ marginLeft: "auto", padding: 10, marginRight: 60}}>
-                            Мои черновики
-                        </Mybutton>
-                        <Mybutton onClick={() => setModalContentType('published')} style={{ marginLeft: "auto", padding: 10 }}>
-                            Мои публикации
-                        </Mybutton>
-                    </div>
-                    <MyModal visible={modalContentType !== null} setVisible={setModalContentType} width="700px" height="450px">
-                        {modalContentType === 'draft' && (
-                            <PostGet
-                                fetchMethods={[UserService.myDraftPosts, UserService.myRejectedPosts]}
-                                combineResults={true}
-                                title={'Мои черновики'}
-                            />
-                        )}
-                        {modalContentType === 'published' && (
-                            <PostGet
-                                fetchMethod={UserService.myPublishedPost}
-                                title={'Мои публикации'}
-                            />
-                        )}
-                    </MyModal>
-                </>
-            )}
+            {(isModerator || isCreator) &&(<>
+            <div>
+                <Mybutton onClick = {() => setModalContentType('draft')} style = {{ marginLeft: "auto", padding: 10, marginRight: 60}}>Мои черновики</Mybutton>
+                <Mybutton onClick = {() => setModalContentType('published')} style = {{ marginLeft: "auto", padding: 10, }}>Мои публикации</Mybutton>
+            </div>
+            <MyModal visible={modalContentType !== null} setVisible={setModalContentType} width="700px" height="450px">
+                {modalContentType === 'draft' ? <PostGet fetchMethods={[UserService.myDraftPosts, UserService.myRejectedPosts]} combineResults={true} title={'Мои черновики'} />
+                    : null
+
+                }
+                {modalContentType === 'published' ? <PostGet fetchMethod={UserService.myPublishedPost} title={'Мои публикации'} />
+                    : null
+                }
+            </MyModal>
+            </>)}
         </div>
     );
 };
