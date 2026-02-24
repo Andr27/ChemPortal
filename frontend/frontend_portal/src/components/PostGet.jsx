@@ -10,7 +10,6 @@ import PostList from "./PostList";
 import Loader from "./UI/loader/loader";
 import Pagination from "./UI/pagination/pagination";
 import ScrollableContainer from "./UI/ScrollableContainer/ScrollableContainer";
-import ModerationList from "./Moderation/ModerationList";
 
 /*                   Один метод
 <PostGet
@@ -30,7 +29,6 @@ import ModerationList from "./Moderation/ModerationList";
 
 const PostGet = ({
                      fetchMethod,
-                     typeList = 'posts',
                      fetchMethods = [],
                      title = "Посты",
                      combineResults = false,
@@ -126,14 +124,9 @@ const PostGet = ({
             )}
             <div style={{ textAlign: 'center', marginTop: 4 }}>
             <ScrollableContainer isDisable = {disableScroll}>
-                {typeList === 'moderation' ? (
-                    <ModerationList
-                        posts={sortedAndSearchedPost}
-                        />
-                ):
-                <PostList
+            <PostList
                 posts={sortedAndSearchedPost}
-                />}
+            />
 
             <div ref={lastElement} style={{ height: 20 }} />
 
