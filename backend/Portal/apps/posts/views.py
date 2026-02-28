@@ -3,8 +3,9 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
-from rest_framework.exceptions import NotFound, PermissionDenied
+from django.db.models import F
+from rest_framework.exceptions import PermissionDenied
+from django.core.cache import cache
 
 from Portal.mixins import ModeratorMixin, StatusAccessMixin
 from Portal.permissions import IsCreator, IsModerator
@@ -64,6 +65,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
 
 
+
     @action(detail=False, methods=['get'])
     def moderation_list(self, request):
         posts = Post.objects.filter(status=ModerationStatus.MODERATION)
@@ -103,6 +105,29 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def all_posts_detail(self, request, pk=None):
         post = Post.objects.get(pk=pk)
+
+        if post.status == ModerationStatus.PUBLISHED:
+
+            if request.user.is_authenticated:
+                user_part = f"user_{request.user.id}"
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+                user_part = f"ip_{ip}"
+
+            view_key = f"post_view:{post.id}:{user_part}"
+            buffer_key = f"post_views_buffer:{post.id}"
+
+            already_viewed = cache.get(view_key)
+
+            if not already_viewed:
+
+                if cache.get(buffer_key) is None:
+                    cache.set(buffer_key, 0, timeout=None)
+
+                cache.incr(buffer_key)
+
+                cache.set(view_key, True, timeout=86400)
+
         self.check_object_permissions(request, post)
         serializer = self.get_serializer(post)
         return Response(serializer.data)

@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from .models import Post, Comment, Like, Dislike
+from .models import Post, Comment, Like, Dislike, PostImage
 from ..subscriptions.models import Subscription
+
+class PostImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = ['id', 'image']
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -10,12 +15,48 @@ class PostSerializer(serializers.ModelSerializer):
     is_disliked = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     is_bookmarked = serializers.SerializerMethodField()
+    images = PostImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(child=serializers.ImageField(),
+    write_only=True,
+    required=False
+                                            )
+
 
     class Meta:
         model = Post
         fields = '__all__'
         read_only_fields = ('author',)
 
+    def create(self, validated_data):
+
+        images = validated_data.pop('uploaded_images', [])
+
+        post = Post.objects.create(**validated_data)
+
+        for image in images:
+            PostImage.objects.create(
+                post=post,
+                image=image
+            )
+
+        return post
+
+    def update(self, instance, validated_data):
+
+        images = validated_data.pop('uploaded_images', [])
+
+        instance = super().update(instance, validated_data)
+
+        if images:
+            instance.images.all().delete()
+
+            for image in images:
+                PostImage.objects.create(
+                    post=instance,
+                    image=image
+                )
+
+        return instance
 
     def validate(self, data):
         post_type = data.get('type')
@@ -26,19 +67,12 @@ class PostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Text content is required for articles and news"
             )
-        if post_type in {'video', "link"} and not url:
+        if post_type in {'video', "link"} and not body:
             raise serializers.ValidationError(
                 "URL is required for videos and link posts"
             )
 
-        if post_type == 'video':
-            if not any(
-                domain in url
-                for domain in ("vk.com", "rutube.ru")
-            ):
-                raise serializers.ValidationError(
-                    "Only VK and RUTUBE videos are allowed"
-                )
+
 
         return data
 
@@ -108,3 +142,5 @@ class DislikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dislike
         fields = ("id", "user", "post", "created_at")
+
+

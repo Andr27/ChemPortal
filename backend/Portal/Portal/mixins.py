@@ -56,7 +56,7 @@ class ModeratorMixin:
             pk=pk,
             **{self.owner_field: request.user}
         )
-        if getattr(obj, self.status_field) != ModerationStatus.DRAFT:
+        if getattr(obj, self.status_field) != ModerationStatus.DRAFT or getattr(obj, self.status_field) != ModerationStatus.REJECTED:
             return Response({"detail": "Только черновики можно отправить на модерацию"}, status=400)
 
         setattr(obj, self.status_field, ModerationStatus.MODERATION)
