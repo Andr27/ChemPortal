@@ -17,3 +17,4 @@ comments_router.register(r'comments', CommentViewSet, basename='post-comments')
 urlpatterns = [
 
 ] + router.urls + comments_router.urls
+

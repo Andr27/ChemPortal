@@ -8,7 +8,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     #jwt
@@ -110,10 +109,6 @@ GET api/v1/posts/bookmarks/ - посмотреть мои закладки
 
 
 
-
-
-
-
 ОБРАЗОВАТЕЛЬНЫЙ РАЗДЕЛ!"!!!!!!!
 
 GET    api/v1/education/sections/ - ПОЛУЧИТЬ ВСЕ РАЗДЕЛЫ опубликованные
@@ -152,7 +147,6 @@ POST    api/v1/education/sections/{section.id}/courses/{course.id}/modules/ - С
 GET     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ МОДУЛЬ ИЗ КУРСА
 PUT     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ИЗМЕНИТЬ МОДУЛЬ
 DELETE  api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - УДАЛИТЬ МОДУЛЬ
-
 
 
 

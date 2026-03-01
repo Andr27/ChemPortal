@@ -102,7 +102,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['get'])
     def all_posts_detail(self, request, pk=None):
         post = Post.objects.get(pk=pk)
 
@@ -223,4 +223,3 @@ class CommentViewSet(viewsets.ModelViewSet):
 #my_reject_posts
 #my_draft_posts
 #my_publish
-
