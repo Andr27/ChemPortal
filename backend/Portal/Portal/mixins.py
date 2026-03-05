@@ -50,7 +50,7 @@ class ModeratorMixin:
     status_field = 'status'
 
     @action(detail=True, methods=['post'], permission_classes=[IsCreator])
-    def send_to_moderation(self, request, pk=None):
+    def send_to_moderation(self, request, pk=None, **kwargs):
         obj = get_object_or_404(
             self.get_queryset(),
             pk=pk,
@@ -64,7 +64,7 @@ class ModeratorMixin:
         return Response({"detail": "Отправлено на модерацию"})
 
     @action(detail=True, methods=['post'], permission_classes=[IsModerator])
-    def approve(self, request, pk=None):
+    def approve(self, request, pk=None, **kwargs):
         obj = get_object_or_404(
             self.get_base_queryset().filter(
                 status=ModerationStatus.MODERATION
@@ -77,7 +77,7 @@ class ModeratorMixin:
         return Response({"detail": "Подтверждено"})
 
     @action(detail=True, methods=['post'], permission_classes=[IsModerator])
-    def reject(self, request, pk=None,):
+    def reject(self, request, pk=None, **kwargs):
         obj = get_object_or_404(
             self.get_base_queryset().filter(
                 status=ModerationStatus.MODERATION

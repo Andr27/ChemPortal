@@ -126,7 +126,7 @@ GET    api/v1/education/sections/my_rejected_sections/ - Отклоненные 
 GET    api/v1/education/sections/my_education_sections/ - Все разделы конкретного автора
 GET    api/v1/education/sections/my_published_sections/- Все опубликованные разделы конкретного автора
 GET    api/v1/education/sections/my_draft_sections/ - Все черновики разделы конкретного автора
-GET    api/v1/education/sections/all_sections_detail/ - любой пост
+GET    api/v1/education/sections/all_sections_detail/ - любой раздел
 
 
 GET    api/v1/education/sections/{section.id}/materials/ - ПОЛУЧИТЬ ВСЕ МАТЕРИАЛЫ В РАЗДЕЛЕ
@@ -141,6 +141,15 @@ POST   api/v1/education/sections/{section.id}/courses/ - СОЗДАТЬ КУРС
 GET    api/v1/education/sections/{section.id}/courses/{course.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ КУРС
 PUT    api/v1/education/sections/{section.id}/courses/{course.id}/ - ИЗМЕНИТЬ КУРС
 DELETE api/v1/education/sections/{section.id}/courses/{course.id}/- УДАЛИТЬ КУРС
+POST   api/v1/education/sections/{section.id}/courses/{course.id}/approve/ - подтвердить КУРС
+POST   api/v1/education/sections/{section.id}/courses/{course.id}/reject/ - отклонить КУРС
+GET    api/v1/education/sections/{section.id}/courses/moderation_list/ - список КУРСов на модерации
+POST   api/v1/education/sections/{section.id}/courses/{course.id}/send_to_moderation/ - отравить КУРС на модерацию
+GET    api/v1/education/sections/{section.id}/courses/my_rejected_sections/ - Отклоненные КУРСы конкретного автора
+GET    api/v1/education/sections/{section.id}/courses/my_education_sections/ - Все КУРСы конкретного автора
+GET    api/v1/education/sections/{section.id}/courses/my_published_sections/- Все опубликованные КУРСы конкретного автора
+GET    api/v1/education/sections/{section.id}/courses/my_draft_sections/ - Все черновики КУРСы конкретного автора
+GET    api/v1/education/sections/{section.id}/courses/{course.id}/all_sections_detail/ - любой КУРС
 
 
 

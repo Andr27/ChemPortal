@@ -49,9 +49,8 @@ class CourseModuleSerializer(serializers.ModelSerializer):
     def validate(self, data):
         module_type = data.get("type")
         content = data.get("content")
-        external_url = data.get("external_url")
 
-        if module_type == "link" and not external_url:
+        if module_type == "link" and not content:
             raise serializers.ValidationError(
                 "Для типа 'ссылка' необходимо указать url"
             )
@@ -95,4 +94,19 @@ class EducationSectionDetailSerializer(serializers.ModelSerializer):
             modules.extend(course.modules.all())
         modules.sort(key=lambda x: x.order)
         return CourseModuleSerializer(modules, many=True).data
+
+class CourseDetailSerializer(serializers.ModelSerializer):
+    modules = CourseModuleSerializer(many=True, read_only=True)
+    class Meta:
+        model = Course
+        fields = (
+            'id',
+            'title',
+            'description',
+            'created_at',
+            'status',
+            'created_by',
+            'modules',
+
+        )
 
