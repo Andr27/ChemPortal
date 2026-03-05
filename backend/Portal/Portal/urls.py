@@ -24,7 +24,7 @@ urlpatterns = [
 
 '''
 get /api/v1/posts/{post.id}/all_posts_detail/ - конкретный пост из любых вообще !!!
-get /api/v1/posts/ - все опубликованные посты (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)!!!
+get /api/v1/posts/ - все опубликованные статьи (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)!!!
 post /api/v1/posts/ - создать пост !!!
 get /api/v1/posts/{id}/ - конкретный пост!!!
 delete /api/v1/posts/{id}/ - удалить пост!!!
@@ -38,6 +38,8 @@ post /api/v1/posts/{id}/reject/ - отклонить пост!!!
 get /api/v1/posts/moderation_list/ - список постов на модерации!!!
 get /api/v1/posts/my_posts/ - все посты конкретного автора!!!
 
+get /api/v1/posts/news/ - получить только новости
+get /api/v1/posts/videos/ - получить только видео 
 
 GET /api/v1/auth/me/ - сведения о пользователе
 

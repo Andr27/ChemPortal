@@ -33,6 +33,10 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     owner_field = "author"
     status_field = "status"
 
+    def get_queryset(self):
+        if self.action == 'list':
+            return Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
+
     #PERMISSIONS
 
     def get_permissions(self):
@@ -179,6 +183,23 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         page = self.paginate_queryset(posts)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+    #получить только тип постов
+    @action(detail=False, methods=['get'])
+    def news(self, request):
+        posts = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='news')
+        page = self.paginate_queryset(posts)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def videos(self, request):
+        posts = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='video')
+        page = self.paginate_queryset(posts)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
 
 
