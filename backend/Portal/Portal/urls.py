@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/v1/auth/', include("apps.users.urls")),
     path("api/v1/", include("apps.subscriptions.urls")),
     path("api/v1/", include("apps.education.urls")),
+    path('api/v1/', include("apps.quiz.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -160,5 +161,109 @@ PUT     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{modu
 DELETE  api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - УДАЛИТЬ МОДУЛЬ
 
 
+
+
+
+ТЕСТЫ!!!!!!!!!!
+
+!!!!Тесты — основное
+GET     api/v1/quizzes/ - получить тесты
+POST    api/v1/quizzes/ - создать тест
+POST /api/v1/quizzes/
+{
+    "title": "Тест по химии",
+    "description": "Базовый тест",
+    "passing_score": 60,
+    "max_attempts": 3,
+    "time_limit_minutes": 10,
+    "show_explanation_after": true,
+    "module": null
+}
+
+GET     api/v1/quizzes/{quizzes.id} - получить конкретный тест
+PUT     api/v1/quizzes/{quizzes.id} - обновить тест
+DELETE  api/v1/quizzes/{quizzes.id} - удалить тест
+
+~~~Модерация!!!!!!!!
+POST    api/v1/quizzes/{quizzes.id}/send_to_moderation/ - отправить тест на модерацию
+POST    api/v1/quizzes/{quizzes.id}/approve/ - утвердить тест
+POST    api/v1/quizzes/{quizzes.id}/reject/ - отклонить тест
+GET     api/v1/quizzes/moderation_list/ - очередь модерации
+
+!!!Мои тесты!
+GET     api/v1/quizzes/my_quizzes/ - мои тесты
+GET     api/v1/quizzes/my_draft_quizzes/ - мои черновики тесты
+GET     api/v1/quizzes/my_rejected_quizzes/ - мои отклоненный тесты
+GET     api/v1/quizzes/my_published_quizzes/ - мои опубликованные тесты 
+GET     api/v1/quizzes/{quizzes.id}/admin_detail/ - тест детально с правильными ответами
+
+
+Вопросы!!!!!!!!!!!!!!!
+POST   /api/v1/quizzes/{id}/add_question/                    — добавить вопрос
+ОДИНОЧНЫЙ ОТВЕТ POST /api/v1/quizzes/{id}/add_question/
+{
+    "text": "Какой элемент имеет символ H?",
+    "type": "single",
+    "points": 2,
+    "hint": "Это самый лёгкий элемент",
+    "explanation": "Водород — первый элемент таблицы Менделеева",
+    "options": [
+        {"text": "Водород", "is_correct": true, "order": 1},
+        {"text": "Гелий", "is_correct": false, "order": 2},
+        {"text": "Углерод", "is_correct": false, "order": 3}
+    ]
+} 
+НЕСКОЛЬКО ОТВЕТОВ POST /api/v1/quizzes/{id}/add_question/
+{
+    "text": "Какие из этих элементов — металлы?",
+    "type": "multiple",
+    "points": 3,
+    "partial_credit": true,
+    "explanation": "Железо, медь и золото — металлы",
+    "options": [
+        {"text": "Железо", "is_correct": true, "order": 1},
+        {"text": "Кислород", "is_correct": false, "order": 2},
+        {"text": "Медь", "is_correct": true, "order": 3},
+        {"text": "Золото", "is_correct": true, "order": 4}
+    ]
+}
+СТРОКА POST /api/v1/quizzes/{id}/add_question/
+{
+    "text": "Напишите химическую формулу воды",
+    "type": "string",
+    "points": 2,
+    "hint": "Два атома водорода и один кислород",
+    "explanation": "Вода — H2O",
+    "correct_string_answer": "H2O",
+    "correct_string_alternatives": "h2o|Н2О|н2о"
+}
+
+PUT    /api/v1/quizzes/{id}/update_question/{question_id}/   — обновить вопрос
+DELETE /api/v1/quizzes/{id}/delete_question/{question_id}/   — удалить вопрос
+
+
+Прохождение теста!~!!!!!!!!!!
+POST   /api/v1/quizzes/{id}/start/               — начать попытку
+GET    /api/v1/quizzes/{id}/hint/{question_id}/  — получить подсказку к вопросу
+POST   /api/v1/quizzes/{id}/submit/              — сдать тест
+POST /api/v1/quizzes/{id}/submit/
+{
+    "answers": [
+        {
+            "question_id": 4,
+            "selected_option_ids": [8]
+        },
+        {
+            "question_id": 5,
+            "selected_option_ids": [11, 13, 14]
+        },
+        {
+            "question_id": 6,
+            "string_answer": "H2O"
+        }
+    ]
+}
+GET    /api/v1/quizzes/{id}/my_results/          — мои попытки и результаты
+GET    /api/v1/quizzes/{id}/stats/               — статистика по тесту (Creator)
 
 '''

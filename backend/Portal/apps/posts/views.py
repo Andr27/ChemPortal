@@ -36,6 +36,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == 'list':
             return Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
+        return super().get_queryset()
 
     #PERMISSIONS
 
@@ -51,6 +52,8 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer):
+        if action == 'create_and_send_to_moderation':
+            serializer.save(author=self.request.user, status=ModerationStatus.MODERATION)
         serializer.save(author=self.request.user)
 
 
@@ -67,7 +70,12 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
             raise PermissionDenied("Вы не автор поста")
         instance.delete()
 
-
+    @action(detail=False, methods=['post'], permission_classes=[IsCreator])
+    def create_and_send_to_moderation(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=self.request.user, status=ModerationStatus.MODERATION)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
     @action(detail=False, methods=['get'])
@@ -108,7 +116,19 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def all_posts_detail(self, request, pk=None):
+
+
         post = Post.objects.get(pk=pk)
+
+        if post.status != ModerationStatus.PUBLISHED:
+            user = request.user
+            user_role = getattr(getattr(user, "profile", None), "role", None)
+            if (not user.is_authenticated) or (
+                    post.author != user
+                    and user_role not in [UserRole.MODERATOR, UserRole.ADMIN]
+            ):
+                raise PermissionDenied("У вас нет доступа к этому посту")
+
 
         if post.status == ModerationStatus.PUBLISHED:
 

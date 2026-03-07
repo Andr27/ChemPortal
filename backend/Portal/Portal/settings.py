@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.subscriptions.apps.SubscriptionsConfig',
     "apps.bookmarks.apps.BookmarksConfig",
     'apps.education.apps.EducationConfig',
+    'apps.quiz.apps.QuizConfig',
 ]
 
 MIDDLEWARE = [
