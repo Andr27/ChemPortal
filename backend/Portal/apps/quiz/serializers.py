@@ -105,7 +105,7 @@ class QuizSerializer(serializers.ModelSerializer):
         model = Quiz
         fields = (
             'id', 'title', 'description',
-            'module',
+            'lesson', 'chapter',
             'created_by', 'created_at', 'status',
             'time_limit_minutes', 'passing_score',
             'max_attempts', 'show_explanation_after',
@@ -115,9 +115,9 @@ class QuizSerializer(serializers.ModelSerializer):
 
     def get_created_by(self, obj):
         return {
-           "id": obj.created_by.id,
-            "first_name": obj.created_by.first_name,
-            "last_name": obj.created_by.last_name,
+            'id': obj.created_by.id,
+            'first_name': obj.created_by.first_name,
+            'last_name': obj.created_by.last_name,
         }
 
     def get_questions_count(self, obj):

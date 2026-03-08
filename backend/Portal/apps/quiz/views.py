@@ -291,23 +291,39 @@ class QuizViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         attempt.is_passed = is_passed
         attempt.save()
 
-        # Если тест привязан к модулю — обновляние best_score
-
-        '''if quiz.module_id:
-            from apps.enrollment.models import CourseEnrollment, ModuleProgress
+        # Если тест привязан к уроку — обновляем best_score
+        if quiz.lesson_id:
+            from apps.enrollment.models import CourseEnrollment, LessonProgress
             enrollment = CourseEnrollment.objects.filter(
                 user=request.user,
-                course=quiz.module.course,
+                course=quiz.lesson.chapter.course,
                 status='active',
             ).first()
             if enrollment:
-                mp, _ = ModuleProgress.objects.get_or_create(
+                lp, _ = LessonProgress.objects.get_or_create(
                     enrollment=enrollment,
-                    module=quiz.module,
+                    lesson=quiz.lesson,
                 )
-                if mp.best_score is None or score > mp.best_score:
-                    mp.best_score = score
-                    mp.save()'''
+                if lp.best_score is None or score > lp.best_score:
+                    lp.best_score = score
+                    lp.save()
+
+            # Если тест привязан к главе — обновляем best_score
+        if quiz.chapter_id:
+            from apps.enrollment.models import CourseEnrollment, ChapterProgress
+            enrollment = CourseEnrollment.objects.filter(
+                user=request.user,
+                course=quiz.chapter.course,
+                status='active',
+            ).first()
+            if enrollment:
+                cp, _ = ChapterProgress.objects.get_or_create(
+                    enrollment=enrollment,
+                    chapter=quiz.chapter,
+                )
+                if cp.best_score is None or score > cp.best_score:
+                    cp.best_score = score
+                    cp.save()
 
 
         return Response(QuizAttemptResultSerializer(attempt).data)

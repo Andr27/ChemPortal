@@ -25,3 +25,5 @@ class PostAdmin(admin.ModelAdmin):
         'section'
     ]
     list_filter = ["title", "created_by", "section", "status"]
+
+

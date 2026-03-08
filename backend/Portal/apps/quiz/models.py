@@ -11,12 +11,17 @@ class Quiz(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
-    module = models.OneToOneField(
-        'education.CourseModule',
+    lesson = models.OneToOneField(
+        'education.Lesson',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='quiz',
+        null=True, blank=True,
+        related_name='quiz'
+    )
+    chapter = models.OneToOneField(
+        'education.Chapter',
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        related_name='quiz'
     )
 
     created_by = models.ForeignKey(
@@ -140,7 +145,7 @@ class QuizAttempt(models.Model):
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
 
-    score = models.PositiveIntegerField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
     total_points = models.FloatField(default=0)
     earned_points = models.FloatField(default=0)
     is_passed = models.BooleanField(null=False, default=False)

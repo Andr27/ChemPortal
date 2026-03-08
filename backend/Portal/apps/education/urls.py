@@ -1,44 +1,41 @@
 from rest_framework.routers import DefaultRouter
-from django.urls import path
-from .views import EducationSectionViewSet, SectionMaterialViewSet, CourseViewSet, CourseModuleViewSet
 from rest_framework_nested import routers
+from .views import (
+    EducationSectionViewSet, SectionMaterialViewSet,
+    CourseViewSet, ChapterViewSet, LessonViewSet,
+)
 
 router = DefaultRouter()
 router.register(r'education/sections', EducationSectionViewSet, basename='sections')
 
-#Section -> Materials
+# Section → Materials, Courses
 sections_router = routers.NestedDefaultRouter(
     router,
     r'education/sections',
     lookup='section'
 )
+sections_router.register(r'materials', SectionMaterialViewSet, basename='section-materials')
+sections_router.register(r'courses', CourseViewSet, basename='section-courses')
 
-sections_router.register(
-    r'materials',
-    SectionMaterialViewSet,
-    basename='section-materials'
-)
-
-sections_router.register(
-    r'courses',
-    CourseViewSet,
-    basename='section-courses'
-)
-
- #Course -> Modules
+# Course → Chapters
 courses_router = routers.NestedDefaultRouter(
     sections_router,
     r'courses',
     lookup='course'
 )
+courses_router.register(r'chapters', ChapterViewSet, basename='course-chapters')
 
-courses_router.register(
-    r'modules',
-    CourseModuleViewSet,
-    basename='course-modules'
+# Chapter → Lessons
+chapters_router = routers.NestedDefaultRouter(
+    courses_router,
+    r'chapters',
+    lookup='chapter'
 )
+chapters_router.register(r'lessons', LessonViewSet, basename='chapter-lessons')
 
-urlpatterns = [
-
-]+ router.urls + sections_router.urls + courses_router.urls
-
+urlpatterns = (
+    router.urls +
+    sections_router.urls +
+    courses_router.urls +
+    chapters_router.urls
+)

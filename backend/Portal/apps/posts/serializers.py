@@ -119,7 +119,7 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     children = RecursiveCommentSerializer(many=True, read_only=True)
-    author = serializers.StringRelatedField(read_only=True)
+    author = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -130,7 +130,12 @@ class CommentSerializer(serializers.ModelSerializer):
             "created_at",
             "children"
         )
-
+    def get_author(self, obj):
+        return {
+            "id": obj.author.id,
+            "first_name": obj.author.first_name,
+            "last_name": obj.author.last_name,
+        }
 
 
 class LikeSerializer(serializers.ModelSerializer):

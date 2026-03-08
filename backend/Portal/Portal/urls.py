@@ -20,6 +20,7 @@ urlpatterns = [
     path("api/v1/", include("apps.subscriptions.urls")),
     path("api/v1/", include("apps.education.urls")),
     path('api/v1/', include("apps.quiz.urls")),
+    path('api/v1/', include('apps.enrollment.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -114,51 +115,56 @@ GET api/v1/posts/bookmarks/ - посмотреть мои закладки
 
 ОБРАЗОВАТЕЛЬНЫЙ РАЗДЕЛ!"!!!!!!!
 
-GET    api/v1/education/sections/ - ПОЛУЧИТЬ ВСЕ РАЗДЕЛЫ опубликованные
-GET    api/v1/education/sections/{id}/ - ПОЛУЧИТЬ КОНКЕРТНЫЙ РАЗДЕЛ опубликованный
-POST   api/v1/education/sections/ - СОЗДАТЬ РАЗДЕЛ
-PUT    api/v1/education/sections/{id}/ - ИЗМЕНИТЬ РАЗДЕЛ
-DELETE api/v1/education/sections/{id}/ - УДАЛИТЬ РАЗДЕЛ
-POST   api/v1/education/sections/{id}/approve/ - подтвердить РАЗДЕЛ
-POST   api/v1/education/sections/{id}/reject/ - отклонить раздел
-GET    api/v1/education/sections/moderation_list/ - список разделов на модерации
-POST   api/v1/education/sections/{id}/send_to_moderation/ - отравить раздел на модерацию
-GET    api/v1/education/sections/my_rejected_sections/ - Отклоненные разделы конкретного автора
-GET    api/v1/education/sections/my_education_sections/ - Все разделы конкретного автора
-GET    api/v1/education/sections/my_published_sections/- Все опубликованные разделы конкретного автора
-GET    api/v1/education/sections/my_draft_sections/ - Все черновики разделы конкретного автора
-GET    api/v1/education/sections/all_sections_detail/ - любой раздел
+=== РАЗДЕЛЫ ===
+GET    api/v1/education/sections/                                        - все опубликованные разделы
+POST   api/v1/education/sections/                                        - создать раздел
+GET    api/v1/education/sections/{id}/                                   - конкретный раздел
+PUT    api/v1/education/sections/{id}/                                   - изменить раздел
+DELETE api/v1/education/sections/{id}/                                   - удалить раздел
+POST   api/v1/education/sections/{id}/send_to_moderation/                - отправить на модерацию
+POST   api/v1/education/sections/{id}/approve/                           - подтвердить
+POST   api/v1/education/sections/{id}/reject/                            - отклонить
+GET    api/v1/education/sections/moderation_list/                        - очередь модерации
+GET    api/v1/education/sections/my_sections/                            - все мои разделы
+GET    api/v1/education/sections/my_draft_sections/                      - мои черновики
+GET    api/v1/education/sections/my_published_sections/                  - мои опубликованные
+GET    api/v1/education/sections/my_reject_sections/                     - мои отклонённые
 
+=== МАТЕРИАЛЫ РАЗДЕЛА ===
+GET    api/v1/education/sections/{id}/materials/                         - все материалы раздела
+POST   api/v1/education/sections/{id}/materials/                         - создать материал
+GET    api/v1/education/sections/{id}/materials/{id}/                    - конкретный материал
+PUT    api/v1/education/sections/{id}/materials/{id}/                    - изменить материал
+DELETE api/v1/education/sections/{id}/materials/{id}/                    - удалить материал
 
-GET    api/v1/education/sections/{section.id}/materials/ - ПОЛУЧИТЬ ВСЕ МАТЕРИАЛЫ В РАЗДЕЛЕ
-POST   api/v1/education/sections/{section.id}/materials/ - СОЗДАТЬ МАТЕРИАЛ
-GET    api/v1/education/sections/{section.id}/materials/{material.id}/ - получить конкретный материал в конкретном разделе
-PUT    api/v1/education/sections/{section.id}/materials/{material.id}/ - ИЗМЕНИТЬ МАТЕРИАЛ
-DELETE api/v1/education/sections/{section.id}/materials/{material.id}/ - УДАЛИТЬ МАТЕРИАЛ
+=== КУРСЫ ===
+GET    api/v1/education/sections/{id}/courses/                           - все курсы раздела
+POST   api/v1/education/sections/{id}/courses/                           - создать курс
+GET    api/v1/education/sections/{id}/courses/{id}/                      - конкретный курс (с главами и уроками)
+PUT    api/v1/education/sections/{id}/courses/{id}/                      - изменить курс
+DELETE api/v1/education/sections/{id}/courses/{id}/                      - удалить курс
+POST   api/v1/education/sections/{id}/courses/{id}/send_to_moderation/   - отправить на модерацию
+POST   api/v1/education/sections/{id}/courses/{id}/approve/              - подтвердить
+POST   api/v1/education/sections/{id}/courses/{id}/reject/               - отклонить
+GET    api/v1/education/sections/{id}/courses/moderation_list/           - очередь модерации
+GET    api/v1/education/sections/{id}/courses/my_courses/                - все мои курсы
+GET    api/v1/education/sections/{id}/courses/my_draft_courses/          - мои черновики
+GET    api/v1/education/sections/{id}/courses/my_published_courses/      - мои опубликованные
+GET    api/v1/education/sections/{id}/courses/my_reject_courses/         - мои отклонённые
 
+=== ГЛАВЫ ===
+GET    api/v1/education/sections/{id}/courses/{id}/chapters/             - все главы курса
+POST   api/v1/education/sections/{id}/courses/{id}/chapters/             - создать главу
+GET    api/v1/education/sections/{id}/courses/{id}/chapters/{id}/        - конкретная глава (с уроками)
+PUT    api/v1/education/sections/{id}/courses/{id}/chapters/{id}/        - изменить главу
+DELETE api/v1/education/sections/{id}/courses/{id}/chapters/{id}/        - удалить главу
 
-GET    api/v1/education/sections/{section.id}/courses/ - ПОЛУЧИТЬ ВСЕ КУРСЫ В РАЗДЕЛЕ
-POST   api/v1/education/sections/{section.id}/courses/ - СОЗДАТЬ КУРС В РАЗДЕЛЕ
-GET    api/v1/education/sections/{section.id}/courses/{course.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ КУРС
-PUT    api/v1/education/sections/{section.id}/courses/{course.id}/ - ИЗМЕНИТЬ КУРС
-DELETE api/v1/education/sections/{section.id}/courses/{course.id}/- УДАЛИТЬ КУРС
-POST   api/v1/education/sections/{section.id}/courses/{course.id}/approve/ - подтвердить КУРС
-POST   api/v1/education/sections/{section.id}/courses/{course.id}/reject/ - отклонить КУРС
-GET    api/v1/education/sections/{section.id}/courses/moderation_list/ - список КУРСов на модерации
-POST   api/v1/education/sections/{section.id}/courses/{course.id}/send_to_moderation/ - отравить КУРС на модерацию
-GET    api/v1/education/sections/{section.id}/courses/my_rejected_sections/ - Отклоненные КУРСы конкретного автора
-GET    api/v1/education/sections/{section.id}/courses/my_education_sections/ - Все КУРСы конкретного автора
-GET    api/v1/education/sections/{section.id}/courses/my_published_sections/- Все опубликованные КУРСы конкретного автора
-GET    api/v1/education/sections/{section.id}/courses/my_draft_sections/ - Все черновики КУРСы конкретного автора
-GET    api/v1/education/sections/{section.id}/courses/{course.id}/all_sections_detail/ - любой КУРС
-
-
-
-GET     api/v1/education/sections/{section.id}/courses/{course.id}/modules/ - ПОЛУЧИТЬ МОДУЛИ КУРСА
-POST    api/v1/education/sections/{section.id}/courses/{course.id}/modules/ - СОЗДАТЬ МОДУЛЬ В КУРСЕ
-GET     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ПОЛУЧИТЬ КОНКРЕТНЫЙ МОДУЛЬ ИЗ КУРСА
-PUT     api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - ИЗМЕНИТЬ МОДУЛЬ
-DELETE  api/v1/education/sections/{section.id}/courses/{course.id}/modules/{module.id}/ - УДАЛИТЬ МОДУЛЬ
+=== УРОКИ ===
+GET    api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/        - все уроки главы
+POST   api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/        - создать урок
+GET    api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/{id}/   - конкретный урок
+PUT    api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/{id}/   - изменить урок
+DELETE api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/{id}/   - удалить урок
 
 
 
@@ -266,4 +272,29 @@ POST /api/v1/quizzes/{id}/submit/
 GET    /api/v1/quizzes/{id}/my_results/          — мои попытки и результаты
 GET    /api/v1/quizzes/{id}/stats/               — статистика по тесту (Creator)
 
+
+
+Enrollment API
+POST   /api/v1/enrollments/enroll/                        — записаться на курс        
+body
+{
+"course_id": {course_id}
+}
+
+POST   /api/v1/enrollments/drop/                          — покинуть курс
+body             
+{
+"course_id": {course_id}
+}
+GET    /api/v1/enrollments/my/                            — мои записи на курсы
+GET    /api/v1/enrollments/{id}/progress/                 — детальный прогресс по курсу
+POST   /api/v1/enrollments/{id}/complete_lesson/          — завершить урок     
+body     
+{
+"lesson_id": {lesson_id}
+}
+GET    /api/v1/enrollments/next_lesson/?course_id=1       — следующий доступный модуль
+
+GET    /api/v1/enrollments/certificates/                  — мои сертификаты
+GET    /api/v1/enrollments/certificate_detail/?number=CERT-XXX — сертификат по номеру
 '''

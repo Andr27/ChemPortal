@@ -13,10 +13,10 @@ from Portal.choices import ModerationStatus, UserRole
 
 
 
-from .models import EducationSection, SectionMaterial, Course, CourseModule
+from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson
 from .permissions import IsSectionOwner, IsCourseOwner
 from .serializers import EducationSectionSerializer, SectionMaterialSerializer, CourseSerializer, \
-    CourseModuleSerializer, EducationSectionDetailSerializer, CourseDetailSerializer
+EducationSectionDetailSerializer, CourseDetailSerializer, ChapterSerializer, LessonSerializer
 
 
 class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
@@ -152,9 +152,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             return CourseDetailSerializer
         return CourseSerializer
 
-
     def get_queryset(self):
-        return Course.objects.filter(section_id=self.kwargs['section_pk'])
+        return Course.objects.filter(
+            section_id=self.kwargs['section_pk']
+        ).prefetch_related('chapters__lessons')
 
     def get_permissions(self):
         if self.action == 'create':
@@ -239,12 +240,18 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
 
 
+class ChapterViewSet(ModelViewSet):
+    serializer_class = ChapterSerializer
 
-class CourseModuleViewSet(ModelViewSet):
-    serializer_class = CourseModuleSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsCourseOwner]
     def get_queryset(self):
-        return CourseModule.objects.filter(course_id=self.kwargs['course_pk'])
+        return Chapter.objects.filter(
+            course_id=self.kwargs['course_pk']
+        ).prefetch_related('lessons')
+
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsCreator()]
+        return [IsAuthenticatedOrReadOnly()]
 
     def perform_create(self, serializer):
         course = get_object_or_404(
@@ -253,14 +260,61 @@ class CourseModuleViewSet(ModelViewSet):
             section_id=self.kwargs['section_pk'],
         )
         if course.created_by != self.request.user:
-            raise PermissionDenied(
-                "Вы не можете добавлять модули в чужой курс"
-            )
-        last_module = CourseModule.objects.filter(course=course).order_by('-order').first()
-        next_order = 1
-        if last_module:
-            next_order = last_module.order + 1
+            raise PermissionDenied("Вы не можете добавлять главы в чужой курс")
+
+        last = Chapter.objects.filter(course=course).order_by('-order').first()
+        next_order = (last.order + 1) if last else 1
         serializer.save(course=course, order=next_order)
+
+    def perform_update(self, serializer):
+        obj = self.get_object()
+        if obj.course.created_by != self.request.user:
+            raise PermissionDenied("Вы не можете редактировать эту главу")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.course.created_by != self.request.user:
+            raise PermissionDenied("Вы не можете удалить эту главу")
+        instance.delete()
+
+
+class LessonViewSet(ModelViewSet):
+    serializer_class = LessonSerializer
+
+    def get_queryset(self):
+        return Lesson.objects.filter(
+            chapter_id=self.kwargs['chapter_pk']
+        )
+
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsCreator()]
+        return [IsAuthenticatedOrReadOnly()]
+
+    def perform_create(self, serializer):
+        chapter = get_object_or_404(
+            Chapter,
+            pk=self.kwargs['chapter_pk'],
+            course_id=self.kwargs['course_pk'],
+        )
+        if chapter.course.created_by != self.request.user:
+            raise PermissionDenied("Вы не можете добавлять уроки в чужой курс")
+
+        last = Lesson.objects.filter(chapter=chapter).order_by('-order').first()
+        next_order = (last.order + 1) if last else 1
+        serializer.save(chapter=chapter, order=next_order)
+
+    def perform_update(self, serializer):
+        obj = self.get_object()
+        if obj.chapter.course.created_by != self.request.user:
+            raise PermissionDenied("Вы не можете редактировать этот урок")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.chapter.course.created_by != self.request.user:
+            raise PermissionDenied("Вы не можете удалить этот урок")
+        instance.delete()
+
 
 
 

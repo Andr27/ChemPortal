@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.bookmarks.apps.BookmarksConfig",
     'apps.education.apps.EducationConfig',
     'apps.quiz.apps.QuizConfig',
+    'apps.enrollment.apps.EnrollmentConfig',
 ]
 
 MIDDLEWARE = [
@@ -226,3 +227,9 @@ CACHES = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+
+
+
