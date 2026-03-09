@@ -52,8 +52,6 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer):
-        if action == 'create_and_send_to_moderation':
-            serializer.save(author=self.request.user, status=ModerationStatus.MODERATION)
         serializer.save(author=self.request.user)
 
 
@@ -172,7 +170,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def dislike(self, request, pk=None):
         post = self.get_object()
-        Dislike.objects.filter(user=request.user, post=post).delete()
+        Like.objects.filter(user=request.user, post=post).delete()
         dislike, created = Dislike.objects.get_or_create(user=request.user, post=post)
         if not created:
             dislike.delete()

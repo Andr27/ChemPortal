@@ -51,18 +51,13 @@ class SectionMaterial(models.Model):
 
 
 class Course(models.Model):
-    STATUS_CHOICES = [
-        ("draft", "Черновик"),
-        ("published", "Опубликовано"),
-        ("moderation", "На модерации"),
-        ("rejected", "Отклонено"),
-    ]
+
     section = models.ForeignKey(EducationSection, on_delete=models.CASCADE, related_name='courses')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
     class Meta:
         ordering = ["-created_at"]
 

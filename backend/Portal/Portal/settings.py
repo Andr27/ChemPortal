@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -232,4 +233,109 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
+#DJANGO ADMIN SETTINGS
+JAZZMIN_SETTINGS = {
+    "site_title": "ChemPortal Admin",
+    "site_header": "ChemPortal",
+    "site_brand": "⚗️ ChemPortal",
+    "site_logo": None,
+    "welcome_sign": "Добро пожаловать в панель управления ChemPortal",
+    "copyright": "ChemPortal",
 
+    "search_model": ["auth.User", "posts.Post", "education.Course"],
+
+    "topmenu_links": [
+        {"name": "Сайт", "url": "http://localhost:3000", "new_window": True},
+        {"model": "auth.User"},
+        {"app": "posts"},
+    ],
+
+    "usermenu_links": [
+        {"name": "Профиль", "url": "/admin/auth/user/", "icon": "fas fa-user"},
+    ],
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    "hide_apps": [],
+    "hide_models": [],
+
+    "order_with_respect_to": [
+        "auth",
+        "users",
+        "posts",
+        "education",
+        "quiz",
+        "enrollment",
+        "subscriptions",
+        "bookmarks",
+    ],
+
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "users.Profile": "fas fa-id-card",
+        "posts.Post": "fas fa-newspaper",
+        "posts.Comment": "fas fa-comments",
+        "posts.Like": "fas fa-heart",
+        "posts.Dislike": "fas fa-thumbs-down",
+        "posts.PostImage": "fas fa-image",
+        "education.EducationSection": "fas fa-book-open",
+        "education.Course": "fas fa-graduation-cap",
+        "education.Chapter": "fas fa-list",
+        "education.Lesson": "fas fa-chalkboard-teacher",
+        "education.SectionMaterial": "fas fa-file-alt",
+        "quiz.Quiz": "fas fa-question-circle",
+        "quiz.Question": "fas fa-question",
+        "quiz.QuizAttempt": "fas fa-clipboard-check",
+        "enrollment.CourseEnrollment": "fas fa-user-graduate",
+        "enrollment.CourseCertificate": "fas fa-certificate",
+        "subscriptions.Subscription": "fas fa-bell",
+        "bookmarks.Bookmark": "fas fa-bookmark",
+    },
+
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+
+    "related_modal_active": True,
+
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+
+    "changeform_format": "horizontal_tabs",
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-success",
+    "accent": "accent-teal",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-teal",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
+}

@@ -173,6 +173,9 @@ DELETE api/v1/education/sections/{id}/courses/{id}/chapters/{id}/lessons/{id}/  
 ТЕСТЫ!!!!!!!!!!
 
 !!!!Тесты — основное
+GET /api/v1/quizzes/by_lesson/?lesson_id={lesson_id} - получить тест привязанный к уроку по id
+GET /api/v1/quizzes/by_lesson/?chapter_id={chapter_id} - получить тест привязанный к главе по id
+
 GET     api/v1/quizzes/ - получить тесты
 POST    api/v1/quizzes/ - создать тест
 POST /api/v1/quizzes/
@@ -183,7 +186,8 @@ POST /api/v1/quizzes/
     "max_attempts": 3,
     "time_limit_minutes": 10,
     "show_explanation_after": true,
-    "module": null
+    'lesson' : {lesson.id}, # или null если тест к главе
+    "chapter": {chapter.id} или null если тест к уроку
 }
 
 GET     api/v1/quizzes/{quizzes.id} - получить конкретный тест

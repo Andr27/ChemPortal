@@ -432,6 +432,28 @@ class QuizViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         )
         return Response(QuizSerializer(quizzes, many=True).data)
 
+    @action(detail=False, methods=['get'])
+    def by_lesson(self, request):
+        lesson_id = request.query_params.get('lesson_id')
+        chapter_id = request.query_params.get('chapter_id')
+
+        if lesson_id:
+            quiz = get_object_or_404(
+                Quiz,
+                lesson_id=lesson_id,
+                status=ModerationStatus.PUBLISHED
+            )
+            return Response(QuizDetailSerializer(quiz).data)
+
+        if chapter_id:
+            quiz = get_object_or_404(
+                Quiz,
+                chapter_id=chapter_id,
+                status=ModerationStatus.PUBLISHED
+            )
+            return Response(QuizDetailSerializer(quiz).data)
+
+        raise ValidationError("Укажите lesson_id или chapter_id")
 
 
 

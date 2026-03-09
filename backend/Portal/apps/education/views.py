@@ -23,7 +23,6 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     queryset = EducationSection.objects.all().prefetch_related(
         "materials",
         "courses",
-        "courses__modules",
     )
     owner_field = "created_by"
     status_field = "status"
@@ -148,7 +147,7 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
 
     def get_serializer_class(self):
-        if self.action == 'all_courses_detail':
+        if self.action in ['all_courses_detail', 'retrieve']:
             return CourseDetailSerializer
         return CourseSerializer
 
@@ -232,7 +231,7 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     @action(detail=True, methods=['get'])
     def all_courses_detail(self, request, pk=None, **kwargs):
         courses = self.get_base_queryset().filter(pk=pk).prefetch_related(
-            "modules"
+            "chapters__lessons"
         )
         serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)

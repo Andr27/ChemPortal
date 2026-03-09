@@ -182,7 +182,7 @@ class UserAnswer(models.Model):
 
     is_correct = models.BooleanField(null=True, blank=True)
     is_partial = models.BooleanField(default=False)
-    points_earned = models.PositiveIntegerField(default=0)
+    points_earned = models.FloatField(default=0)
     class Meta:
         unique_together = ('attempt', 'question')
 
