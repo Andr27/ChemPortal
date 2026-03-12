@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from Portal.choices import ModerationStatus
+from apps.categories.models import Category
 
 
 User = get_user_model()
@@ -15,6 +16,13 @@ class EducationSection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
+
+    category = models.ForeignKey(Category,
+                                 on_delete=models.SET_NULL,
+                                 null=True,
+                                 blank=True,
+                                 related_name='sections'
+                                 )
     class Meta:
         ordering = ["-created_at"]
 

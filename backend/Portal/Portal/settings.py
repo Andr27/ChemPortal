@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.education.apps.EducationConfig',
     'apps.quiz.apps.QuizConfig',
     'apps.enrollment.apps.EnrollmentConfig',
+    'apps.categories.apps.CategoriesConfig',
 ]
 
 MIDDLEWARE = [
