@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from Portal.choices import ModerationStatus
+from apps.tags.models import Tag
 
 
 class Post(models.Model):
@@ -18,7 +19,7 @@ class Post(models.Model):
     views = models.PositiveIntegerField(default=0)
 
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    #tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
 
     main_image = models.ImageField(

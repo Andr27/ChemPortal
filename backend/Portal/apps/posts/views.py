@@ -33,9 +33,16 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     owner_field = "author"
     status_field = "status"
 
+    def filter_by_teg(self, queryset):
+        tag = self.request.query_params.get('tag')
+        if tag:
+            queryset = queryset.filter(tags__slug=tag)
+        return queryset
+
     def get_queryset(self):
         if self.action == 'list':
-            return Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
+            queryset = Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
+            return self.filter_by_teg(queryset)
         return super().get_queryset()
 
     #PERMISSIONS
@@ -206,15 +213,17 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     #получить только тип постов
     @action(detail=False, methods=['get'])
     def news(self, request):
-        posts = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='news')
-        page = self.paginate_queryset(posts)
+        queryset  = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='news')
+        queryset = self.filter_by_teg(queryset)
+        page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def videos(self, request):
-        posts = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='video')
-        page = self.paginate_queryset(posts)
+        queryset  = Post.objects.filter(status=ModerationStatus.PUBLISHED, type='video')
+        queryset = self.filter_by_teg(queryset)
+        page = self.paginate_queryset(queryset )
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 

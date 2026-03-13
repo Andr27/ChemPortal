@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Post, Comment, Like, Dislike, PostImage
 from ..subscriptions.models import Subscription
+from ..tags.models import Tag
+from ..tags.serializers import TagSerializer
+
 
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,6 +23,11 @@ class PostSerializer(serializers.ModelSerializer):
     write_only=True,
     required=False
                                             )
+    tags = TagSerializer(many=True, read_only=True)
+    tag_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.filter(is_active=True),
+        write_only=True, source='tags'
+    )
 
 
     class Meta:
@@ -30,8 +38,9 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         images = validated_data.pop('uploaded_images', [])
-
+        tags = validated_data.pop('tags', [])
         post = Post.objects.create(**validated_data)
+        post.tags.set(tags)
 
         for image in images:
             PostImage.objects.create(
@@ -44,8 +53,11 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         images = validated_data.pop('uploaded_images', [])
-
+        tags = validated_data.pop('tags', None)
         instance = super().update(instance, validated_data)
+
+        if tags is not None:
+            instance.tags.set(tags)
 
         if images:
             instance.images.all().delete()
@@ -71,10 +83,13 @@ class PostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "URL is required for videos and link posts"
             )
-
-
-
         return data
+
+    def validate_tags(self, tags):
+        for tag in tags:
+            if not tag.is_active:
+                raise serializers.ValidationError(f'Тег "{tag.name}" недоступен.')
+        return tags
 
     def get_likes_count(self, obj):
         return obj.likes.count()

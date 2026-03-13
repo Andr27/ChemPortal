@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/v1/', include("apps.quiz.urls")),
     path('api/v1/', include('apps.enrollment.urls')),
     path('api/v1/', include('apps.categories.urls')),
+    path('api/v1/', include('apps.tags.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -29,6 +30,15 @@ urlpatterns = [
 get /api/v1/posts/{post.id}/all_posts_detail/ - конкретный пост из любых вообще !!!
 get /api/v1/posts/ - все опубликованные статьи (http://127.0.0.1:7000/api/v1/posts/?limit=5&page=3)!!!
 post /api/v1/posts/ - создать пост !!!
+Body: {"title": "...", "body": "...", "type": "news", "tags": [1, 5, 23]}
+
+PUT  /api/v1/posts/{id}/                  — обновить теги поста
+Body: {"tags": [1, 5]}
+
+GET  /api/v1/posts/?tag=oksidy            — статьи с тегом
+GET  /api/v1/posts/news/?tag=oksidy       — новости с тегом
+GET  /api/v1/posts/videos/?tag=oksidy     — видео с тегом
+
 get /api/v1/posts/{id}/ - конкретный пост!!!
 delete /api/v1/posts/{id}/ - удалить пост!!!
 put /api/v1/posts/{id}/ - изменить пост!!!
@@ -302,4 +312,51 @@ GET    /api/v1/enrollments/next_lesson/?course_id=1       — следующий
 
 GET    /api/v1/enrollments/certificates/                  — мои сертификаты
 GET    /api/v1/enrollments/certificate_detail/?number=CERT-XXX — сертификат по номеру
+
+
+
+
+
+
+ТЕГИ!!!!!!!!!!!
+GET     /api/v1/tags/                                   - список всех тегов
+GET     /api/v1/tags/?search={tag.name}                 - поиск тегов по названию
+GET     /api/v1/tags/{tag.slug}/                        - Конкретный тег
+
+POST    /api/v1/tags/{tag.slug}/favorite/               - Добавить/убрать тег из избранного
+GET     /api/v1/tags/my_favorites/                      - мои избранные теги
+
+POST    /api/v1/tags/suggest/                           - ИИ предлагает теги по тексту
+body
+{
+"text": "Минимум 30 символов"
+}
+
+POST   /api/v1/tags/request_tag/                        - заявка на новый тег
+body
+{
+{"name"}: "{tag.name}",
+{"reason"}: "Причина заявки"
+}
+
+GET     /api/v1/tags/request_list/                      - очередь заявок
+GET     /api/v1/tags/request_list/?statsu=approved      - Одобренные заявки
+GET     /api/v1/tags/request_list/?statsu=rejected      - Отклоненные заявки
+
+
+POST    /api/v1/tags/approve_request/                   - одобрить заявку 
+Body: {"request_id": 1}
+
+POST    /api/v1/tags/reject_request/                       - отклонить заявку 
+Body: {"request_id": 1, "comment": "Такой тег уже есть"}
+
+
+
+
+
+
+
+
+
+
 '''
