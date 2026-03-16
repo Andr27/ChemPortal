@@ -355,8 +355,9 @@ Body: {"request_id": 1, "comment": "Такой тег уже есть"}
 
 
 
+КАТЕГОРИИ
 
-
-
-
+get     /api/v1/categories/ -   список категорий
+get     /api/v1/{categories/{categories.slug} - конкретная катеогрия
+get     /api/v1/categories/{categories.slug}/sections/ - все разделы в категории конкретной
 '''

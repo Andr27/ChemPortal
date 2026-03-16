@@ -7,15 +7,24 @@ from Portal.choices import UserRole
 
 
 class Profile(models.Model):
-
-
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-
     role = models.CharField(max_length=20, choices=UserRole.choices, default=UserRole.USER)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    rating = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.role}"
+
+    def get_level(self):
+        if self.rating <= 50:
+            return "Новичок"
+        elif self.rating <= 200:
+            return "Участник"
+        elif self.rating <= 500:
+            return "Автор"
+        return "Эксперт"
+
+
 
 
 

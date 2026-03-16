@@ -325,14 +325,3 @@ class LessonViewSet(ModelViewSet):
             raise PermissionDenied("Вы не можете удалить этот урок")
         instance.delete()
 
-
-
-
-
-
-
-
-
-
-
-

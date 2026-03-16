@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from .serializers import RegistrationSerializer, MeSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, ProfileSerializer
+from .serializers import RegistrationSerializer, MeSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, \
+    ProfileSerializer, MeUpdateSerializer
 from .models import EmailConfirmationToken, PasswordResetToken, PendingUser, Profile
 
 
@@ -83,6 +84,15 @@ class MeAPIView(APIView):
     def get(self, request):
         serializer = MeSerializer(request.user)
         return Response(serializer.data)
+    def put(self, request):
+        serializer = MeUpdateSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(MeSerializer(request.user).data)
 
 
 class PasswordResetRequestAPIView(APIView):

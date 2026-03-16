@@ -27,12 +27,40 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 class MeSerializer(serializers.ModelSerializer):
-    role = serializers.CharField(source='profile.role')
+    role = serializers.CharField(source='profile.role', read_only=True)
+    avatar = serializers.ImageField(source='profile.avatar', read_only=True)
+    rating = serializers.IntegerField(source='profile.rating', read_only=True)
+    level = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'role')
+        fields = ('id', 'email', 'first_name', 'last_name', 'role', 'avatar', 'rating', 'level')
+
+    def get_level(self, obj):
+        return obj.profile.get_level()
 
 
+class MeUpdateSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(source='profile.avatar', required=False)
+
+    class Meta:
+        model = User
+        field = ('first_name', 'last_name', 'avatar')
+
+    def update(self, instance, validated_data):
+
+        profile_data = validated_data.pop('profile', {})
+
+        instance.first_name = profile_data.get('first_name', instance.first_name)
+        instance.last_name = profile_data.get('last_name', instance.last_name)
+        instance.save()
+
+        profile = instance.profile
+        if 'avatar' in profile_data:
+            profile.avatar = profile_data['avatar']
+            profile.save()
+
+        return instance
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
