@@ -9,6 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 from Portal.permissions import IsModerator
 from .models import Tag, TagRequest, FavoriteTag
 from .serializers import TagSerializer, TagRequestSerializer, TagRequestDetailSerializer
+from Portal.pagination import StandardPagination
 
 
 
@@ -17,7 +18,7 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Tag.objects.filter(is_active=True).order_by('name')
     serializer_class = TagSerializer
     lookup_field = 'slug'
-
+    pagination_class = StandardPagination
 
 
     def get_permissions(self):
@@ -56,7 +57,8 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         ).values_list('tag_id', flat=True)
 
         tags = Tag.objects.filter(id__in=favorites_ids, is_active=True)
-        serializer = TagSerializer(tags, many=True, context={'request': request})
+        page = self.paginate_queryset(tags)
+        serializer = TagSerializer(page, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -112,7 +114,8 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         requests = TagRequest.objects.filter(
             status=status_filter,
         ).select_related('requested_by', 'reviewed_by').order_by('-created_at')
-        serializer = TagRequestDetailSerializer(requests, many=True)
+        page = self.paginate_queryset(requests)
+        serializer = TagRequestDetailSerializer(page, many=True)
         return Response(serializer.data)
 
 

@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from Portal.mixins import StatusAccessMixin, ModeratorMixin
 from Portal.permissions import IsCreator, IsModerator
 from Portal.choices import ModerationStatus, UserRole
-
+from Portal.pagination import StandardPagination
 
 
 
@@ -26,7 +26,7 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     )
     owner_field = "created_by"
     status_field = "status"
-
+    pagination_class = StandardPagination
 
     #serializers
     def get_serializer_class(self):
@@ -72,14 +72,16 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsModerator])
     def moderation_list(self, request):
         sections = self.get_base_queryset().filter(status=ModerationStatus.MODERATION)
-        serializer = self.get_serializer(sections, many=True)
+        page = self.paginate_queryset(sections)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     #my section
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_sections(self, request):
         sections = self.get_base_queryset().filter(created_by=self.request.user)
-        serializer = self.get_serializer(sections, many=True)
+        page = self.paginate_queryset(sections)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -88,7 +90,8 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
             status=ModerationStatus.DRAFT,
         )
-        serializer = self.get_serializer(sections, many=True)
+        page = self.paginate_queryset(sections)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
 
@@ -98,7 +101,8 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
             status=ModerationStatus.REJECTED,
         )
-        serializer = self.get_serializer(sections, many=True)
+        page = self.paginate_queryset(sections)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -107,7 +111,8 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.PUBLISHED,
             created_by=self.request.user,
         )
-        serializer = self.get_serializer(sections, many=True)
+        page = self.paginate_queryset(sections)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
 
@@ -123,6 +128,7 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 class SectionMaterialViewSet(ModelViewSet):
     serializer_class = SectionMaterialSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsSectionOwner]
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         return SectionMaterial.objects.filter(section_id=self.kwargs['section_pk'])
@@ -144,7 +150,7 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     queryset = Course.objects.all()
     owner_field = 'created_by'
     status_field = 'status'
-
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.action in ['all_courses_detail', 'retrieve']:
@@ -191,14 +197,16 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsModerator])
     def moderation_list(self, request, **kwargs):
         courses = self.get_base_queryset().filter(status=ModerationStatus.MODERATION)
-        serializer = self.get_serializer(courses, many=True)
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     #my courses
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_courses(self, request, **kwargs):
         courses = self.get_base_queryset().filter(created_by=self.request.user)
-        serializer = self.get_serializer(courses, many=True)
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -207,7 +215,8 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
             status=ModerationStatus.DRAFT
         )
-        serializer = self.get_serializer(courses, many=True)
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -216,7 +225,8 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
             status=ModerationStatus.REJECTED
         )
-        serializer = self.get_serializer(courses, many=True)
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -225,7 +235,8 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
             status=ModerationStatus.PUBLISHED
         )
-        serializer = self.get_serializer(courses, many=True)
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
