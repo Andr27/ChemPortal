@@ -278,13 +278,84 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'], permission_classes=[IsModerator])
+    def approve(self, request, pk=None, **kwargs):
+        from apps.quiz.models import Quiz
+        obj = get_object_or_404(
+            self.get_base_queryset().filter(status=ModerationStatus.MODERATION),
+            pk=pk)
+        obj.status = ModerationStatus.PUBLISHED
+        obj.save()
 
+        Quiz.objects.filter(
+            chapter__course=obj
+        ).update(status=ModerationStatus.PUBLISHED)
+        Quiz.objects.filter(
+            lesson__chapter__course=obj
+        ).update(status=ModerationStatus.PUBLISHED)
+
+        return Response({"detail": "Подтверждено"})
+
+
+    @action(detail=True, methods=['post'], permission_classes=[IsCreator])
+    def send_to_moderation(self, request, pk=None, **kwargs):
+        from apps.quiz.models import Quiz
+
+        obj = get_object_or_404(
+            self.get_queryset(),
+            pk=pk,
+            created_by=self.request.user
+        )
+        if obj.status not in [ModerationStatus.DRAFT, ModerationStatus.REJECTED]:
+            return Response({"detail": "Только черновики можно отправить на модерацию"}, status=400)
+
+        obj.status = ModerationStatus.MODERATION
+        obj.save()
+
+        Quiz.objects.filter(
+            chapter__course=obj
+        ).update(status=ModerationStatus.MODERATION)
+        Quiz.objects.filter(
+            lesson__chapter__course=obj
+        ).update(status=ModerationStatus.MODERATION)
+
+        return Response({"detail": "Отправлено на модерацию"})
+
+
+    @action(detail=True, methods=['post'], permission_classes=[IsModerator])
+    def reject(self, request, pk=None, **kwargs):
+        from apps.quiz.models import Quiz
+        obj = get_object_or_404(
+            self.get_base_queryset().filter(status=ModerationStatus.MODERATION),
+            pk=pk,
+        )
+        obj.status = ModerationStatus.REJECTED
+        obj.save()
+
+        Quiz.objects.filter(
+            chapter__course=obj
+        ).update(status=ModerationStatus.DRAFT)
+        Quiz.objects.filter(
+            lesson__chapter__course=obj
+        ).update(status=ModerationStatus.DRAFT)
+
+        return Response({"detail": "Отклонено"})
 
 
 class ChapterViewSet(ModelViewSet):
     serializer_class = ChapterSerializer
 
     def get_queryset(self):
+        course = get_object_or_404(Course, pk=self.kwargs['course_pk'])
+        user = self.request.user
+
+        # если курс не опубликован — главы видит только владелец и модератор
+        if course.status != ModerationStatus.PUBLISHED:
+            if not user.is_authenticated:
+                return Chapter.objects.none()
+            if course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
+                return Chapter.objects.none()
+
         return Chapter.objects.filter(
             course_id=self.kwargs['course_pk']
         ).prefetch_related('lessons')
@@ -323,9 +394,16 @@ class LessonViewSet(ModelViewSet):
     serializer_class = LessonSerializer
 
     def get_queryset(self):
-        return Lesson.objects.filter(
-            chapter_id=self.kwargs['chapter_pk']
-        )
+        chapter = get_object_or_404(Chapter, pk=self.kwargs['chapter_pk'])
+        user = self.request.user
+
+        if chapter.course.status != ModerationStatus.PUBLISHED:
+            if not user.is_authenticated:
+                return Lesson.objects.none()
+            if chapter.course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
+                return Lesson.objects.none()
+
+        return Lesson.objects.filter(chapter_id=self.kwargs['chapter_pk'])
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
