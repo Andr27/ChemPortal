@@ -45,14 +45,14 @@ class MeUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        field = ('first_name', 'last_name', 'avatar')
+        fields = ('first_name', 'last_name', 'avatar')  # было field вместо fields
 
     def update(self, instance, validated_data):
-
         profile_data = validated_data.pop('profile', {})
 
-        instance.first_name = profile_data.get('first_name', instance.first_name)
-        instance.last_name = profile_data.get('last_name', instance.last_name)
+        # было profile_data.get — неправильно, надо validated_data
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.save()
 
         profile = instance.profile
@@ -79,10 +79,16 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     subscribers_count = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(source='profile.rating', read_only=True)
+    level = serializers.SerializerMethodField()
+    avatar = serializers.ImageField(source='profile.avatar', read_only=True)
 
     class Meta:
         model = User
-        fields = ("id", "first_name", "last_name", "subscribers_count")
+        fields = ('id', 'first_name', 'last_name', 'subscribers_count', 'rating', 'level', 'avatar')
 
     def get_subscribers_count(self, obj):
         return Subscription.objects.filter(author=obj).count()
+
+    def get_level(self, obj):
+        return obj.profile.get_level()

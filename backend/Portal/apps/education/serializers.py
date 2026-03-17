@@ -87,7 +87,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class EducationSectionDetailSerializer(EducationSectionSerializer):
     """Детальный вид раздела — с материалами и курсами"""
     materials = SectionMaterialSerializer(many=True, read_only=True)
-    courses = CourseSerializer(many=True, read_only=True)
+    courses = serializers.SerializerMethodField()
 
     class Meta(EducationSectionSerializer.Meta):
         fields = EducationSectionSerializer.Meta.fields + ('materials', 'courses')

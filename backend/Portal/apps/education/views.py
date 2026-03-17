@@ -223,13 +223,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[IsCreator])
-    def create_and_send_to_moderation(self, request):
+    def ьcreate_and_send_to_moderation(self, request, section_pk=None):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(
-            created_by=request.user,
-            status=ModerationStatus.MODERATION
-        )
+        serializer.save(section_id=section_pk, created_by=request.user, status=ModerationStatus.MODERATION)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     #my courses
