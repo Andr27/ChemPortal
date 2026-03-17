@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from Portal.choices import ModerationStatus
 from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson
 
 
@@ -67,9 +69,11 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
+    section_title = serializers.CharField(source='section.title', read_only=True)
+    section_id = serializers.IntegerField(source='section.id', read_only=True)
     class Meta:
         model = Course
-        fields = ("id", "title", "description", "created_by", "created_at", "status")
+        fields = ("id", "title", "description", "created_by", "created_at", "status", "section_id", "section_title")
         read_only_fields = ("created_by", "created_at")
 
     def get_created_by(self, obj):
@@ -87,6 +91,10 @@ class EducationSectionDetailSerializer(EducationSectionSerializer):
 
     class Meta(EducationSectionSerializer.Meta):
         fields = EducationSectionSerializer.Meta.fields + ('materials', 'courses')
+
+    def get_courses(self, obj):
+        published = obj.courses.filter(status=ModerationStatus.PUBLISHED)
+        return CourseSerializer(published, many=True).data
 
 
 class CourseDetailSerializer(CourseSerializer):

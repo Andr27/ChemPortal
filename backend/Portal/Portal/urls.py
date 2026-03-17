@@ -140,6 +140,8 @@ GET    api/v1/education/sections/my_sections/                            - вс�
 GET    api/v1/education/sections/my_draft_sections/                      - мои черновики
 GET    api/v1/education/sections/my_published_sections/                  - мои опубликованные
 GET    api/v1/education/sections/my_reject_sections/                     - мои отклонённые
+POST /api/v1/education/sections/create_and_send_to_moderation/           - создать и отправить раздел на модерацию
+
 
 === МАТЕРИАЛЫ РАЗДЕЛА ===
 GET    api/v1/education/sections/{id}/materials/                         - все материалы раздела
@@ -162,6 +164,9 @@ GET    api/v1/education/sections/{id}/courses/my_courses/                - вс�
 GET    api/v1/education/sections/{id}/courses/my_draft_courses/          - мои черновики
 GET    api/v1/education/sections/{id}/courses/my_published_courses/      - мои опубликованные
 GET    api/v1/education/sections/{id}/courses/my_reject_courses/         - мои отклонённые
+POST /api/v1/education/sections/{id}/courses/create_and_send_to_moderation/ - создать и отправить курс на модерацию
+GET  /api/v1/education/courses/moderation_list/                          - очередь модерации без привязки к разделам              
+GET  /api/v1/education/courses/my_courses/                               - мои курсы без привязки к разделам
 
 === ГЛАВЫ ===
 GET    api/v1/education/sections/{id}/courses/{id}/chapters/             - все главы курса

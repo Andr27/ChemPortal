@@ -1,10 +1,12 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import status
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import ListModelMixin
 
 from Portal.mixins import StatusAccessMixin, ModeratorMixin
 from Portal.permissions import IsCreator, IsModerator
@@ -76,6 +78,16 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'], permission_classes=[IsCreator])
+    def create_and_send_to_moderation(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(
+            created_by=request.user,
+            status=ModerationStatus.MODERATION,
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     #my section
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
     def my_sections(self, request):
@@ -131,7 +143,16 @@ class SectionMaterialViewSet(ModelViewSet):
     pagination_class = StandardPagination
 
     def get_queryset(self):
-        return SectionMaterial.objects.filter(section_id=self.kwargs['section_pk'])
+        section = get_object_or_404(EducationSection, pk=self.kwargs['section_pk'])
+        user = self.request.user
+
+        if section.status != ModerationStatus.PUBLISHED:
+            if not user.is_authenticated:
+                return SectionMaterial.objects.none()
+            if section.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
+                return SectionMaterial.objects.none()
+
+        return SectionMaterial.objects.filter(section=section)
 
     def perform_create(self, serializer):
         section = EducationSection.objects.get(pk=self.kwargs['section_pk'])
@@ -200,6 +221,16 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         page = self.paginate_queryset(courses)
         serializer = self.get_serializer(page, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsCreator])
+    def create_and_send_to_moderation(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(
+            created_by=request.user,
+            status=ModerationStatus.MODERATION
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     #my courses
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -325,3 +356,28 @@ class LessonViewSet(ModelViewSet):
             raise PermissionDenied("Вы не можете удалить этот урок")
         instance.delete()
 
+
+
+class GlobalCourseViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = CourseSerializer
+    permission_classes = [IsModerator]
+    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        return Course.objects.select_related('section').all()
+
+    @action(detail=False, methods=['get'])
+    def moderation_list(self, request):
+        courses = Course.objects.filter(status=ModerationStatus.MODERATION).select_related('section')
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
+    def my_courses(self, request):
+        courses = Course.objects.filter(
+            created_by=request.user
+        ).select_related('section')
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
