@@ -339,6 +339,53 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
         return Response({"detail": "Отклонено"})
 
+    @action(detail=True, methods=['get'])
+    def stats(self, request, pk=None, **kwargs):
+        from apps.enrollment.models import CourseEnrollment, LessonProgress
+        from apps.quiz.models import QuizAttempt
+        from django.db.models import Avg
+
+        course = self.get_object()
+
+        enrollments = CourseEnrollment.objects.filter(course=course)
+        total_students = enrollments.count()
+        completed_students = enrollments.filter(status='completed').count()
+        active_students = enrollments.filter(status='active').count()
+
+        completion_rate = 0
+        if total_students > 0:
+            completion_rate = round(completed_students / total_students * 100, 1)
+
+        avg_progress = enrollments.filter(
+            status='active',
+        ).aggregate(Avg('progress_percent'))['progress_percent__avg'] or 0
+
+
+        avg_score = QuizAttempt.objects.filter(
+            quiz__chapter__course=course,
+            status='completed',
+        ).aggregate(Avg('score'))['score__avg'] or 0
+
+        avg_score_lessons = QuizAttempt.objects.filter(
+            quiz__lesson__chapter__course=course,
+            status='completed',
+        ).aggregate(Avg('score'))['score__avg'] or 0
+
+        scores = [s for s in [avg_score, avg_score_lessons] if s > 0]
+        final_avg_score = round(sum(scores) / len(scores), 1) if scores else 0
+
+        return Response({
+            'course_id': course.id,
+            'course_title': course.title,
+            'total_students': total_students,
+            'active_students': active_students,
+            'completed_students': completed_students,
+            'completion_rate': completion_rate,
+            'avg_progress': round(avg_progress, 1),
+            'avg_score': final_avg_score,
+            'rating': course.rating,
+            'reviews_count': course.reviews_count,
+        })
 
 class ChapterViewSet(ModelViewSet):
     serializer_class = ChapterSerializer

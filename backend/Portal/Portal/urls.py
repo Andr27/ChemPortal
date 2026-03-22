@@ -55,10 +55,11 @@ get /api/v1/posts/news/ - получить только новости
 get /api/v1/posts/videos/ - получить только видео 
 
 ЛЕНТА!!!
-GET /api/v1/posts/feed/              — всё
-GET /api/v1/posts/feed/?type=article — только статьи
-GET /api/v1/posts/feed/?type=news    — только новости
-GET /api/v1/posts/feed/?type=video   — только видео
+GET /api/v1/posts/feed/              - всe
+GET /api/v1/posts/feed/?type=article - только статьи
+GET /api/v1/posts/feed/?type=news    - только новости
+GET /api/v1/posts/feed/?type=video   - только видео
+GET /api/v1/posts/feed/?tag=oksidy - то же самое но только с тегом
 
 GET /api/v1/auth/me/ - сведения о пользователе
 
@@ -390,4 +391,7 @@ GET  /api/v1/enrollments/course_reviews/?course_id={course_id}&with_comment=true
 GET  /api/v1/enrollments/course_reviews/?course_id={course_id}&sort=useful    - сортировка по рейтингу
 
 
+
+
+GET /api/v1/education/sections/{section_id}/courses/{course_id}/stats/ - СТАТА КУРСА 
 '''
