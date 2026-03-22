@@ -242,10 +242,11 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
             user=request.user,
         ).values_list('tag_id', flat=True)
 
-
+        type_of_posts = request.query_params.get('type')
         if not subscribed_authors and not favorite_tags:
             queryset = Post.objects.filter(
                 status=ModerationStatus.PUBLISHED,
+                type=type_of_posts
             ).order_by('-created_at')
             queryset = self.filter_by_teg(queryset)
             page = self.paginate_queryset(queryset)
