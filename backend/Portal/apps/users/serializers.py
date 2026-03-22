@@ -92,3 +92,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_level(self, obj):
         return obj.profile.get_level()
+

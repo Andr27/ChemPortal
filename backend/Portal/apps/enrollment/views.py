@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 
 from Portal.choices import ModerationStatus
+from Portal.pagination import StandardPagination
 
 from apps.education.models import Course, Chapter, Lesson
 from .models import CourseEnrollment, ChapterProgress, LessonProgress, CourseCertificate
@@ -20,6 +21,7 @@ from .serializers import (
 
 class CourseEnrollmentViewSet(GenericViewSet):
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         return CourseEnrollment.objects.filter(
@@ -255,3 +257,59 @@ class CourseEnrollmentViewSet(GenericViewSet):
             certificate_number=number
         )
         return Response(CourseCertificateSerializer(cert).data)
+
+
+    @action(detail=False, methods=['post'])
+    def leave_review(self, request):
+        from .models import CourseReview
+        from .serializers import CourseReviewSerializer
+
+        course_id = request.data.get('course_id')
+        if not course_id:
+            raise ValidationError("Укажите course_id")
+
+        enrollment = get_object_or_404(
+            CourseEnrollment,
+            user=request.user,
+            course_id=course_id,
+        )
+
+        rating = request.data.get('rating')
+        if not rating or not (1<= int(rating) <= 5):
+            raise ValidationError("Рейтинг должен быть от 1 до 5")
+
+        review, created = CourseReview.objects.update_or_create(
+            course_id=course_id,
+            user=request.user,
+            defaults={
+                'rating': rating,
+                'comment': request.data.get('comment', '')
+            }
+        )
+        serializer = CourseReviewSerializer(review)
+        return Response(serializer.data, status=201 if created else 200)
+
+
+    @action(detail=False, methods=['get'])
+    def course_reviews(self, request):
+        from .models import CourseReview
+        from .serializers import CourseReviewSerializer
+
+        course_id = request.query_params.get('course_id')
+        if not course_id:
+            raise ValidationError('Укажите course_id')
+
+        only_with_comment = request.query_params.get('with_comment')
+        reviews = CourseReview.objects.filter(course_id=course_id).select_related('user')
+        if only_with_comment:
+            reviews = reviews.exclude(comment='')
+
+        sort = request.query_params.get('sort', '-created_at')
+        if sort == 'useful':
+            reviews = reviews.order_by('-rating')
+        else:
+            reviews = reviews.order_by('-created_at')
+
+        page = self.paginate_queryset(reviews)
+        serializer = CourseReviewSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)

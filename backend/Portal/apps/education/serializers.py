@@ -8,8 +8,8 @@ class EducationSectionSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     class Meta:
         model = EducationSection
-        fields = ("id", "title", "description", "created_by", "created_at", "status")
-        read_only_fields = ("created_by", "created_at")
+        fields = ("id", "title", "description", "created_by", "created_at", "status", 'rating')
+        read_only_fields = ("created_by", "created_at", 'rating')
 
     def get_created_by(self, obj):
         return {
@@ -71,10 +71,13 @@ class CourseSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     section_title = serializers.CharField(source='section.title', read_only=True)
     section_id = serializers.IntegerField(source='section.id', read_only=True)
+    rating = serializers.FloatField(read_only=True)
+    reviews_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Course
-        fields = ("id", "title", "description", "created_by", "created_at", "status", "section_id", "section_title")
-        read_only_fields = ("created_by", "created_at")
+        fields = ("id", "title", "description", "created_by", "created_at", "status", "section_id", "section_title", 'reject_comment',
+                  "rating", "reviews_count")
+        read_only_fields = ("created_by", "created_at", 'reject_comment')
 
     def get_created_by(self, obj):
         return {

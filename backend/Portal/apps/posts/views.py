@@ -227,7 +227,40 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def feeds(self, request):
+        from apps.subscriptions.models import Subscription
+        from apps.tags.models import FavoriteTag
 
+
+        subscribed_authors = Subscription.objects.filter(
+            user=request.user,
+
+        ).values_list('author_id', flat=True)
+
+        favorite_tags = FavoriteTag.objects.filter(
+            user=request.user,
+        ).values_list('tag_id', flat=True)
+
+        posts_from_subscriptions = Post.objects.filter(
+            author_id__in=subscribed_authors,
+            status=ModerationStatus.PUBLISHED,
+        )
+
+        posts_from_tags = Post.objects.filter(
+            tags__id_in=favorite_tags,
+            status=ModerationStatus.PUBLISHED,
+        )
+        queryset = (posts_from_subscriptions | posts_from_tags).distinct().order_by('-created_at')
+
+        queryset = self.filter_by_teg(queryset)
+        post_type = request.query_params.get('type')
+        if post_type:
+            queryset = queryset.filter(type=post_type)
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 

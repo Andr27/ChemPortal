@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CourseEnrollment, ChapterProgress, LessonProgress, CourseCertificate
+from .models import CourseEnrollment, ChapterProgress, LessonProgress, CourseCertificate, CourseReview
 
 
 class LessonProgressSerializer(serializers.ModelSerializer):
@@ -98,3 +98,19 @@ class CourseCertificateSerializer(serializers.ModelSerializer):
             'course_id', 'course_title',
             'issued_at', 'certificate_number',
         )
+
+
+
+
+class CourseReviewSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    class Meta:
+        model = CourseReview
+        fields = ('id', 'user', 'rating', 'comment', 'created_at')
+
+    def get_user(self, obj):
+        return {
+            'id': obj.user.id,
+            'first_name': obj.user.first_name,
+            'last_name': obj.user.last_name,
+        }

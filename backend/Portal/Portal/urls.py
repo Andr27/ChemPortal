@@ -54,6 +54,12 @@ get /api/v1/posts/my_posts/ - все посты конкретного авто�
 get /api/v1/posts/news/ - получить только новости
 get /api/v1/posts/videos/ - получить только видео 
 
+ЛЕНТА!!!
+GET /api/v1/posts/feed/              — всё
+GET /api/v1/posts/feed/?type=article — только статьи
+GET /api/v1/posts/feed/?type=news    — только новости
+GET /api/v1/posts/feed/?type=video   — только видео
+
 GET /api/v1/auth/me/ - сведения о пользователе
 
 POST /api/v1/posts/{post_id}/comments/ - создать коммент корневой (( в json "text": "текст комментария")
@@ -159,6 +165,10 @@ DELETE api/v1/education/sections/{id}/courses/{id}/                      - уд�
 POST   api/v1/education/sections/{id}/courses/{id}/send_to_moderation/   - отправить на модерацию
 POST   api/v1/education/sections/{id}/courses/{id}/approve/              - подтвердить
 POST   api/v1/education/sections/{id}/courses/{id}/reject/               - отклонить
+body
+{
+    "comment": "comment"
+}
 GET    api/v1/education/sections/{id}/courses/moderation_list/           - очередь модерации
 GET    api/v1/education/sections/{id}/courses/my_courses/                - все мои курсы
 GET    api/v1/education/sections/{id}/courses/my_draft_courses/          - мои черновики
@@ -365,4 +375,19 @@ Body: {"request_id": 1, "comment": "Такой тег уже есть"}
 get     /api/v1/categories/ -   список категорий
 get     /api/v1/{categories/{categories.slug} - конкретная катеогрия
 get     /api/v1/categories/{categories.slug}/sections/ - все разделы в категории конкретной
+
+
+
+
+
+
+ОТЗЫВЫ НА КУРС
+POST /api/v1/enrollments/leave_review/              - написать отзыв
+Body: {"course_id": 1, "rating": 5, "comment": "Отличный курс!"}
+
+GET  /api/v1/enrollments/course_reviews/?course_id={course_id} - получить все отзывы на конкретный курс
+GET  /api/v1/enrollments/course_reviews/?course_id={course_id}&with_comment=true  - получить отзывы только с комментариями
+GET  /api/v1/enrollments/course_reviews/?course_id={course_id}&sort=useful    - сортировка по рейтингу
+
+
 '''

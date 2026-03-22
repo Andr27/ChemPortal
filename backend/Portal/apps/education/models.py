@@ -23,6 +23,7 @@ class EducationSection(models.Model):
                                  blank=True,
                                  related_name='sections'
                                  )
+    rating = models.FloatField(default=0.0)
     class Meta:
         ordering = ["-created_at"]
 
@@ -59,13 +60,15 @@ class SectionMaterial(models.Model):
 
 
 class Course(models.Model):
-
     section = models.ForeignKey(EducationSection, on_delete=models.CASCADE, related_name='courses')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
+    reject_comment = models.TextField(blank=True, default='')
+    rating = models.FloatField(default=0.0)
+    reviews_count = models.PositiveIntegerField(default=0)
     class Meta:
         ordering = ["-created_at"]
 

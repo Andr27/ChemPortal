@@ -204,3 +204,26 @@ class CourseCertificate(models.Model):
 
 
 
+
+
+class CourseReview(models.Model):
+    course = models.ForeignKey(
+        'education.Course',
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='course_reviews'
+    )
+    rating = models.PositiveSmallIntegerField()
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('course', 'user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} → {self.course} ({self.rating}★)"
