@@ -1,12 +1,651 @@
 .navbar {
-    height: 50px;
-    width: 98%;
+    width: 240px;
+    min-height: 100vh;
     display: flex;
-    align-items: center;
-    padding: 0 15px;
-    background-color: lightgray;
+    flex-direction: column;
+    padding: 0;
+    background-color: transparent;
+    border-right: none;
+    box-shadow: none;
+    color: var(--color-text-main);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    overflow: visible;
 }
 
-.navbar__links {
-    margin-left: auto;
+.navbarHidden {
+    /* Класс для скрытия навбара при необходимости */
+    visibility: visible;
+}
+
+.navbar__topSection {
+    flex-shrink: 0;
+    padding: 0 16px 0;
+    position: relative;
+    overflow: visible;
+}
+
+/* Невидимый блок по размеру лого, на всю ширину страницы — при скролле даёт тень снизу.
+   z-index выше логотипа, чтобы тень не перекрывалась новбаром и была видна по всей ширине. */
+.navbar__shadowPad {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100%;
+    pointer-events: none;
+    background: transparent;
+    transition: box-shadow 0.5s ease-in-out;
+    z-index: 1;
+}
+
+.navbar__shadowPadActive {
+    -webkit-box-shadow: 0px 5px 60px -13px rgba(34, 60, 80, 0.33);
+    -moz-box-shadow: 0px 5px 60px -13px rgba(34, 60, 80, 0.33);
+    box-shadow: 0px 5px 60px -13px rgba(34, 60, 80, 0.33);
+}
+
+.navbar__logoBlock {
+    position: relative;
+    z-index: 0;
+    background-color: var(--color-surface);
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.navbar__bottomSection {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 16px;
+    background-color: var(--color-surface);
+    position: relative;
+}
+
+/* Плавная смена фона только при прокрутке (opacity), при смене темы цвет меняется сразу */
+.navbar__bottomSection::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 0;
+}
+
+.navbar__bottomSectionScrolled::after {
+    opacity: 1;
+}
+
+.navbar__bottomSection > * {
+    position: relative;
+    z-index: 1;
+}
+
+.navbar__row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    flex: 1 1 auto;
+}
+
+.navbar__logoSpace {
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.navbar__brand {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    margin-left: -30px;
+}
+
+.navbar__brandHomeLink {
+    display: inline-block;
+    text-decoration: none;
+    line-height: 0;
+    color: inherit;
+}
+
+body.theme-chem .navbar__brandHomeLink {
+    background: transparent;
+    padding: 0;
+}
+
+.navbar__brandLogo {
+    margin-right: auto;
+    display: block;
+    height: 110px;
+    width: auto;
+    max-width: 100%;
+}
+
+.navbar__center {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navbar__topRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+}
+
+.navbar__topLink {
+    opacity: 0.9;
+}
+
+.navbar__search {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--header-input-border);
+    font-size: 13px;
+    background: var(--header-input-bg);
+    color: var(--header-input-text);
+    outline: none;
+    transition: border-color 0.16s ease-out, box-shadow 0.16s ease-out, background-color 0.12s ease-out;
+    box-sizing: border-box;
+}
+
+.navbar__search::placeholder {
+    color: var(--header-input-placeholder);
+}
+
+.navbar__search:focus {
+    border-color: var(--header-input-focus-border);
+    box-shadow: 0 0 0 2px var(--header-input-focus-ring);
+    background: var(--header-input-focus-bg);
+}
+
+.navbar__bottomLinks {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0 0 8px;
+}
+
+.navbar__sectionDivider {
+    height: 1px;
+    margin: 4px 0 8px;
+    background-color: var(--color-border-subtle);
+    opacity: 0.7;
+}
+
+.navbar__right {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    font-size: 12px;
+    margin-top: auto;
+}
+
+.navbar__rightStack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.navbar__bottomRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.navbar__themeSwitch {
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar__themeBtn {
+    border: none;
+    border-radius: 999px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.14s ease-out, color 0.14s ease-out;
+}
+
+.navbar__themeBtn:hover {
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    color: var(--color-text-main);
+}
+
+.navbar__navLink {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar__navIcon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: inline-block;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    background-color: var(--color-text-main);
+    transition: background-color 0.18s ease-out;
+}
+
+/* Выбранный пункт — синий цвет темы */
+.navbar__navLink[aria-current="page"] .navbar__navIcon {
+    background-color: var(--color-primary);
+}
+
+/* Тёмная тема: невыбранные иконки белые */
+body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
+    background-color: #fff;
+}
+
+.navbar__createLink {
+    border: 3px solid var(--color-border-subtle);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.navbar__createLink:hover {
+    border-color: var(--color-primary);
+    transform: none !important;
+}
+
+.navbar__bookmarksLink {
+    border: none;
+    padding: 8px 12px;
+}
+
+.navbar__userMenuWrapper {
+    position: relative;
+}
+
+.navbar__userTrigger {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 2px solid var(--color-border-subtle);
+    background: transparent;
+    color: var(--color-text-main);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background-color 0.16s ease-out, transform 0.14s ease-out;
+}
+
+.navbar__userTrigger:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    transform: none;
+}
+
+.navbar__userIcon {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    background-color: currentColor;
+}
+
+.navbar__dropdown {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-10%);
+    bottom: calc(100% + 6px);
+    min-width: 190px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.2);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 60;
+}
+
+.navbar__dropdownItem {
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    padding: 9px 10px;
+    text-align: left;
+    color: var(--color-text-main);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.navbar__dropdownItem:hover {
+    background: var(--color-bg-dark);
+}
+
+.navbar__dropdownItemDanger {
+    color: #dc2626;
+}
+
+.navbar__userName {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+@media (max-width: 900px) {
+    .navbar {
+        padding: 8px 12px 4px;
+    }
+
+    .navbar__row {
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .navbar__brand,
+    .navbar__bottomLinks,
+    .navbar__right {
+        transform: none;
+    }
+
+    .navbar__brandLogo {
+        width: 120px;
+    }
+
+    .navbar__bottomLinks {
+        width: 100%;
+        order: 3;
+        justify-content: flex-start;
+        margin-left: 0;
+        gap: 8px;
+    }
+
+    .navbar__right {
+        margin-left: auto;
+        order: 2;
+    }
+
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        width: 72px;
+        min-width: 72px;
+        padding: 0 6px 10px;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: var(--color-surface);
+    }
+
+    .navbar__navText {
+        display: none;
+    }
+
+    /* Верхний отсек с лого — на всю ширину навбара */
+    .navbar__topSection {
+        background-color: var(--color-surface);
+        padding: 0;
+        margin-left: -6px;
+        margin-right: -6px;
+        width: calc(100% + 12px);
+        box-sizing: border-box;
+    }
+
+    .navbar__logoBlock {
+        margin-left: -6px;
+        margin-right: -6px;
+        padding-left: 6px;
+        padding-right: 6px;
+        overflow: visible;
+        width: calc(100% + 12px);
+        box-sizing: border-box;
+    }
+
+    /* Блок полосы с лого — уменьшен */
+    .navbar__logoSpace {
+        height: 72px;
+        overflow: visible;
+    }
+
+    /* Сам логотип (картинка) увеличен в 1.5 раза */
+    .navbar__brandLogo {
+        height: 72px;
+        width: auto;
+        max-width: 64px;
+        object-fit: contain;
+        transform: scale(1.5);
+        transform-origin: center center;
+    }
+
+    .navbar__brand {
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    /* Блок с кнопками — на всю ширину и до самого низа навбара */
+    .navbar__bottomSection {
+        margin-left: -6px;
+        margin-right: -6px;
+        margin-bottom: -10px;
+        padding: 12px 6px 16px;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        width: calc(100% + 12px);
+        box-sizing: border-box;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    /* Порядок как на ПК: сначала пункты меню, потом кнопки справа */
+    .navbar__bottomLinks {
+        order: 1;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .navbar__right {
+        order: 2;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .navbar__rightStack {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    /* На телефонах: смена темы над иконкой личного кабинета */
+    .navbar__bottomRow {
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .navbar__bottomRow .navbar__themeSwitch {
+        order: 0;
+    }
+
+    .navbar__bottomRow .navbar__userMenuWrapper,
+    .navbar__bottomRow > a.navbar__navLink {
+        order: 1;
+    }
+
+    .navbar__navLink {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+        overflow: hidden;
+        text-indent: 100%;
+        white-space: nowrap;
+        border-radius: 10px;
+    }
+
+    .navbar__navIcon {
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        text-indent: 0;
+        flex-shrink: 0;
+    }
+
+    .navbar__rightStack .navbar__navLink {
+        width: 44px;
+        min-width: 44px;
+    }
+
+    .navbar__createLink {
+        padding: 0;
+        justify-content: center;
+        width: 44px;
+        min-width: 44px;
+        overflow: hidden;
+        text-indent: 100%;
+        white-space: nowrap;
+    }
+
+    .navbar__bookmarksLink {
+        padding: 0;
+        justify-content: center;
+    }
+
+    .navbar__userIcon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .navbar__themeBtn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .navbar__userTrigger {
+        width: 40px;
+        height: 40px;
+    }
+
+    .navbar__dropdown {
+        left: 0;
+        transform: translateX(0);
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        padding: 0 4px 10px;
+        width: 64px;
+        min-width: 64px;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: var(--color-surface);
+    }
+
+    .navbar__topSection {
+        background-color: var(--color-surface);
+        padding: 0;
+        margin-left: -4px;
+        margin-right: -4px;
+        width: calc(100% + 8px);
+        box-sizing: border-box;
+    }
+
+    .navbar__logoBlock {
+        margin-left: -4px;
+        margin-right: -4px;
+        padding-left: 4px;
+        padding-right: 4px;
+        overflow: visible;
+        width: calc(100% + 8px);
+        box-sizing: border-box;
+    }
+
+    .navbar__bottomSection {
+        margin-left: -4px;
+        margin-right: -4px;
+        margin-bottom: -10px;
+        width: calc(100% + 8px);
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-bottom: 16px;
+        box-sizing: border-box;
+    }
+
+    .navbar__logoSpace {
+        height: 72px;
+        overflow: visible;
+    }
+
+    .navbar__brandLogo {
+        max-width: 60px;
+        height: 72px;
+        object-fit: contain;
+        transform: scale(1.5);
+        transform-origin: center center;
+    }
+
+    .navbar__navLink {
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+    }
+
+    .navbar__navIcon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .navbar__bottomLinks {
+        gap: 4px;
+    }
+
+    .navbar__dropdown {
+        min-width: 150px;
+    }
 }

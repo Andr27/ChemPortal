@@ -55,7 +55,7 @@ const AppRouter = () => {
                 path="*"
                 element={
                     !isAuth ? (
-                        <Navigate to="/login" replace />
+                        <Navigate to="/posts" replace />
                     ) : (
                         <Navigate to="/posts" replace />
                     )

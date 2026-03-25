@@ -6,7 +6,7 @@ export const useUser = () => {
 
     const updateUser = (newData) => {
         const updatedUser = {...user, ...newData};
-        setUser(newData);
+        setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
     };
     const clearUser = () => {

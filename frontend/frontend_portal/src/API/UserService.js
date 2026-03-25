@@ -1,5 +1,5 @@
 import api from './api';
-import PostService from "./PostService";
+import PostService from "../features/posts/API/PostService";
 
 class UserService {
     static async getMyPosts(limit = 5, page = 1){
@@ -105,6 +105,7 @@ class UserService {
         const response = await api.post(`posts/${id}/bookmark/`);
         return response;
     }
+
     static async DellBookmarkPost(id) {
         const response = await api.post(`posts/${id}/unbookmark/`);
         return response;
@@ -121,6 +122,11 @@ class UserService {
         const response = await api.post(`subscriptions/unsubscribe/`, {
             author: authorId,
         });
+        return response;
+    }
+
+    static async CreateAndSentToModeration(postData){
+        const response = await api.post("posts/create_and_send_to_moderation/", postData);
         return response;
     }
 

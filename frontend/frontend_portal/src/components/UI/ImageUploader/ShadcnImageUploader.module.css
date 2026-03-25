@@ -1,0 +1,295 @@
+.uploader {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 14px;
+    background: var(--color-surface);
+    padding: 12px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: var(--color-text-main);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.clear {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+    background: var(--color-bg-dark);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.clear:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-dark));
+    color: var(--color-text-main);
+    border-color: var(--color-primary);
+}
+
+.dropzone {
+    border: 1px dashed var(--color-border-subtle);
+    border-radius: 12px;
+    min-height: 120px;
+    background: var(--color-bg-dark);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.dropzone:hover {
+    border-color: var(--color-primary);
+}
+
+.placeholder {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.preview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+}
+
+.cropModal {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cropHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cropTitle {
+    margin: 0;
+    font-size: 20px;
+    color: var(--color-text-main);
+}
+
+.cropSubtitle {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.cropBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 14px;
+}
+
+.cropStageWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cropFrame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-dark);
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.cropFrame:active {
+    cursor: grabbing;
+}
+
+.cropImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    user-select: none;
+    pointer-events: none;
+}
+
+.zoomControls {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.zoomControls input {
+    width: 100%;
+}
+
+.zoomControls strong {
+    color: var(--color-text-main);
+    font-size: 12px;
+}
+
+.previewWrap {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    background: var(--color-bg-dark);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.previewLabel {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.previewPost {
+    position: relative;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    background: var(--color-surface);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    padding: 0 10px 10px;
+}
+
+.previewPost::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+}
+
+.previewPostCover {
+    margin: 0 -10px 2px -6px;
+    height: 110px;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-dark);
+}
+
+.previewPostCover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 22px;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        var(--cover-fade) 70%,
+        var(--color-surface) 100%
+    );
+    pointer-events: none;
+}
+
+.previewPostBody {
+    padding: 0 0 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.previewPostTitle {
+    color: var(--color-text-main);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.previewPostText {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.previewPostBottom {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 7px;
+}
+
+.previewPostLikes {
+    display: flex;
+    gap: 6px;
+}
+
+.previewPostCircle {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-dark);
+}
+
+.previewPostViews {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.previewPostCoverImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    filter: saturate(0.8) brightness(0.9) contrast(0.95);
+    opacity: 0.9;
+}
+
+.cropActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.actionPrimary,
+.actionSecondary {
+    border-radius: 10px;
+    padding: 8px 14px;
+    border: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.actionSecondary {
+    background: var(--color-bg-dark);
+    color: var(--color-text-main);
+}
+
+.actionPrimary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+@media (max-width: 900px) {
+    .cropBody {
+        grid-template-columns: 1fr;
+    }
+}

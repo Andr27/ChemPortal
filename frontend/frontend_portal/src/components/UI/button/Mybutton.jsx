@@ -1,10 +1,10 @@
 import React from 'react';
 import classes from "./Mybutton.module.css";
-const Mybutton = ({children , ...props}) => {
+const Mybutton = ({ children, className, ...props }) => {
     return (
-       <button {...props} className={classes.myBtn}>
-           {children}
-       </button>
+        <button {...props} className={[classes.myBtn, className].filter(Boolean).join(' ')}>
+            {children}
+        </button>
     );
 };
 

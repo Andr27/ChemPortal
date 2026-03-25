@@ -1,10 +1,15 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import cl from './MyLink.module.css'
 
-const MyLink = (props) => {
+const MyLink = ({className = '', ...props}) => {
     return (
-            <Link className={cl.MyLink} {...props}/>
+        <NavLink
+            className={({isActive}) =>
+                `${cl.MyLink} ${isActive ? cl.MyLinkActive : ''} ${className}`.trim()
+            }
+            {...props}
+        />
     );
 };
 

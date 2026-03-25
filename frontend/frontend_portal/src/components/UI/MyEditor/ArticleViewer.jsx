@@ -2,7 +2,7 @@ import React from 'react';
 import MyEditor from "./MyEditor";
 import cl from './ArticleViewer.module.css'
 
-const ArticleViewer = ({ articleTitle, articleContent, editable = false }) => {
+const ArticleViewer = ({ articleTitle, articleContent, editable = false, images = [] }) => {
     // articleContent может быть строкой JSON или простым текстом
     const parseContent = (content) => {
         if (!content) return null;
@@ -23,6 +23,8 @@ const ArticleViewer = ({ articleTitle, articleContent, editable = false }) => {
             <MyEditor
                 editable={editable}
                 content={parseContent(articleContent)}
+                images={images}
+                borderless={!editable}
                 onChange={() => {}}
             />
         </div>

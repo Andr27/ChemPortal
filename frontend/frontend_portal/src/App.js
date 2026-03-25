@@ -1,12 +1,20 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import './styles/App.css';
 import {BrowserRouter} from "react-router-dom";
 import Navbar from "./components/UI/navbar/navbar";
 import AppRouter from "./components/AppRouter";
 import {AuthContext, CreatorContext, ModeratorContext, UserContext} from "./context";
-import AuthService from "./API/AuthService";
+import AuthService from "./features/Login/API/AuthService";
+import ScrollTopButton from "./components/UI/ScrollTopButton/ScrollTopButton";
+
+const MAIN_SCROLL_EVENT = 'main-scroll';
+
+const THEME_STORAGE_KEY = "site-theme";
+const AVAILABLE_THEMES = ["theme-chem", "theme-nano"];
+const DEFAULT_THEME = "theme-chem";
 
 function App() {
+    const mainContentRef = useRef(null);
     const [isModerator, setIsModerator] = useState(false);
     const [isAuth, setIsAuth] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -53,8 +61,7 @@ function App() {
         const updateFromServer = async () => {
             if (AuthService.getToken()) {
                 try {
-                    const result = await AuthService.fetchAndSaveUserRole();
-
+                    await AuthService.fetchAndSaveUserRole();
                     window.dispatchEvent(new Event('user-updated'));
                 } catch (error) {
                 }
@@ -68,14 +75,57 @@ function App() {
         };
     }, []);
 
+    useEffect(() => {
+        const applyTheme = (themeName) => {
+            const safeTheme = AVAILABLE_THEMES.includes(themeName) ? themeName : DEFAULT_THEME;
+            document.body.classList.remove(...AVAILABLE_THEMES);
+            document.body.classList.add(safeTheme);
+            localStorage.setItem(THEME_STORAGE_KEY, safeTheme);
+        };
+
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME;
+        applyTheme(savedTheme);
+
+        // Allows switching without UI, e.g. from console:
+        // window.dispatchEvent(new CustomEvent('site-theme-change', { detail: { theme: 'theme-nano' } }))
+        const onThemeChange = (event) => {
+            const nextTheme = event?.detail?.theme;
+            if (typeof nextTheme === "string") {
+                applyTheme(nextTheme);
+            }
+        };
+
+        window.addEventListener("site-theme-change", onThemeChange);
+        return () => window.removeEventListener("site-theme-change", onThemeChange);
+    }, []);
+
+    // Событие скролла из main (на мобильных скролл в layout__content) — для анимации навбара как на ПК
+    useEffect(() => {
+        const el = mainContentRef.current;
+        if (!el) return;
+        const handler = () => {
+            window.dispatchEvent(new CustomEvent(MAIN_SCROLL_EVENT, { detail: { scrollTop: el.scrollTop } }));
+        };
+        el.addEventListener('scroll', handler, { passive: true });
+        handler();
+        return () => el.removeEventListener('scroll', handler);
+    }, []);
+
     return (
         <UserContext.Provider value={{ user, setUser }}>
             <AuthContext.Provider value={{ isAuth, setIsAuth, isLoading }}>
                 <ModeratorContext.Provider value={{ isModerator, setIsModerator }}>
                     <CreatorContext.Provider value={{isCreator, setIsCreator}}>
                     <BrowserRouter>
-                        <Navbar/>
-                        <AppRouter/>
+                        <div className="layout">
+                            <aside className="layout__sidebar">
+                                <Navbar/>
+                            </aside>
+                            <main ref={mainContentRef} className="layout__content">
+                                <AppRouter/>
+                                <ScrollTopButton />
+                            </main>
+                        </div>
                     </BrowserRouter>
                     </CreatorContext.Provider>
                 </ModeratorContext.Provider>
