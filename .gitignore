@@ -1,12 +1,49 @@
-backend/Portal/.idea/
-**/.venv
-.idea
-backend/.env
+# IDE
+.idea/
+.vscode/
+*.iml
 
-models/
-*.cache/
-
-
+# Environments
 .venv/
-__pycache__/
-*.pyc
+venv/
+env/
+ENV/
+
+# Django
+backend/Portal/__pycache__/
+backend/Portal/*.pyc
+backend/Portal/*.pyo
+backend/Portal/db.sqlite3
+backend/Portal/db.sqlite3-journal
+backend/Portal/media/
+backend/Portal/staticfiles/
+
+# Environment variables
+backend/.env
+.env
+.env.prod
+.env.local
+
+# ML Models — очень важно!
+backend/Portal/models/
+backend/Portal/checkpoints/
+*.pth
+*.pt
+*.bin
+*.safetensors
+*.zip   # если будешь хранить zip модели локально
+
+# Node / React
+frontend/node_modules/
+frontend/.next/
+frontend/build/
+frontend/.env.local
+frontend/.env
+
+# Docker
+.docker/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
