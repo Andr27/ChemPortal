@@ -1,32 +1,39 @@
 version: '3.9'
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: portal_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: portal_db
+      POSTGRES_USER: portal_user
+      POSTGRES_PASSWORD: WerZxc2000VB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
     container_name: portal_redis
-
-    ports:
-      - "6379:6379"
-
     restart: unless-stopped
-
     command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: portal_backend
-    entrypoint: ["/entrypoint.sh"]
     command: gunicorn --workers 2 --bind 0.0.0.0:8000 Portal.wsgi
     volumes:
-      - ./backend:/app
-      - model_volume:/app/Portal/models
-      - static_volume:app/staticfiles
+      - model_volume:/app/models
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     expose:
       - "8000"
     depends_on:
+      - db
       - redis
     env_file:
       - backend/.env.prod
@@ -34,31 +41,21 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./frontend/frontend_portal
+      dockerfile: ../Dockerfile
     container_name: portal_frontend
     volumes:
-      - static_volume:/usr/share/nginx/html/static
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    container_name: portal_nginx
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media:ro
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/usr/share/nginx/html/static:ro
     depends_on:
       - backend
-      - frontend
     restart: unless-stopped
 
-
 volumes:
+  postgres_data:
   redis_data:
   model_volume:
   static_volume:
-
-
-
+  media_volume:

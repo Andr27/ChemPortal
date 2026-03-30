@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.db.models import F
 from rest_framework.exceptions import PermissionDenied
@@ -227,35 +227,54 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def feed(self, request):
         from apps.subscriptions.models import Subscription
         from apps.tags.models import FavoriteTag
 
+        type_of_posts = request.query_params.get('type')
+        tag = request.query_params.get('tag')
 
+        # ====================== НЕАВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ ======================
+        if not request.user.is_authenticated:
+            queryset = Post.objects.filter(
+                status=ModerationStatus.PUBLISHED,
+            )
+            if type_of_posts:
+                queryset = queryset.filter(type=type_of_posts)
+            if tag:
+                queryset = queryset.filter(tags__slug=tag)
+
+            queryset = self.filter_by_teg(queryset)  # твоя существующая функция
+            page = self.paginate_queryset(queryset)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # ====================== АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ ======================
         subscribed_authors = Subscription.objects.filter(
             user=request.user,
-
         ).values_list('author_id', flat=True)
 
         favorite_tags = FavoriteTag.objects.filter(
             user=request.user,
         ).values_list('tag_id', flat=True)
 
-        type_of_posts = request.query_params.get('type')
+        # Если у пользователя нет ни подписок, ни любимых тегов — сразу показываем всё
         if not subscribed_authors and not favorite_tags:
             queryset = Post.objects.filter(
                 status=ModerationStatus.PUBLISHED,
-                type=type_of_posts
-            ).order_by('-created_at')
+            )
+            if type_of_posts:
+                queryset = queryset.filter(type=type_of_posts)
+            if tag:
+                queryset = queryset.filter(tags__slug=tag)
+
             queryset = self.filter_by_teg(queryset)
             page = self.paginate_queryset(queryset)
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-
-
-
+        # Персонализированная лента
         posts_from_subscriptions = Post.objects.filter(
             author_id__in=subscribed_authors,
             status=ModerationStatus.PUBLISHED,
@@ -265,35 +284,32 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
             tags__id__in=favorite_tags,
             status=ModerationStatus.PUBLISHED,
         )
+
         personalized = (posts_from_subscriptions | posts_from_tags).distinct()
 
-        personalized_ids =personalized.values_list('id', flat=True)
+        personalized_ids = personalized.values_list('id', flat=True)
+
         rest = Post.objects.filter(
             status=ModerationStatus.PUBLISHED,
         ).exclude(id__in=personalized_ids)
 
-
+        # Объединяем и сортируем (сначала персонализированные)
         from itertools import chain
         combined = list(chain(
             personalized.order_by('-created_at'),
             rest.order_by('-created_at'),
         ))
 
-        tag = request.query_params.get('tag')
+        # Дополнительные фильтры (tag и type)
         if tag:
-            combined = [p for p in combined if p.tags.fitler(slug=tag).exists()]
+            combined = [p for p in combined if p.tags.filter(slug=tag).exists()]
 
-
-        post_type = request.query_params.get('type')
-        if post_type:
-            combined = [p for p in combined if p.type == post_type]
-
+        if type_of_posts:
+            combined = [p for p in combined if p.type == type_of_posts]
 
         page = self.paginate_queryset(combined)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
-
-
 
 
 

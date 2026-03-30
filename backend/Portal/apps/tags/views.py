@@ -143,6 +143,8 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         tag_request.status = 'approved'
         tag_request.reviewed_by = request.user
         tag_request.save()
+        from django.core.cache import cache
+        cache.delete('tag_embeddings_v1')
 
         return Response({
             'detail': f'Тег "{tag.name}" добавлен.',

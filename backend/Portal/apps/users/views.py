@@ -33,7 +33,7 @@ class RegistrationAPIView(APIView):
 
 
 
-        confirm_url = f"http://localhost:3000/confirm-email?token={pending.token}"
+        confirm_url = f"http://147.45.219.171/confirm-email?token={pending.token}"
 
         send_mail(
             subject="Confirm Email",
@@ -105,7 +105,7 @@ class PasswordResetRequestAPIView(APIView):
         user = User.objects.get(email=serializer.validated_data['email'])
         token = PasswordResetToken.objects.create(user=user)
 
-        reset_link = f"http://localhost:3000/reset-password?token={token.token}"
+        reset_link = f"http://147.45.219.171/reset-password?token={token.token}"
 
         send_mail(
             subject="Сброс пароля",
