@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/v1/",
+    baseURL: "http://147.45.219.171/api/v1/",
 });
 
 let isRefreshing = false;
@@ -77,7 +77,7 @@ api.interceptors.response.use(
                 throw new Error(`Refresh token: отсутствует`);
             }
 
-            const response = await axios.post('http://127.0.0.1:8000/api/v1/token/refresh/', {
+            const response = await axios.post('http://147.45.219.171/api/v1/token/refresh/', {
                 refresh: refreshToken,
             });
 
