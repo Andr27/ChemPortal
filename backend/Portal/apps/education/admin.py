@@ -1,11 +1,14 @@
 from django.contrib import admin
-from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson
+from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson, SectionMaterialImage
 
 
 class SectionMaterialInline(admin.TabularInline):
     model = SectionMaterial
     extra = 0
 
+class SectionMaterialImageInline(admin.TabularInline):
+    model = SectionMaterialImage
+    extra = 1
 
 class ChapterInline(admin.TabularInline):
     model = Chapter
@@ -57,3 +60,7 @@ class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'chapter', 'type', 'order')
     list_filter = ('type',)
     search_fields = ('title', 'chapter__title')
+
+@admin.register(SectionMaterial)
+class SectionMaterialAdmin(admin.ModelAdmin):
+    inlines = [SectionMaterialImageInline]

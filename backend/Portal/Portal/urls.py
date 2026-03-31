@@ -394,4 +394,28 @@ GET  /api/v1/enrollments/course_reviews/?course_id={course_id}&sort=useful    - 
 
 
 GET /api/v1/education/sections/{section_id}/courses/{course_id}/stats/ - СТАТА КУРСА 
+
+
+
+POST /api/v1/auth/creator-applications/apply/ - отправить заявку на creator
+{
+    "bio":"Я доктор физических наук",
+    "affiliation": "Я не знаю что тут писать", - необязательно
+    "scientific_interests": "Dota 2",
+    "vk_url":"https://vk.com/andrewchetverik",- необязательно
+    "telegram_url": "https://t.me/@Andrrrrrrr", - необязательно
+    "website_url": "https://t.me/@Andrrrrrrr" - необязательно
+
+}
+GET  /api/v1/auth/creator-applications/my_application/ - моя заявка
+GET  /api/v1/auth/creator-applications/applications_list/ - список всех заявок
+POST /api/v1/auth/creator-applications/approve/   
+{
+"application_id": {application_id}
+}
+POST /api/v1/auth/creator-applications/reject/    
+{"application_id": {application_id}, "comment": "..."}
+GET  /api/v1/auth/creators/                       — список всех креаторов
+GET  /api/v1/auth/creators/{id}/                  — профиль Creator'а
+GET  /api/v1/auth/creators/{id}/activity/         — лента активностей
 '''

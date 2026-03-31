@@ -43,7 +43,7 @@ class SectionMaterial(models.Model):
     title = models.CharField(max_length=255)
 
     type = models.CharField(max_length=100, choices=MATERIAL_TYPES)
-
+    image = models.ImageField(upload_to='materials/', null=True, blank=True)
     content = models.TextField(blank=True)
     external_url = models.URLField(blank=True)
 
@@ -122,3 +122,16 @@ class Lesson(models.Model):
 
 
 
+
+
+class SectionMaterialImage(models.Model):
+    material = models.ForeignKey(
+        SectionMaterial,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(upload_to='materials/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for material {self.material_id}"

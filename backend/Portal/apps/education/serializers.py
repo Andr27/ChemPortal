@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Portal.choices import ModerationStatus
-from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson
+from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson, SectionMaterialImage
 
 
 class EducationSectionSerializer(serializers.ModelSerializer):
@@ -19,11 +19,40 @@ class EducationSectionSerializer(serializers.ModelSerializer):
         }
 
 
+class SectionMaterialImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionMaterialImage
+        fields = ('id', 'image', 'uploaded_at')
+
 
 class SectionMaterialSerializer(serializers.ModelSerializer):
+    images = SectionMaterialImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(),
+        write_only=True,
+        required=False
+    )
+
     class Meta:
         model = SectionMaterial
-        exclude = ("section", )
+        exclude = ('section',)
+
+    def create(self, validated_data):
+        images = validated_data.pop('uploaded_images', [])
+        material = SectionMaterial.objects.create(**validated_data)
+        for image in images:
+            SectionMaterialImage.objects.create(material=material, image=image)
+        return material
+
+    def update(self, instance, validated_data):
+        images = validated_data.pop('uploaded_images', None)
+        instance = super().update(instance, validated_data)
+        if images is not None:
+            instance.images.all().delete()
+            for image in images:
+                SectionMaterialImage.objects.create(material=instance, image=image)
+        return instance
+
 
 
 class LessonSerializer(serializers.ModelSerializer):

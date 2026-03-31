@@ -1,14 +1,23 @@
+from django.utils import timezone
+
 from django.core.mail import send_mail
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from rest_framework.viewsets import GenericViewSet
+
+from Portal.choices import UserRole
+from Portal.permissions import IsModerator
 from .serializers import RegistrationSerializer, MeSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, \
-    ProfileSerializer, MeUpdateSerializer
-from .models import EmailConfirmationToken, PasswordResetToken, PendingUser, Profile
+    ProfileSerializer, MeUpdateSerializer, CreatorApplicationSerializer, CreatorApplicationDetailSerializer, CreatorProfileSerializer
+from .models import EmailConfirmationToken, PasswordResetToken, PendingUser, CreatorApplication
 
 
 class RegistrationAPIView(APIView):
@@ -139,3 +148,155 @@ class PasswordResetConfirmAPIView(APIView):
 class AuthorProfileAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
+
+
+
+
+class CreatorApplicationViewSet(GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CreatorApplication.objects.all()
+
+    @action(detail=False, methods=['post'])
+    def apply(self, request):
+        if request.user.profile.role in [UserRole.CREATOR, UserRole.ADMIN, UserRole.MODERATOR]:
+            return Response(
+                {'detail': "Вы уже являетесь создателем контента"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        existing = CreatorApplication.objects.filter(
+            user=request.user,
+            status='pending'
+        ).first()
+        if existing:
+            return Response(
+                {'detail': 'У вас уже есть заявка на рассмотрении'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = CreatorApplicationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def my_application(self, request):
+        try:
+            application = CreatorApplication.objects.get(user=request.user)
+            serializer = CreatorApplicationSerializer(application)
+            return Response(serializer.data)
+        except CreatorApplication.DoesNotExist:
+            return Response({'detail': 'Заявка не найдена'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsModerator])
+    def applications_list(self, request):
+        status_filter = request.query_params.get('status', 'pending')
+        applications = CreatorApplication.objects.filter(
+            status=status_filter
+        ).select_related('user', 'reviewed_by').order_by('-created_at')
+
+        serializer = CreatorApplicationSerializer(applications, many=True)
+        return Response(serializer.data)
+
+
+    @action(detail=False, methods=['post'], permission_classes=[IsModerator])
+    def approve(self, request):
+        application_id = request.data.get('application_id')
+        if not application_id:
+            raise ValidationError({'application_id': 'Обязательное поле'})
+        try:
+            application = CreatorApplication.objects.get(id=application_id, status='pending')
+        except CreatorApplication.DoesNotExist:
+            return Response(
+                {'detail': 'Заявка не найдена или уже обработана'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        profile = application.user.profile
+        profile.role = UserRole.CREATOR
+        profile.bio = application.bio
+        profile.affiliation = application.affiliation
+        profile.scientific_interests = application.scientific_interests
+        profile.vk_url = application.vk_url
+        profile.telegram_url = application.telegram_url
+        profile.website_url = application.website_url
+        profile.save()
+
+
+        application.status = 'approved'
+        application.reviewed_by = request.user
+        application.reviewed_at = timezone.now()
+        application.save()
+
+        return Response({'detail': f'Роль Creator выдана пользователю {application.user.email}'})
+
+    @action(detail=False, methods=['post'], permission_classes=[IsModerator])
+    def reject(self, request):
+        application_id = request.data.get('application_id')
+        if not application_id:
+            raise ValidationError({'application_id': 'Обязательное поле'})
+        try:
+            application = CreatorApplication.objects.get(id=application_id, status='pending')
+        except CreatorApplication.DoesNotExist:
+            return Response(
+                {'detail': 'Заявка не найдена или уже обработана'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        application.status = 'rejected'
+        application.reviewed_by = request.user
+        application.reviewed_at = timezone.now()
+        application.reject_comment = request.data.get('comment', '')
+        application.save()
+        return Response({"detail": "Заявка отклонена"})
+
+
+
+class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    serializer_class = CreatorProfileSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(
+            profile__role=UserRole.CREATOR
+        ).select_related('profile')
+
+    @action(detail=True, methods=['get'])
+    def activity(self, request, pk=None):
+        from apps.posts.models import Post
+        from apps.education.models import Course, EducationSection
+        from Portal.choices import ModerationStatus
+        from itertools import chain
+        import operator
+
+        creator = self.get_object()
+
+        posts = Post.objects.filter(
+            author=creator,
+            status=ModerationStatus.PUBLISHED
+        ).values("id", 'title', 'type', 'created_at').order_by('-created_at')[:10]
+
+        courses = Course.objects.filter(
+            created_by=creator,
+            status=ModerationStatus.PUBLISHED
+        ).values('id', 'title', 'created_at').order_by('-created_at')[:10]
+
+        sections = EducationSection.objects.filter(
+            created_by=creator,
+            status=ModerationStatus.PUBLISHED
+        ).values('id', 'title', 'created_at').order_by('-created_at')[:10]
+
+        activity = []
+
+        for p in posts:
+            activity.append({**p, 'activity_type': 'post'})
+        for c in courses:
+            activity.append({**c, 'activity_type': 'course'})
+        for s in sections:
+            activity.append({**s, 'activity_type': 'section'})
+
+        activity.sort(key=lambda x:x['created_at'], reverse=True)
+        return Response(activity[:20])
+
+
+

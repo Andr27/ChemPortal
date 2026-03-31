@@ -12,6 +12,16 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     rating = models.IntegerField(default=0)
 
+
+    bio = models.TextField(blank=True)
+    affiliation = models.CharField(max_length=255, blank=True)
+    scientific_interests = models.TextField(blank=True)
+    vk_url = models.URLField(blank=True)
+    telegram_url = models.URLField(blank=True)
+    website_url = models.URLField(blank=True)
+
+
+
     def __str__(self):
         return f"{self.role}"
 
@@ -27,6 +37,39 @@ class Profile(models.Model):
 
 
 
+class CreatorApplication(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'На рассмотрении'),
+        ('approved', 'Одобрено'),
+        ('rejected', 'Отклонено'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='creator_application')
+    bio = models.TextField()
+    affiliation = models.CharField(max_length=255, blank=True)
+    scientific_interests = models.TextField()
+    vk_url = models.URLField(blank=True)
+    telegram_url = models.URLField(blank=True)
+    website_url = models.URLField(blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    reject_comment = models.TextField(blank=True)
+    reviewed_by = models.ForeignKey(
+        User,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reviewed_applications'
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Заявка на Creator'
+        verbose_name_plural = 'Заявки на Creator'
+
+    def __str__(self):
+        return f"Заявка {self.user.email} ({self.status})"
 
 
 class EmailConfirmationToken(models.Model):

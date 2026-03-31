@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from apps.subscriptions.models import Subscription
+from apps.users.models import CreatorApplication
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -31,10 +32,18 @@ class MeSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(source='profile.avatar', read_only=True)
     rating = serializers.IntegerField(source='profile.rating', read_only=True)
     level = serializers.SerializerMethodField()
+    bio = serializers.CharField(source='profile.bio', read_only=True)
+    affiliation = serializers.CharField(source='profile.affiliation', read_only=True)
+    scientific_interests = serializers.CharField(source='profile.scientific_interests', read_only=True)
+    vk_url = serializers.URLField(source='profile.vk_url', read_only=True)
+    telegram_url = serializers.URLField(source='profile.telegram_url', read_only=True)
+    website_url = serializers.URLField(source='profile.website_url', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'role', 'avatar', 'rating', 'level')
+        fields = ('id', 'email', 'first_name', 'last_name', 'role',
+                  'avatar', 'rating', 'level', 'bio', 'affiliation',
+                  'scientific_interests', 'vk_url', 'telegram_url', 'website_url')
 
     def get_level(self, obj):
         return obj.profile.get_level()
@@ -42,23 +51,29 @@ class MeSerializer(serializers.ModelSerializer):
 
 class MeUpdateSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(source='profile.avatar', required=False)
+    bio = serializers.CharField(source='profile.bio', required=False)
+    affiliation = serializers.CharField(source='profile.affiliation', required=False)
+    scientific_interests = serializers.CharField(source='profile.scientific_interests', required=False)
+    vk_url = serializers.URLField(source='profile.vk_url', required=False)
+    telegram_url = serializers.URLField(source='profile.telegram_url', required=False)
+    website_url = serializers.URLField(source='profile.website_url', required=False)
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'avatar')  # было field вместо fields
+        fields = ('first_name', 'last_name', 'avatar', 'bio', 'affiliation',
+                  'scientific_interests', 'vk_url', 'telegram_url', 'website_url')
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
 
-        # было profile_data.get — неправильно, надо validated_data
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.save()
 
         profile = instance.profile
-        if 'avatar' in profile_data:
-            profile.avatar = profile_data['avatar']
-            profile.save()
+        for field, value in profile_data.items():
+            setattr(profile, field, value)
+        profile.save()
 
         return instance
 
@@ -93,3 +108,82 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_level(self, obj):
         return obj.profile.get_level()
 
+
+
+class CreatorApplicationSerializer(serializers.ModelSerializer):
+    """Для создания заявки пользователем"""
+    class Meta:
+        model = CreatorApplication
+        fields = ('id', 'bio', 'affiliation', 'scientific_interests',
+                  'vk_url', 'telegram_url', 'website_url', 'status', 'created_at')
+        read_only_fields = ('status', 'created_at')
+
+
+class CreatorApplicationDetailSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    reviewed_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CreatorApplication
+        fields = ('id', 'user', 'bio', 'affiliation', 'scientific_interests',
+                  'vk_url', 'telegram_url', 'website_url',
+                  'status', 'reject_comment', 'reviewed_by', 'reviewed_at', 'created_at')
+
+
+    def get_user(self, obj):
+        return {
+            'id': obj.user.id,
+            'email': obj.user.email,
+            'first_name': obj.user.first_name,
+            'last_name': obj.user.last_name,
+        }
+
+    def get_reviewed_by(self, obj):
+        if not obj.reviewed_by:
+            return None
+        return {
+            'id': obj.reviewed_by.id,
+            'email': obj.reviewed_by.email,
+        }
+
+class CreatorProfileSerializer(serializers.ModelSerializer):
+    """Профтль для Креатора"""
+    subscribers_count = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(source='profile.rating', read_only=True)
+    level = serializers.SerializerMethodField()
+    avatar = serializers.ImageField(source='profile.avatar', read_only=True)
+    bio = serializers.CharField(source='profile.bio', read_only=True)
+    affiliation = serializers.CharField(source='profile.affiliation', read_only=True)
+    scientific_interests = serializers.CharField(source='profile.scientific_interests', read_only=True)
+    vk_url = serializers.URLField(source='profile.vk_url', read_only=True)
+    telegram_url = serializers.URLField(source='profile.telegram_url', read_only=True)
+    website_url = serializers.URLField(source='profile.website_url', read_only=True)
+    posts_count = serializers.SerializerMethodField()
+    courses_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'avatar', 'rating', 'level',
+                  'bio', 'affiliation', 'scientific_interests',
+                  'vk_url', 'telegram_url', 'website_url',
+                  'subscribers_count', 'posts_count', 'courses_count')
+
+
+    def get_subscribers_count(self, obj):
+        return Subscription.objects.filter(author=obj).count()
+
+
+    def get_level(self, obj):
+        return obj.profile.get_level()
+
+
+    def get_posts_count(self, obj):
+        from apps.posts.models import Post
+        from Portal.choices import ModerationStatus
+        return Post.objects.filter(author=obj, status=ModerationStatus.PUBLISHED).count()
+
+
+    def get_courses_count(self, obj):
+        from apps.education.models import Course
+        from Portal.choices import ModerationStatus
+        return Course.objects.filter(created_by=obj, status=ModerationStatus.PUBLISHED).count()

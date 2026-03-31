@@ -3,6 +3,10 @@
 .vscode/
 *.iml
 
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Environments
 .venv/
 venv/
@@ -19,7 +23,7 @@ backend/Portal/media/
 backend/Portal/staticfiles/
 
 # Environment variables
-backend/.env
+backend/Portal/.env
 .env
 .env.prod
 .env.local
