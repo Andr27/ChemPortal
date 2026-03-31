@@ -2,6 +2,7 @@ import React, {useContext, useState, useRef} from 'react';
 import {AuthContext, ModeratorContext, CreatorContext} from "../../../context";
 import AuthService from "../API/AuthService";
 import {useNavigate} from "react-router-dom";
+import {Helmet} from "react-helmet";
 
 const Login = () => {
     const {setIsAuth} = useContext(AuthContext);
@@ -28,7 +29,7 @@ const Login = () => {
     const [showForgot, setShowForgot] = useState(false);
 
     // Switch animation
-    const [isSignUp, setIsSignUp] = useState(false);
+    const [isSignUp, setIsSignUp] = useState(true);
     const [isAnimating, setIsAnimating] = useState(false);
     const switchRef = useRef(null);
 
@@ -119,6 +120,9 @@ const Login = () => {
 
     return (
         <div className="neu-auth-page">
+            <Helmet>
+                <title>Вход/Регистрация</title>
+            </Helmet>
             <div className={`neu-main ${isSignUp ? 'is-signup' : ''}`}>
 
                 {/* Sign Up Container (left side) */}
@@ -185,9 +189,10 @@ const Login = () => {
                 {/* Sign In Container (right side) */}
                 <div className={`neu-container neu-b-container ${isSignUp ? 'is-txl is-z200' : ''}`}>
                     {showForgot ? (
-                        <form className="neu-form" onSubmit={forgotPassword}>
+                        <form className="neu-form" onSubmit={forgotPassword} autoComplete="off">
                             <h2 className="neu-title">Восстановление</h2>
                             <p className="neu-description">Введите email для сброса пароля</p>
+                            <input type="password" style={{display: 'none'}} tabIndex={-1} aria-hidden="true" />
                             <input
                                 className="neu-input"
                                 type="email"
@@ -195,6 +200,7 @@ const Login = () => {
                                 value={fpEmail}
                                 onChange={e => setFpEmail(e.target.value)}
                                 disabled={fpLoading}
+                                autoComplete="email"
                                 required
                             />
                             {fpMessage && (
@@ -250,24 +256,24 @@ const Login = () => {
                     <div className="neu-switch__circle neu-switch__circle--t" />
 
                     {/* Show when on Sign In side -> invite to Sign Up */}
-                    <div className={`neu-switch__container ${isSignUp ? 'is-hidden' : ''}`}>
-                        <h2 className="neu-title">Привет!</h2>
+                    <div className={`neu-switch__container ${!isSignUp ? 'is-hidden' : ''}`}>
+                        <h2 className="neu-title">Нет аккаунта?</h2>
                         <p className="neu-description">
-                            Введите свои данные и начните путешествие вместе с нами
+                            Зарегистрируйтесь и начните путешествие вместе с нами
                         </p>
                         <button className="neu-btn neu-switch__btn" onClick={toggleForm}>
-                            Войти
+                            Регистрация
                         </button>
                     </div>
 
                     {/* Show when on Sign Up side -> invite to Sign In */}
-                    <div className={`neu-switch__container ${!isSignUp ? 'is-hidden' : ''}`}>
-                        <h2 className="neu-title">С возвращением!</h2>
+                    <div className={`neu-switch__container ${isSignUp ? 'is-hidden' : ''}`}>
+                        <h2 className="neu-title">Уже есть аккаунт?</h2>
                         <p className="neu-description">
-                            Для входа используйте свои данные
+                            Войдите, чтобы продолжить
                         </p>
                         <button className="neu-btn neu-switch__btn" onClick={toggleForm}>
-                            Зарегистрироваться
+                            Войти
                         </button>
                     </div>
                 </div>

@@ -5,6 +5,8 @@ import { useFetching } from "../../../hooks/useFetching";
 import educationService from "../API/EducationService";
 import MyEditor from "../../../components/UI/MyEditor/MyEditor";
 import { useUser } from "../../../hooks/useUser";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
+import {Helmet} from "react-helmet";
 
 let _localIdCounter = 0;
 const localId = () => `l_${++_localIdCounter}`;
@@ -134,6 +136,7 @@ const CourseEditPage = () => {
     const backLabel = getCourseEditBackLabel(location.state?.from, courseId);
     const role = useMemo(() => localStorage.getItem('role') || 'user', []);
 
+    const toast = useToast();
     const [course, setCourse] = useState(null);
     const [courseTitle, setCourseTitle] = useState('');
     const [courseDescription, setCourseDescription] = useState('');
@@ -409,8 +412,10 @@ const CourseEditPage = () => {
             initialIdsRef.current = { chapterIds, lessonsByChapter };
 
             setSaveSuccess(true);
+            toast.success('Курс сохранён');
             setTimeout(() => navigate(backPath), 900);
         } catch (e) {
+            toast.error('Ошибка при сохранении');
             setSaveError(e?.response?.data?.detail || JSON.stringify(e?.response?.data) || 'Ошибка при сохранении');
         } finally {
             setIsSaving(false);
@@ -429,8 +434,10 @@ const CourseEditPage = () => {
         setIsDeleting(true);
         try {
             await educationService.deleteCourse(sectionId, courseId);
+            toast.success('Курс удалён');
             setTimeout(() => navigate(backPath), 200);
         } catch (e) {
+            toast.error('Не удалось удалить курс');
             setSaveError(e?.response?.data?.detail || JSON.stringify(e?.response?.data) || 'Ошибка при удалении');
         } finally {
             setIsDeleting(false);
@@ -853,6 +860,9 @@ const ChapterBlock = ({ chapter, index, total, onMove, onUpdate, onRemove }) => 
 
     return (
         <div className="edu-chapter-block">
+            <Helmet>
+                <title>Редактирование курса</title>
+            </Helmet>
             <div className="edu-chapter-block__header">
                 <div className="edu-chapter-block__header-left">
                     <span className="edu-chapter-block__badge">{index + 1}</span>

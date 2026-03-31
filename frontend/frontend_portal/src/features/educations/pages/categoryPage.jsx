@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import EducationService from '../API/EducationService';
 import SectionItem from '../components/section/sectionItem';
 import Loader from '../../../components/UI/loader/loader';
+import {Helmet} from "react-helmet";
 
 const CategoryPage = () => {
     const { slug } = useParams();
@@ -54,6 +55,9 @@ const CategoryPage = () => {
 
     return (
         <div className="App">
+            <Helmet>
+                <title>{category?.name}</title>
+            </Helmet>
             <div className="education-back-link-wrap">
                 <Link className="education-back-link" to="/educations">
                     <span className="education-back-link__icon" aria-hidden="true">←</span>

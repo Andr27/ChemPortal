@@ -27,5 +27,6 @@ export const useObserver = (ref, canLoad, isLoading, callback) => {
                 observer.current.disconnect();
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading, canLoad, ref]);
 };

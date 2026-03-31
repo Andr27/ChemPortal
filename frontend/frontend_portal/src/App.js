@@ -6,11 +6,12 @@ import AppRouter from "./components/AppRouter";
 import {AuthContext, CreatorContext, ModeratorContext, UserContext} from "./context";
 import AuthService from "./features/Login/API/AuthService";
 import ScrollTopButton from "./components/UI/ScrollTopButton/ScrollTopButton";
+import {ToastProvider} from "./components/UI/Toast/ToastContext";
 
 const MAIN_SCROLL_EVENT = 'main-scroll';
 
 const THEME_STORAGE_KEY = "site-theme";
-const AVAILABLE_THEMES = ["theme-chem", "theme-nano"];
+const AVAILABLE_THEMES = ["theme-chem", "theme-nano", "theme-accessible"];
 const DEFAULT_THEME = "theme-chem";
 
 function App() {
@@ -117,6 +118,7 @@ function App() {
                 <ModeratorContext.Provider value={{ isModerator, setIsModerator }}>
                     <CreatorContext.Provider value={{isCreator, setIsCreator}}>
                     <BrowserRouter>
+                        <ToastProvider>
                         <div className="layout">
                             <aside className="layout__sidebar">
                                 <Navbar/>
@@ -126,6 +128,7 @@ function App() {
                                 <ScrollTopButton />
                             </main>
                         </div>
+                        </ToastProvider>
                     </BrowserRouter>
                     </CreatorContext.Provider>
                 </ModeratorContext.Provider>

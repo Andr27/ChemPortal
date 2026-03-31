@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import EducationService from '../../API/EducationService';
 import SectionItem from './sectionItem';
-import Loader from '../../../../components/UI/loader/loader';
+import {SectionListSkeleton} from '../../../../components/UI/skeleton/Skeleton';
 import MyModal from '../../../../components/UI/MyModal/MyModal';
 
 const PREVIEW_CATEGORIES = 3;
@@ -96,7 +96,7 @@ const CategoriesBlock = () => {
     }, []);
 
     if (isLoading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}><Loader /></div>;
+        return <div style={{ padding: '16px 0' }}><SectionListSkeleton count={6} /></div>;
     }
 
     if (categories.length === 0) return null;

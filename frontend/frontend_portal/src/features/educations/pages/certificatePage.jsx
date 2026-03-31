@@ -6,6 +6,7 @@ import { UserContext } from "../../../context";
 import logo from "../../../img/Logo.png";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import {Helmet} from "react-helmet";
 
 const CertificatePage = () => {
     const params = useParams();
@@ -131,6 +132,9 @@ const CertificatePage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>Сертификат</title>
+            </Helmet>
             <div className="education-section-page">
                 <div className="education-back-link-wrap certificate-page__controls">
                     <button

@@ -74,9 +74,9 @@
     inset: 0;
     background-color: var(--color-bg);
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none !important;
     transition: opacity 0.5s ease-in-out;
-    z-index: 0;
+    z-index: -1;
 }
 
 .navbar__bottomSectionScrolled::after {
@@ -85,7 +85,6 @@
 
 .navbar__bottomSection > * {
     position: relative;
-    z-index: 1;
 }
 
 .navbar__row {
@@ -212,6 +211,7 @@ body.theme-chem .navbar__brandHomeLink {
 .navbar__themeSwitch {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
 }
 
 .navbar__themeBtn {
@@ -232,6 +232,16 @@ body.theme-chem .navbar__brandHomeLink {
 .navbar__themeBtn:hover {
     background: color-mix(in srgb, var(--color-primary) 12%, transparent);
     color: var(--color-text-main);
+}
+
+.navbar__a11yActive {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.navbar__a11yActive:hover {
+    background: var(--color-primary-dark);
+    color: #fff;
 }
 
 .navbar__navLink {

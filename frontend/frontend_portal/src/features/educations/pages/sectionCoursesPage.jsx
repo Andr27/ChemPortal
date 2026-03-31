@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import CoursesGet from "../components/courses/coursesGet";
+import {Helmet} from "react-helmet";
 
 const SectionCoursesPage = () => {
     const params = useParams();
@@ -12,6 +13,9 @@ const SectionCoursesPage = () => {
 
     return (
         <div className="App">
+            <Helmet>
+                <title>Курсы в секции: {params.title}</title>
+            </Helmet>
             <CoursesGet
                 sectionId={sectionId}
                 section={{ id: sectionId }}

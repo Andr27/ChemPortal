@@ -13,6 +13,8 @@ import Likes from "../components/Likes";
 import BookmarkPost from "../components/BookmarkPost";
 import MyModal from "../../../components/UI/MyModal/MyModal";
 import eyeIcon from "../../../img/icon/eye-alt-svgrepo-com.svg";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
+import {Helmet} from "react-helmet";
 
 
 const BACK_PATH_LABELS = {
@@ -32,6 +34,7 @@ const PostsPage = () => {
     const params = useParams();
     const backPath = location.state?.from || '/posts';
     const backLabel = BACK_PATH_LABELS[backPath] || 'К статьям';
+    const toast = useToast();
     const [post, setPost] = useState({body: '', title: ''});
     const [loading, setLoading] = useState(false);
     const [fetchPostsById, isLoading] = useFetching(async () => {
@@ -43,24 +46,25 @@ const PostsPage = () => {
         try {
             setLoading(true);
             await UserService.sendToModeration(post.id);
+            toast.success('Отправлено на модерацию');
+            navigate('/account');
         } catch (error) {
-            console.error(error);
+            toast.error('Не удалось отправить на модерацию');
         } finally {
             setLoading(false);
-            navigate('/account')
         }
     }
-
 
     const deletePost = async () => {
         try {
             setLoading(true);
             await UserService.DeletePost(post.id);
+            toast.success('Пост удалён');
+            navigate('/account');
         } catch (error) {
-            console.log(error);
+            toast.error('Не удалось удалить пост');
         } finally {
             setLoading(false);
-            navigate('/account')
         }
     };
 
@@ -77,6 +81,9 @@ const PostsPage = () => {
 
     return (
         <div className="page-wrapper post-page-wrapper">
+            <Helmet>
+                <title>{params.title}</title>
+            </Helmet>
             {params.id && (
                 <div className="education-back-link-wrap">
                     <Link className="education-back-link" to={backPath}>

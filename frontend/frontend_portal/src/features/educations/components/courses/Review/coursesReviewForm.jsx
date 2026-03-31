@@ -1,5 +1,6 @@
 import React from 'react';
 import educationService from "../../../API/EducationService";
+import {useToast} from "../../../../../components/UI/Toast/ToastContext";
 
 const StarPicker = ({ value, onChange }) => {
     const [hover, setHover] = React.useState(0);
@@ -23,6 +24,7 @@ const StarPicker = ({ value, onChange }) => {
 };
 
 const CoursesReviewForm = ({courseId, onSuccess}) => {
+    const toast = useToast();
     const [loading, setLoading] = React.useState(false);
     const [review, setReview] = React.useState({
         course_id: courseId,
@@ -36,9 +38,10 @@ const CoursesReviewForm = ({courseId, onSuccess}) => {
             setLoading(true);
             await educationService.leaveReviewCourse(review);
             setReview({ course_id: courseId, rating: null, comment: "" });
+            toast.success('Отзыв отправлен');
             if (onSuccess) onSuccess();
         } catch (error) {
-            console.log(error);
+            toast.error('Не удалось отправить отзыв');
         } finally {
             setLoading(false);
         }

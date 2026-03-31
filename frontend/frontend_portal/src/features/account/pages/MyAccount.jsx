@@ -9,6 +9,7 @@ import { CreatorContext, ModeratorContext } from "../../../context";
 import EduAccountPanel from '../component/EduAccountPanel';
 import AuthService from "../../Login/API/AuthService";
 import api from "../../../API/api";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
 
 /** Абсолютный URL для отображения медиа с бэка */
 function resolveMediaUrl(path) {
@@ -47,6 +48,7 @@ const MyAccount = () => {
     const [mode, setMode]           = useState('articles');
     const [articleTab, setArticleTab] = useState('draft');
 
+    const toast = useToast();
     const [editOpen, setEditOpen] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -162,6 +164,7 @@ const MyAccount = () => {
                 return null;
             });
             setEditOpen(false);
+            toast.success('Профиль сохранён');
         } catch (err) {
             const d = err?.response?.data;
             const msg =

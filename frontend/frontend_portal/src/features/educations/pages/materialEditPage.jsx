@@ -5,6 +5,7 @@ import Loader from "../../../components/UI/loader/loader";
 import MyEditor from "../../../components/UI/MyEditor/MyEditor";
 import educationService from "../API/EducationService";
 import { useUser } from "../../../hooks/useUser";
+import {Helmet} from "react-helmet";
 
 const getMaterialBackLabel = (fromPath) => {
     if (!fromPath) return 'К разделу';
@@ -166,6 +167,9 @@ const MaterialEditPage = () => {
 
     return (
         <div className="page-wrapper">
+            <Helmet>
+                <title>{material.title || 'Лекция'}</title>
+            </Helmet>
             <div className="education-back-link-wrap">
                 <Link className="education-back-link" to={backPath}>
                     <span className="education-back-link__icon" aria-hidden="true">←</span>

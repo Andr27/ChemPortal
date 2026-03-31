@@ -5,6 +5,7 @@ import Loader from "../../../components/UI/loader/loader";
 import ArticleViewer from "../../../components/UI/MyEditor/ArticleViewer";
 import educationService from "../API/EducationService";
 import { useUser } from "../../../hooks/useUser";
+import {Helmet} from "react-helmet";
 
 const plainTextToDoc = (text) => {
     if (text == null || text === '') return null;
@@ -97,6 +98,9 @@ const MaterialPage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>{material.title || 'Лекция'}</title>
+            </Helmet>
             <div className="education-section-page">
                 {sectionId && (
                     <div className="education-back-link-wrap">

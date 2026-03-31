@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useFetching } from "../../../hooks/useFetching";
 import Loader from "../../../components/UI/loader/loader";
 import ArticleViewer from "../../../components/UI/MyEditor/ArticleViewer";
 import educationService from "../API/EducationService";
+import {Helmet} from "react-helmet";
 
 const plainTextToDoc = (text) => {
     if (text == null || text === '') return null;
@@ -248,6 +249,9 @@ const LessonPage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>{lesson?.title || 'Лекция'}</title>
+            </Helmet>
             <div className="education-section-page">
                 {sectionId && (
                     <div className="education-back-link-wrap">

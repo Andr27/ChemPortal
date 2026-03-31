@@ -11,6 +11,8 @@ import iconCube from "../../../img/icon/cube.svg";
 import CoursesReview from "../components/courses/Review/coursesReview";
 import StarRating from "../components/starRating";
 import CoursesStats from "../components/courses/coursesStats";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
+import {Helmet} from "react-helmet";
 
 const getCourseBackLabel = (fromPath) => {
     if (!fromPath) return 'К разделу';
@@ -29,6 +31,7 @@ const CoursePage = () => {
     const courseId = params.courseId;
     const backPath = location.state?.from || (sectionId ? `/educations/${sectionId}` : '/educations');
     const backLabel = getCourseBackLabel(backPath);
+    const toast = useToast();
     const [course, setCourse] = useState(null);
     const [fetchCourse, isCourseLoading, courseError] = useFetching(async (sId, cId) => {
         const response = await educationService.getCoursesById(sId, cId);
@@ -83,14 +86,16 @@ const CoursePage = () => {
             if (enrollment) {
                 setIsEnrolled(true);
                 setEnrollmentId(enrollment.id);
+                toast.success('Вы записаны на курс!');
                 navigate(`/educations/${sectionId}/courses/${courseId}/progress/${enrollment.id}`, {
                     state: { from: location.pathname, enrollmentId: enrollment.id }
                 });
             } else {
                 setIsEnrolled(true);
+                toast.success('Вы записаны на курс!');
             }
         } catch (error) {
-            console.log(error);
+            toast.error('Не удалось записаться на курс');
         } finally {
             setLoading(false);
         }
@@ -107,6 +112,7 @@ const CoursePage = () => {
         if (isEnrolled && enrollmentId) {
             handleContinue();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEnrolled, enrollmentId]);
 
     useEffect(() => {
@@ -151,6 +157,9 @@ const CoursePage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>{course?.title}</title>
+            </Helmet>
             <div className="education-section-page">
                 <div className="education-back-link-wrap">
                     <EducationBackLink to={backPath}>{backLabel}</EducationBackLink>

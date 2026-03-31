@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import educationService from "../../../API/EducationService";
-import MySelect from "../../../../../components/UI/select/MySelect";
 import CoursesReviewList from "./coursesReviewList";
 import { useObserver } from "../../../../../hooks/useObserver";
 import Loader from "../../../../../components/UI/loader/loader";
@@ -50,6 +49,7 @@ const CoursesReview = ({ courseId, addReview = false }) => {
 
     useEffect(() => {
         fetchReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [courseId, page, sortType]);
 
     useEffect(() => {

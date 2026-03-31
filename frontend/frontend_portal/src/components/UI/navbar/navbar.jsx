@@ -18,6 +18,7 @@ import iconUser from '../../../img/icon/user.svg';
 import iconLogin from '../../../img/icon/login.svg';
 
 const THEME_STORAGE_KEY = "site-theme";
+const A11Y_STORAGE_KEY = "site-accessible";
 const DEFAULT_THEME = "theme-chem";
 
 const POSTGET_ROUTES = ['/feed', '/posts', '/moderation', '/bookmarks', '/news', '/videos', '/educations'];
@@ -31,6 +32,8 @@ const Navbar = () => {
     const location = useLocation();
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME);
+    const [isAccessible, setIsAccessible] = useState(() => localStorage.getItem(A11Y_STORAGE_KEY) === 'true');
+    const [prevTheme, setPrevTheme] = useState(() => localStorage.getItem('site-theme-before-a11y') || DEFAULT_THEME);
     const [isScrolled, setIsScrolled] = useState(false);
     const userMenuRef = useRef(null);
 
@@ -114,6 +117,23 @@ const Navbar = () => {
     const setTheme = (themeName) => {
         setActiveTheme(themeName);
         window.dispatchEvent(new CustomEvent('site-theme-change', { detail: { theme: themeName } }));
+    };
+
+    const toggleAccessible = () => {
+        if (!isAccessible) {
+            // Включаем: запоминаем текущую тему, переключаем на accessible
+            const current = activeTheme !== 'theme-accessible' ? activeTheme : prevTheme;
+            setPrevTheme(current);
+            localStorage.setItem('site-theme-before-a11y', current);
+            localStorage.setItem(A11Y_STORAGE_KEY, 'true');
+            setIsAccessible(true);
+            setTheme('theme-accessible');
+        } else {
+            // Выключаем: возвращаем предыдущую тему
+            localStorage.setItem(A11Y_STORAGE_KEY, 'false');
+            setIsAccessible(false);
+            setTheme(prevTheme);
+        }
     };
 
     return (
@@ -224,10 +244,26 @@ const Navbar = () => {
                         <div className={cl.navbar__themeSwitch} aria-label="Переключение темы">
                             <button
                                 type="button"
-                                onClick={() => setTheme(activeTheme === "theme-chem" ? "theme-nano" : "theme-chem")}
+                                className={`${cl.navbar__themeBtn} ${isAccessible ? cl.navbar__a11yActive : ''}`}
+                                onClick={toggleAccessible}
+                                aria-label={isAccessible ? "Выключить версию для слабовидящих" : "Версия для слабовидящих"}
+                                title="Версия для слабовидящих"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                            {!isAccessible && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const next = activeTheme === "theme-chem" ? "theme-nano" : "theme-chem";
+                                    setPrevTheme(next);
+                                    setTheme(next);
+                                }}
                                 className={cl.navbar__themeBtn}
                                 aria-label={activeTheme === "theme-chem" ? "Включить тёмную тему" : "Включить светлую тему"}
-                                aria-pressed={activeTheme === "theme-nano"}
                             >
                                 {activeTheme === "theme-chem" ? (
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -247,6 +283,7 @@ const Navbar = () => {
                                     </svg>
                                 )}
                             </button>
+                            )}
                         </div>
                     </div>
                 </div>

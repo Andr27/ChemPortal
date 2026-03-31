@@ -7,6 +7,7 @@ import SectionMaterialsPreview from "../components/materials/sectionMaterialsPre
 import SectionCoursesPreview from "../components/courses/sectionCoursesPreview";
 import EducationBackLink from "../components/EducationBackLink";
 import iconCube from "../../../img/icon/cube.svg";
+import {Helmet} from "react-helmet";
 
 const getSectionBackLabel = (fromPath) => {
     if (!fromPath) return 'К разделам';
@@ -60,6 +61,9 @@ const SectionPage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>{section?.title}</title>
+            </Helmet>
             <div className="education-section-page">
                 {params.id && (
                     <div className="education-back-link-wrap">
