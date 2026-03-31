@@ -1,37 +1,51 @@
-import About from "../features/posts/pages/About";
-import Posts from "../features/posts/pages/Posts";
-import PostsPage from "../features/posts/pages/PostsPage";
-import Login from "../features/Login/pages/login";
-import MyAccount from "../features/account/pages/MyAccount";
-import Moderation from "../features/posts/pages/Moderation";
-import moderationPostPage from "../features/posts/pages/ModerationPostPage";
-import ModerationCourseViewPage from "../features/posts/pages/ModerationCourseViewPage";
-import ConfirmEmail from "../features/Login/pages/ConfirmEmail";
-import CreateForm from "../features/posts/pages/CreateForm";
-import RefreshPassword from "../features/Login/pages/RefreshPassword";
-import Bookmark from "../features/posts/pages/Bookmark";
-import News from "../features/posts/pages/News";
-import Videos from "../features/posts/pages/Videos";
-import Feed from "../features/posts/pages/Feed";
-import TagPostsPage from "../features/posts/pages/TagPostsPage";
-import Sections from "../features/educations/pages/sections";
-import SectionPage from "../features/educations/pages/sectionPage";
-import SectionMaterialsPage from "../features/educations/pages/sectionMaterialsPage";
-import SectionCoursesPage from "../features/educations/pages/sectionCoursesPage";
-import CoursePage from "../features/educations/pages/coursePage";
-import CourseProgress from "../features/educations/pages/courseProgress";
-import MyEnrollmentsPage from "../features/educations/pages/myEnrollments";
-import LessonPage from "../features/educations/pages/lessonPage";
-import QuizPage from "../features/educations/pages/quizPage";
-import CertificatePage from "../features/educations/pages/certificatePage";
-import MaterialPage from "../features/educations/pages/materialPage";
-import CategoryPage from "../features/educations/pages/categoryPage";
-import CourseEditPage from "../features/educations/pages/courseEditPage";
-import MaterialEditPage from "../features/educations/pages/materialEditPage";
+import {lazy} from "react";
+
+// 404
+const NotFound = lazy(() => import("../features/posts/pages/NotFound"));
+
+// Лента / Посты
+const Feed = lazy(() => import("../features/posts/pages/Feed"));
+const Posts = lazy(() => import("../features/posts/pages/Posts"));
+const PostsPage = lazy(() => import("../features/posts/pages/PostsPage"));
+const Bookmark = lazy(() => import("../features/posts/pages/Bookmark"));
+const News = lazy(() => import("../features/posts/pages/News"));
+const Videos = lazy(() => import("../features/posts/pages/Videos"));
+const TagPostsPage = lazy(() => import("../features/posts/pages/TagPostsPage"));
+
+// Авторизация
+const Login = lazy(() => import("../features/Login/pages/login"));
+const ConfirmEmail = lazy(() => import("../features/Login/pages/ConfirmEmail"));
+const RefreshPassword = lazy(() => import("../features/Login/pages/RefreshPassword"));
+
+// Аккаунт
+const MyAccount = lazy(() => import("../features/account/pages/MyAccount"));
+
+// Модерация
+const Moderation = lazy(() => import("../features/posts/pages/Moderation"));
+const ModerationPostPage = lazy(() => import("../features/posts/pages/ModerationPostPage"));
+const ModerationCourseViewPage = lazy(() => import("../features/posts/pages/ModerationCourseViewPage"));
+
+// Создание
+const CreateForm = lazy(() => import("../features/posts/pages/CreateForm"));
+
+// Образование
+const Sections = lazy(() => import("../features/educations/pages/sections"));
+const SectionPage = lazy(() => import("../features/educations/pages/sectionPage"));
+const SectionMaterialsPage = lazy(() => import("../features/educations/pages/sectionMaterialsPage"));
+const SectionCoursesPage = lazy(() => import("../features/educations/pages/sectionCoursesPage"));
+const CoursePage = lazy(() => import("../features/educations/pages/coursePage"));
+const CourseProgress = lazy(() => import("../features/educations/pages/courseProgress"));
+const MyEnrollmentsPage = lazy(() => import("../features/educations/pages/myEnrollments"));
+const LessonPage = lazy(() => import("../features/educations/pages/lessonPage"));
+const QuizPage = lazy(() => import("../features/educations/pages/quizPage"));
+const CertificatePage = lazy(() => import("../features/educations/pages/certificatePage"));
+const MaterialPage = lazy(() => import("../features/educations/pages/materialPage"));
+const CategoryPage = lazy(() => import("../features/educations/pages/categoryPage"));
+const CourseEditPage = lazy(() => import("../features/educations/pages/courseEditPage"));
+const MaterialEditPage = lazy(() => import("../features/educations/pages/materialEditPage"));
 
 
 export const privateRoutes = [
-    /*{path: '/about', element: About},*/
     //Лента
     {path: '/feed', element: Feed},
     //Посты
@@ -46,31 +60,33 @@ export const privateRoutes = [
     //Образовательный раздел
     {path: '/educations/my-courses', element: MyEnrollmentsPage},
     {path: '/educations/categories/:slug', element: CategoryPage},
-    {path: '/educations', element:Sections},
-    {path: '/educations/:id', element:SectionPage},
+    {path: '/educations', element: Sections},
+    {path: '/educations/:id', element: SectionPage},
     {path: '/educations/:id/materials/:materialId', element: MaterialPage},
     {path: '/educations/:id/materials/:materialId/edit', element: MaterialEditPage},
-    {path: '/educations/:id/materials', element:SectionMaterialsPage},
+    {path: '/educations/:id/materials', element: SectionMaterialsPage},
     {path: '/educations/:id/courses/:courseId', element: CoursePage},
     {path: '/educations/:id/courses/:courseId/edit', element: CourseEditPage},
     {path: '/educations/:id/courses/:courseId/progress/:enrollmentId', element: CourseProgress},
     {path: '/educations/:id/courses/:courseId/chapters/:chapterId/lessons/:lessonId', element: LessonPage},
     {path: '/educations/:id/courses/:courseId/chapters/:chapterId/lessons/:lessonId/quiz', element: QuizPage},
     {path: '/educations/certificates/:certificateNumber', element: CertificatePage},
-    {path: '/educations/:id/courses', element:SectionCoursesPage},
-
+    {path: '/educations/:id/courses', element: SectionCoursesPage},
 ]
+
+export { NotFound };
+
 export const moderationRoutes = [
     {path: '/moderation', element: Moderation},
-    {path: '/moderation/:id/', element: moderationPostPage},
+    {path: '/moderation/:id/', element: ModerationPostPage},
     {path: '/moderation/courses/:courseId', element: ModerationCourseViewPage},
 ];
 
 export const creatorRoutes = [
     {path: '/create/post', element: CreateForm},
 ]
+
 export const publicRoutes = [
-    /*{path: '/about', element: About},*/
     //Лента
     {path: '/feed', element: Feed},
     //Посты
@@ -88,12 +104,10 @@ export const publicRoutes = [
     {path: '/educations/my-courses', element: MyEnrollmentsPage},
     {path: '/educations/certificates/:certificateNumber', element: CertificatePage},
     {path: '/educations/categories/:slug', element: CategoryPage},
-    {path: '/educations', element:Sections},
-    {path: '/educations/:id', element:SectionPage},
+    {path: '/educations', element: Sections},
+    {path: '/educations/:id', element: SectionPage},
     {path: '/educations/:id/materials/:materialId', element: MaterialPage},
-    {path: '/educations/:id/materials', element:SectionMaterialsPage},
+    {path: '/educations/:id/materials', element: SectionMaterialsPage},
     {path: '/educations/:id/courses/:courseId', element: CoursePage},
-    {path: '/educations/:id/courses', element:SectionCoursesPage},
-
-
+    {path: '/educations/:id/courses', element: SectionCoursesPage},
 ]

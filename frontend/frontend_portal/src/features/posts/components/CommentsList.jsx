@@ -9,7 +9,6 @@ import {AuthContext} from "../../../context";
 const CommentsList = ({ postId }) => {
     const { isAuth } = useContext(AuthContext);
     const [comments, setComments] = React.useState([]);
-    const [showAddForm, setShowAddForm] = React.useState(false);
     const [newCommentText, setNewCommentText] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(null);
@@ -22,7 +21,6 @@ const CommentsList = ({ postId }) => {
             setLoading(true);
             await UserService.AddComments(postId, newCommentText);
             setNewCommentText("");
-            setShowAddForm(false);
             await fetchComments();
         } catch (e) {
             setError(e.message);
@@ -62,16 +60,9 @@ const CommentsList = ({ postId }) => {
         <div className="comments-list">
             <h3>
                 <span>Комментарии ({comments.length})</span>
-                {isAuth && (
-                    <Mybutton
-                        onClick={() => setShowAddForm(!showAddForm)}
-                    >
-                        {showAddForm ? '-' : '+'}
-                    </Mybutton>
-                )}
             </h3>
 
-            {showAddForm && isAuth && (
+            {isAuth && (
                 <div style={{marginBottom: '20px'}}>
                     <Myinput
                         type="text"

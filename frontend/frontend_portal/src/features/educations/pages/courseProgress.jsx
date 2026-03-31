@@ -9,6 +9,7 @@ import { useUser } from "../../../hooks/useUser";
 import iconCube from "../../../img/icon/cube.svg";
 import CoursesReview from "../components/courses/Review/coursesReview";
 import CoursesStats from "../components/courses/coursesStats";
+import {Helmet} from "react-helmet";
 
 const getCourseBackLabel = (fromPath) => {
     if (!fromPath) return 'К разделу';
@@ -231,6 +232,9 @@ const CourseProgress = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>{course?.title}</title>
+            </Helmet>
             <div className="education-section-page">
                 <div className="education-back-link-wrap">
                     <EducationBackLink to={backPath}>{backLabel}</EducationBackLink>

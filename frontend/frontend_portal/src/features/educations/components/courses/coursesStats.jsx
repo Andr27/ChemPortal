@@ -20,6 +20,7 @@ const CoursesStats = ({sectionId, courseId}) => {
     }
     useEffect(() => {
         if (modal) fetchInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modal]);
 
     return (

@@ -7,6 +7,7 @@ import {useObserver} from "../../../hooks/useObserver";
 import PostFilter from "./PostFilter";
 import PostList from "./PostList";
 import Loader from "../../../components/UI/loader/loader";
+import {PostListSkeleton, AccountPostListSkeleton} from "../../../components/UI/skeleton/Skeleton";
 import ScrollableContainer from "../../../components/UI/ScrollableContainer/ScrollableContainer";
 import ModerationList from "./Moderation/ModerationList";
 import AccountPostList from "./AccountPostList";
@@ -155,6 +156,7 @@ const PostGet = ({
     // --- полоска тегов ---
     const [tags, setTags] = useState([]);
     const [tagPage, setTagPage] = useState(1);       // текущая страница (1-based)
+    const [tagDirection, setTagDirection] = useState(null); // 'left' | 'right'
     const [tagTotalPages, setTagTotalPages] = useState(1);
     const [isTagsLoading, setIsTagsLoading] = useState(false);
     const TAG_STRIP_LIMIT = 6;
@@ -287,12 +289,15 @@ const PostGet = ({
                                     type="button"
                                     className="posts-tags-strip__next"
                                     disabled={!hasPrevTagPage}
-                                    onClick={() => setTagPage(p => p - 1)}
+                                    onClick={() => { setTagDirection('right'); setTagPage(p => p - 1); }}
                                     aria-label="Предыдущая страница тем"
                                 >
                                     ←
                                 </button>
-                                <div className="posts-tags-strip__list">
+                                <div
+                                    className={`posts-tags-strip__list${tagDirection ? ` posts-tags-strip__list--slide-${tagDirection}` : ''}`}
+                                    onAnimationEnd={() => setTagDirection(null)}
+                                >
                                     {isTagsLoading
                                         ? <span className="posts-tags-strip__loading">...</span>
                                         : tags.map((tag) => (
@@ -300,7 +305,7 @@ const PostGet = ({
                                                 key={tag.id}
                                                 type="button"
                                                 className={`posts-tags-strip__item${activeTagSlug === tag.slug ? ' posts-tags-strip__item--active' : ''}`}
-                                                onClick={() => navigate(`/tags/${tag.slug}`, { state: { fromList: effectiveOriginPath } })}
+                                                onClick={() => activeTagSlug === tag.slug ? navigate(effectiveOriginPath) : navigate(`/tags/${tag.slug}`, { state: { fromList: effectiveOriginPath } })}
                                             >
                                                 <span className="posts-tags-strip__name">{tag.name}</span>
                                             </button>
@@ -311,7 +316,7 @@ const PostGet = ({
                                     type="button"
                                     className="posts-tags-strip__next"
                                     disabled={!hasNextTagPage}
-                                    onClick={() => setTagPage(p => p + 1)}
+                                    onClick={() => { setTagDirection('left'); setTagPage(p => p + 1); }}
                                     aria-label="Следующая страница тем"
                                 >
                                     →
@@ -333,7 +338,11 @@ const PostGet = ({
                         </h2>
                     )}
 
-                    {typeList === 'moderation' ? (
+                    {isPostLoading && posts.length === 0 ? (
+                        compactList
+                            ? <AccountPostListSkeleton count={4} />
+                            : <PostListSkeleton count={6} />
+                    ) : typeList === 'moderation' ? (
                         <ModerationList
                             posts={sortedAndSearchedPost}
                         />
@@ -351,7 +360,7 @@ const PostGet = ({
 
                     <div ref={lastElement} style={{ height: 20 }} />
 
-                    {isPostLoading && (
+                    {isPostLoading && posts.length > 0 && (
                         <div style={{ display: "flex", justifyContent: "center", marginTop: 32 }}>
                             <Loader />
                         </div>

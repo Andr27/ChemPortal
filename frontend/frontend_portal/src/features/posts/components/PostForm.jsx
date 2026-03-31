@@ -7,6 +7,7 @@ import MySelect from "../../../components/UI/select/MySelect";
 import MyEditor from "../../../components/UI/MyEditor/MyEditor";
 import ShadcnImageUploader from "../../../components/UI/ImageUploader/ShadcnImageUploader";
 import MyModal from "../../../components/UI/MyModal/MyModal";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
 
 const collectEditorImageIds = (node, ids = []) => {
     if (!node || typeof node !== "object") return ids;
@@ -139,6 +140,7 @@ const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
 };
 
 const PostForm = ({onSuccess}) => {
+    const toast = useToast();
     const uploadedImagesRef = useRef([]);
     const nextEditorImageIdRef = useRef(1);
     const [post, setPost] = useState({
@@ -202,6 +204,7 @@ const PostForm = ({onSuccess}) => {
         setPost({title: '', body: '', type: 'news', main_image: null, uploaded_images: []});
         setSelectedTags([]);
         setFormError('');
+        toast.success('Черновик сохранён');
         if (onSuccess) onSuccess();
     });
 
@@ -253,6 +256,7 @@ const PostForm = ({onSuccess}) => {
         setPost({title: '', body: '', type: 'news', main_image: null, uploaded_images: []});
         setSelectedTags([]);
         setFormError('');
+        toast.success('Отправлено на модерацию');
         if (onSuccess) onSuccess();
     });
 

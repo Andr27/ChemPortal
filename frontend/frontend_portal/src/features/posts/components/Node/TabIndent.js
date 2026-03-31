@@ -7,8 +7,6 @@ export const TabIndent = Extension.create({
         return {
             Tab: () => {
                 const { editor } = this
-                const { state } = editor
-                const { selection, schema } = state
                 if (editor.isActive('paragraph')) {
                     editor.commands.insertContent('    ')
                     return true

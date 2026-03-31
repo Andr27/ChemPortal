@@ -1,5 +1,4 @@
 import api from './api';
-import PostService from "../features/posts/API/PostService";
 
 class UserService {
     static async getMyPosts(limit = 5, page = 1){
@@ -60,12 +59,16 @@ class UserService {
         return response;
     }
 
-    static async ChengePost(id, title, body, type) {
-        const response = await api.put(`posts/${id}/`, {
-                'title': title,
-                'body': `${body}`,
-                'type': `${type}`
-        });
+    static async ChengePost(id, title, body, type, tagIds = []) {
+        const data = {
+            'title': title,
+            'body': `${body}`,
+            'type': `${type}`
+        };
+        if (tagIds.length > 0) {
+            data['tag_ids'] = tagIds;
+        }
+        const response = await api.put(`posts/${id}/`, data);
         return response;
     }
 

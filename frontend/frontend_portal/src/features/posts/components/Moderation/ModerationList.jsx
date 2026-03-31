@@ -1,5 +1,4 @@
 import React from 'react';
-import PostItem from "../PostItem";
 import ModerationItem from "./ModerationItem";
 
 const ModerationList = ({posts, title}) => {

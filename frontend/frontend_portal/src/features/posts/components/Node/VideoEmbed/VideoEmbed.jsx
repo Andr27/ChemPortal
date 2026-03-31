@@ -32,6 +32,7 @@ const VideoEmbed = ({ node }) => {
                 margin: '0 auto 10px'
             }}>
                 <iframe
+                    title="Video embed"
                     src={getEmbedUrl()}
                     style={{
                         position: 'absolute',

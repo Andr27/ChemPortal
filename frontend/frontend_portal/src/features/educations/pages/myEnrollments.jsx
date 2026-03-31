@@ -4,6 +4,7 @@ import { useMyEnrollments } from "../hooks/useMyEnrollments";
 import Loader from "../../../components/UI/loader/loader";
 import iconCube from "../../../img/icon/cube.svg";
 import EducationService from "../API/EducationService";
+import {Helmet} from "react-helmet";
 
 const MyEnrollmentsPage = () => {
     const navigate = useNavigate();
@@ -190,6 +191,9 @@ const MyEnrollmentsPage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>Мои курсы</title>
+            </Helmet>
             <div className="education-section-page">
                 <div className="section-page-card">
                     <div className="section-page-card__strip" aria-hidden="true" />

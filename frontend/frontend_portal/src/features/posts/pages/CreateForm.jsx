@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import PostForm from "../components/PostForm";
 import EducationCreatePage from "../../educations/pages/EducationCreatePage";
+import {Helmet} from "react-helmet";
 
 const CreateForm = () => {
     const [mode, setMode] = useState('article'); // 'article' | 'education'
 
     return (
         <div className="page-wrapper">
+            <Helmet>
+                <title>Создать контент</title>
+            </Helmet>
             <div className="page-card">
                 <div className="edu-create__mode-toggle">
                     <button

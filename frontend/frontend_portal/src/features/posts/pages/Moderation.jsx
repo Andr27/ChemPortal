@@ -4,6 +4,7 @@ import PostService from '../API/PostService';
 import PostGet from '../components/PostGet';
 import EducationService from '../../educations/API/EducationService';
 import Loader from '../../../components/UI/loader/loader';
+import {Helmet} from "react-helmet";
 
 /* ── SVG-иконки ───────────────────────────────────────────────── */
 const IconSection = () => (
@@ -214,6 +215,9 @@ function Moderation() {
 
     return (
         <div className="page-wrapper">
+            <Helmet>
+                <title>Модерация</title>
+            </Helmet>
             <div className="mod-page">
                 <div className="mod-page__card">
                     <div className="mod-page__card-header">

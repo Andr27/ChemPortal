@@ -6,6 +6,7 @@ import MyEditor from "../../../components/UI/MyEditor/MyEditor";
 import {useParams} from "react-router-dom";
 import PostService from "../API/PostService";
 import MyModal from "../../../components/UI/MyModal/MyModal";
+import {useToast} from "../../../components/UI/Toast/ToastContext";
 
 const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
     const [search, setSearch] = useState('');
@@ -105,6 +106,7 @@ const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
 };
 
 const ChangePostForm = ({onSuccess}) => {
+    const toast = useToast();
     const params = useParams();
     const [post, setPost] = useState({ body: '', title: '', type: 'news' });
     const [availableTags, setAvailableTags] = useState([]);
@@ -150,29 +152,24 @@ const ChangePostForm = ({onSuccess}) => {
     }, []);
 
     const [updatePost, isLoadingCh, errorCh] = useFetching(async () => {
+        const tagIds = selectedTags
+            .map((tag) => Number(tag.id))
+            .filter((id) => Number.isFinite(id));
         await UserService.ChengePost(
             post.id,
             post.title,
             JSON.stringify(post.body),
-            post.type
+            post.type,
+            tagIds
         );
-        const tagIds = selectedTags
-            .map((tag) => Number(tag.id))
-            .filter((id) => Number.isFinite(id));
-        if (tagIds.length > 0) {
-            try {
-                await PostService.updatePostTags(post.id, tagIds);
-            } catch (e) {
-                console.error('Failed to update post tags', e);
-            }
-        }
+        toast.success('Изменения сохранены');
         if (onSuccess) onSuccess();
     });
 
     const ChangeOldPost = async (e) => {
         e.preventDefault();
         if (!post.title.trim() || !post.body) {
-            alert('Заполните все поля!');
+            toast.warning('Заполните все поля!');
             return;
         }
         await updatePost();

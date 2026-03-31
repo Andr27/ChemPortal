@@ -158,6 +158,195 @@ body.theme-nano {
     --editor-placeholder-text: #a1a1aa;
 }
 
+/* ========== Версия для слабовидящих ========== */
+body.theme-accessible {
+    --color-primary: #ffdd00;
+    --color-primary-dark: #e6c800;
+    --color-accent: #ffdd00;
+    --color-bg: #000000;
+    --color-bg-dark: #0a0a0a;
+    --color-surface: #1a1a1a;
+    --color-border-subtle: #ffdd00;
+    --color-text-main: #ffffff;
+    --color-text-muted: #cccccc;
+    --header-gradient: #000000;
+    --header-text: #ffffff;
+    --card-border: #ffdd00;
+    --card-shadow: none;
+    --card-hover-outline: #ffdd00;
+    --card-hover-glow: none;
+    --card-hover-border: #ffffff;
+    --cover-fade: rgba(0, 0, 0, 0.95);
+    --action-divider: #ffdd00;
+    --bookmark-bg: #1a1a1a;
+    --bookmark-border: #ffdd00;
+    --bookmark-shadow: none;
+    --chip-view-border: #ffdd00;
+    --chip-view-bg: #000000;
+    --chip-view-text: #ffffff;
+    --chip-like-border: #ffdd00;
+    --chip-like-bg: #000000;
+    --chip-like-text: #ffffff;
+    --chip-like-active-bg: #ffdd00;
+    --chip-like-active-border: #ffdd00;
+    --chip-like-active-text: #000000;
+    --chip-like-active-glow: none;
+    --chip-dislike-border: #ffdd00;
+    --chip-dislike-bg: #000000;
+    --chip-dislike-active-bg: #ffdd00;
+    --chip-dislike-active-border: #ffdd00;
+    --header-input-bg: #1a1a1a;
+    --header-input-text: #ffffff;
+    --header-input-border: #ffdd00;
+    --header-input-placeholder: #999999;
+    --header-input-focus-border: #ffffff;
+    --header-input-focus-ring: rgba(255, 221, 0, 0.4);
+    --header-input-focus-bg: #222222;
+    --header-select-option-bg: #1a1a1a;
+    --header-select-option-text: #ffffff;
+    --panel-tab-bg: #1a1a1a;
+    --panel-tab-text: #ffffff;
+    --editor-placeholder-bg: #1a1a1a;
+    --editor-placeholder-text: #999999;
+
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+}
+
+body.theme-accessible * {
+    border-radius: 4px !important;
+    transition: none !important;
+    animation: none !important;
+}
+
+body.theme-accessible a {
+    font-size: inherit;
+    color: #ffdd00;
+}
+body.theme-accessible a:hover {
+    color: #ffffff;
+}
+
+body.theme-accessible button {
+    font-size: inherit;
+}
+
+body.theme-accessible a:focus,
+body.theme-accessible button:focus,
+body.theme-accessible input:focus,
+body.theme-accessible textarea:focus,
+body.theme-accessible select:focus {
+    outline: 3px solid #ffdd00 !important;
+    outline-offset: 2px !important;
+}
+
+body.theme-accessible img {
+    border: 2px solid #ffdd00;
+}
+
+/* Кнопки — жёлтый фон, чёрный текст */
+body.theme-accessible button {
+    background-color: #ffdd00 !important;
+    color: #000000 !important;
+    border-color: #ffdd00 !important;
+}
+body.theme-accessible button *,
+body.theme-accessible button span,
+body.theme-accessible button svg {
+    color: #000000 !important;
+}
+body.theme-accessible button:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+}
+
+/* Навбар кнопки — прозрачный фон, не жёлтый */
+body.theme-accessible [class*="navbar"] button,
+body.theme-accessible [class*="navbar"] a {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+body.theme-accessible [class*="navbar"] button *,
+body.theme-accessible [class*="navbar"] a * {
+    color: #ffffff !important;
+}
+body.theme-accessible [class*="navbar"] button:hover,
+body.theme-accessible [class*="navbar"] button:hover *,
+body.theme-accessible [class*="navbar"] a:hover,
+body.theme-accessible [class*="navbar"] a:hover * {
+    color: #ffdd00 !important;
+}
+
+/* Жёлтый фон — всегда чёрный текст внутри */
+body.theme-accessible *[style*="background"] {
+    color: #000000 !important;
+}
+
+/* Карточки в кабинете и модерации */
+body.theme-accessible .eap-card {
+    background: #1a1a1a !important;
+    border-color: #ffdd00 !important;
+}
+body.theme-accessible .eap-card__accent,
+body.theme-accessible .eap-card__accent--course,
+body.theme-accessible .eap-card__accent--article,
+body.theme-accessible .eap-card__accent--section {
+    background: #ffdd00 !important;
+}
+body.theme-accessible .eap-card__icon,
+body.theme-accessible .eap-card__icon--course,
+body.theme-accessible .eap-card__icon--article,
+body.theme-accessible .eap-card__icon--section {
+    background: rgba(255, 221, 0, 0.15) !important;
+    color: #ffdd00 !important;
+}
+body.theme-accessible .eap-card__badge,
+body.theme-accessible .eap-card__badge--course,
+body.theme-accessible .eap-card__badge--article,
+body.theme-accessible .eap-card__badge--section {
+    background: rgba(255, 221, 0, 0.15) !important;
+    color: #ffdd00 !important;
+}
+body.theme-accessible .eap-card__title {
+    color: #ffffff !important;
+}
+body.theme-accessible .eap-card__desc {
+    color: #cccccc !important;
+}
+body.theme-accessible .eap-card__nav-arrow {
+    color: #ffdd00 !important;
+}
+
+/* Посты в модерации (PostItem карточки) */
+body.theme-accessible .post {
+    background: #1a1a1a !important;
+    border: 2px solid #ffdd00 !important;
+}
+body.theme-accessible .post__content,
+body.theme-accessible .post__header-row,
+body.theme-accessible .post__excerpt {
+    color: #ffffff !important;
+}
+
+/* Статус-бейджи */
+body.theme-accessible .edu-status-badge {
+    border: 1px solid #ffdd00 !important;
+    color: #ffdd00 !important;
+    background: transparent !important;
+}
+
+/* Табы и чипы */
+body.theme-accessible .chip--active,
+body.theme-accessible .tab--active,
+body.theme-accessible .feed-tabs__btn--active {
+    background-color: #ffdd00 !important;
+    color: #000000 !important;
+}
+/* ========== End Версия для слабовидящих ========== */
+
 * {
     margin: 0;
     padding: 0;
@@ -438,6 +627,21 @@ body {
     overflow: hidden;
 }
 
+.posts-tags-strip__list--slide-left {
+    animation: tags-slide-left .3s ease;
+}
+.posts-tags-strip__list--slide-right {
+    animation: tags-slide-right .3s ease;
+}
+
+@keyframes tags-slide-left {
+    0%   { opacity: 0; transform: translateX(40px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes tags-slide-right {
+    0%   { opacity: 0; transform: translateX(-40px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
 
 .posts-tags-strip__next {
     flex-shrink: 0;
@@ -2052,10 +2256,130 @@ body {
     overflow: hidden;
 }
 
-@media(max-width: 1200px) { .neu-main { transform: scale(.7); } }
-@media(max-width: 1000px) { .neu-main { transform: scale(.6); } }
-@media(max-width: 800px)  { .neu-main { transform: scale(.5); } }
-@media(max-width: 600px)  { .neu-main { transform: scale(.4); } }
+@media(max-width: 1100px) { .neu-main { transform: scale(.85); } }
+
+/* Мобильная вертикальная версия */
+@media(max-width: 900px) {
+    .neu-main {
+        width: 100%;
+        min-width: unset;
+        max-width: 440px;
+        height: 570px;
+        min-height: auto;
+        padding: 0;
+        transform: none;
+        display: flex;
+        flex-direction: column;
+    }
+    .neu-container {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 32px 24px;
+        left: 0 !important;
+        z-index: 1 !important;
+    }
+    .neu-switch {
+        transition: none !important;
+    }
+    .neu-b-container {
+        display: flex !important;
+    }
+    .neu-a-container {
+        display: none !important;
+    }
+    .neu-main.is-signup .neu-a-container {
+        display: flex !important;
+    }
+    .neu-main.is-signup .neu-b-container {
+        display: none !important;
+    }
+    .neu-container {
+        order: 1;
+    }
+    .neu-switch {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 16px 24px;
+        left: 0 !important;
+        z-index: 1 !important;
+        order: 2;
+    }
+    .neu-switch.is-txr {
+        left: 0 !important;
+    }
+    .neu-switch.is-gx {
+        animation: none;
+    }
+    .neu-switch__circle,
+    .neu-switch__circle--t {
+        display: none !important;
+    }
+    .neu-switch__container {
+        position: relative !important;
+        width: 100% !important;
+        padding: 0 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    .neu-switch__container.is-hidden {
+        display: none !important;
+    }
+    .neu-switch__btn {
+        width: 100% !important;
+        margin-top: 12px;
+        height: 42px;
+        font-size: 13px;
+    }
+    .neu-switch .neu-title {
+        font-size: 16px;
+        line-height: 1.4;
+        margin-bottom: 4px;
+    }
+    .neu-switch .neu-description {
+        font-size: 12px;
+        padding: 0;
+        margin-bottom: 0;
+    }
+    .neu-form {
+        height: auto;
+    }
+    .neu-input {
+        width: 100%;
+    }
+    .neu-error,
+    .neu-message {
+        width: 100%;
+    }
+    .neu-title {
+        font-size: 26px;
+        line-height: 2;
+    }
+    .neu-btn {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .neu-switch__btn {
+        width: 200px;
+    }
+    .neu-switch__container.is-hidden {
+        display: flex !important;
+    }
+    .neu-switch__container:not(.is-hidden) {
+        display: none !important;
+    }
+}
+
+@media(max-width: 400px) {
+    .neu-auth-page {
+        padding: 0;
+    }
+    .neu-main {
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
 
 
 /* =========================
@@ -2104,7 +2428,7 @@ body {
 }
 
 .neu-title {
-    font-size: 32px;
+    font-size: 31px;
     font-weight: 700;
     line-height: 3;
 
@@ -2413,7 +2737,156 @@ body.theme-nano .neu-btn:active {
     30%, 50% { width: 500px; }
 }
 
+/* Standalone pages (confirm email, reset password) */
+.neu-standalone-card {
+    width: 440px;
+    padding: 48px 40px;
+    background-color: #ecf0f3;
+    box-shadow: 10px 10px 10px #d1d9e6, -10px -10px 10px #f9f9f9;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.neu-standalone-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background-color: #ecf0f3;
+    box-shadow: inset 4px 4px 6px #d1d9e6, inset -4px -4px 6px #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+.neu-standalone-icon--success {
+    box-shadow: inset 4px 4px 6px #bbf7d0, inset -4px -4px 6px #f9f9f9;
+}
+.neu-standalone-icon--error {
+    box-shadow: inset 4px 4px 6px #fecaca, inset -4px -4px 6px #f9f9f9;
+}
+.neu-standalone-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #181818;
+    margin-bottom: 8px;
+}
+.neu-standalone-desc {
+    font-size: 14px;
+    color: #a0a5a8;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+.neu-standalone-hint {
+    font-size: 13px;
+    color: #a0a5a8;
+    margin-top: 12px;
+}
+.neu-standalone-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+}
+.neu-standalone-form .neu-input {
+    width: 100%;
+}
+.neu-standalone-form .neu-btn {
+    width: 100%;
+    margin-top: 16px;
+}
+.neu-standalone-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-top: 8px;
+    box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #f9f9f9;
+}
+.neu-standalone-alert--success {
+    background: #ecfdf5;
+    color: #065f46;
+}
+.neu-standalone-alert--error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.neu-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #d1d9e6;
+    border-top-color: #4B70E2;
+    border-radius: 50%;
+    animation: neu-spin 0.8s linear infinite;
+}
+@keyframes neu-spin {
+    to { transform: rotate(360deg); }
+}
+@media(max-width: 500px) {
+    .neu-standalone-card {
+        width: 100%;
+        padding: 32px 24px;
+    }
+}
+
 /* ========== End Neumorphism Auth ========== */
+
+/* ========== 404 Page ========== */
+.not-found-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    width: 100%;
+    padding: 40px 24px;
+    text-align: center;
+}
+.not-found-page__code {
+    font-size: 120px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent, #64ffda));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+.not-found-page__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 12px;
+}
+.not-found-page__description {
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    margin-bottom: 32px;
+    max-width: 400px;
+}
+.not-found-page__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 32px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.not-found-page__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+/* ========== End 404 Page ========== */
 
 /* Форма создания поста */
 .post-form {

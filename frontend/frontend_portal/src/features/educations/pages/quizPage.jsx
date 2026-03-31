@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Loader from "../../../components/UI/loader/loader";
 import MyModal from "../../../components/UI/MyModal/MyModal";
 import educationService from "../API/EducationService";
+import {Helmet} from "react-helmet";
 
 const QuizPage = () => {
     const params = useParams();
@@ -40,7 +41,7 @@ const QuizPage = () => {
     const [submitResult, setSubmitResult] = useState(null);
     const [hasStarted, setHasStarted] = useState(false);
     const [timeLeft, setTimeLeft] = useState(null);
-    const [currentAttempt, setCurrentAttempt] = useState(null);
+    const [, setCurrentAttempt] = useState(null);
     const [attemptsUsed, setAttemptsUsed] = useState(0);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [confirmSubmitVisible, setConfirmSubmitVisible] = useState(false);
@@ -126,6 +127,7 @@ const QuizPage = () => {
         if (sectionId && courseId && chapterId && lessonId) {
             loadQuiz();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sectionId, courseId, chapterId, lessonId]);
 
     const handleOptionChange = (questionId, optionId, multiple) => {
@@ -425,9 +427,7 @@ const QuizPage = () => {
 
     const maxAttempts = quiz?.max_attempts ?? 0;
     const hasUnlimitedAttempts = !maxAttempts || maxAttempts <= 0;
-    const attemptsLeft = hasUnlimitedAttempts ? null : Math.max(0, maxAttempts - attemptsUsed);
     const canStart = hasUnlimitedAttempts || attemptsUsed < maxAttempts;
-    const totalQuestions = questions.length;
 
     const goToQuestion = (index) => {
         if (!questions || questions.length === 0) return;
@@ -437,6 +437,9 @@ const QuizPage = () => {
 
     return (
         <div className="page-wrapper section-page-wrapper">
+            <Helmet>
+                <title>Тест</title>
+            </Helmet>
             <div className="education-section-page">
                 <div className="education-back-link-wrap">
                     <button

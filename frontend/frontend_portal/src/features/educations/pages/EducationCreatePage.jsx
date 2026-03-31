@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import EducationService from '../API/EducationService';
 import MyEditor from '../../../components/UI/MyEditor/MyEditor';
 import MyModal from '../../../components/UI/MyModal/MyModal';
+import {useToast} from "../../../components/UI/Toast/ToastContext";
+import {Helmet} from "react-helmet";
 
 /* ── Утилиты ──────────────────────────────────────────────────── */
 let _localIdCounter = 0;
@@ -364,6 +366,7 @@ const ChapterBlock = ({ chapter, index, total, onMove, onUpdate, onRemove }) => 
 /* ── EducationCreatePage ──────────────────────────────────────── */
 const EducationCreatePage = () => {
     const navigate = useNavigate();
+    const toast = useToast();
     const nextEditorImageIdRef = useRef(1);
 
     const [sections, setSections] = useState([]);
@@ -439,7 +442,9 @@ const EducationCreatePage = () => {
             setIsSectionModalOpen(false);
             setNewSectionData({ title: '', description: '' });
             setSelectedCategoryId('');
+            toast.success('Раздел создан и отправлен на модерацию');
         } catch (e) {
+            toast.error('Ошибка при создании раздела');
             setSectionCreateError(e?.response?.data?.detail || JSON.stringify(e?.response?.data) || 'Ошибка при создании запроса');
         } finally {
             setIsSectionCreating(false);
@@ -595,8 +600,10 @@ const EducationCreatePage = () => {
             }
 
             setSaveSuccess(true);
+            toast.success(contentType === 'course' ? 'Курс создан!' : 'Материал создан!');
             setTimeout(() => navigate('/educations'), 2000);
         } catch (e) {
+            toast.error(contentType === 'course' ? 'Ошибка при создании курса' : 'Ошибка при создании материала');
             setSaveError(e?.response?.data?.detail || JSON.stringify(e?.response?.data) || 'Ошибка при сохранении');
         } finally {
             setIsSaving(false);
@@ -605,7 +612,9 @@ const EducationCreatePage = () => {
 
     return (
         <div className="edu-create">
-
+            <Helmet>
+                <title>Создать контент</title>
+            </Helmet>
             {/* Выбор раздела */}
             <div className="edu-create__section-row">
                 <label className="edu-label edu-label--required">Раздел</label>

@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 import PostService from "../API/PostService";
 import PostGet from "../components/PostGet";
 import { AuthContext } from "../../../context";
+import {Helmet} from "react-helmet";
 
 function TagPostsPage() {
     const { slug } = useParams();
@@ -85,6 +86,9 @@ function TagPostsPage() {
 
     return (
         <div className="App">
+            <Helmet>
+                <title>{tag?.name}</title>
+            </Helmet>
             <PostGet
                 key={slug}
                 fetchMethod={fetchPostsByTag}

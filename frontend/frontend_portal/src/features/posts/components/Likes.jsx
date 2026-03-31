@@ -29,6 +29,7 @@ const Likes = (props) => {
         setDisLiked(isDisliked);
         const count = props.post.likes_count ?? props.post.likesCount ?? 0;
         setLikesCount(Number(count));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.post?.id, props.post?.is_liked, props.post?.is_disliked, props.post?.likes_count, props.post?.likesCount]);
 
     const toggleLike = async () => {
