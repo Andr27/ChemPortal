@@ -129,13 +129,13 @@ class CreatorApplicationDetailSerializer(serializers.ModelSerializer):
                   'vk_url', 'telegram_url', 'website_url',
                   'status', 'reject_comment', 'reviewed_by', 'reviewed_at', 'created_at')
 
-
     def get_user(self, obj):
         return {
             'id': obj.user.id,
             'email': obj.user.email,
             'first_name': obj.user.first_name,
             'last_name': obj.user.last_name,
+            'avatar': obj.user.profile.avatar.url if obj.user.profile.avatar else None,
         }
 
     def get_reviewed_by(self, obj):
