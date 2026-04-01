@@ -1,45 +1,61 @@
 import os
-import torch
-from sentence_transformers import SentenceTransformer, util
+import numpy as np
+from tokenizers import Tokenizer
+from optimum.onnxruntime import ORTModelForFeatureExtraction
+from transformers import AutoTokenizer
 from django.core.cache import cache
 
-MODEL_PATH = os.path.join(
+QUANTIZED_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    'models', 'chemistry_tagger'
+    'models', 'chemistry_tagger_quantized'
 )
 
 _model = None
+_tokenizer = None
+
 
 def get_model():
-    global _model
+    global _model, _tokenizer
     if _model is None:
-        _model = SentenceTransformer(MODEL_PATH)
-    return _model
+        _model = ORTModelForFeatureExtraction.from_pretrained(QUANTIZED_PATH)
+        _tokenizer = AutoTokenizer.from_pretrained(QUANTIZED_PATH)
+    return _model, _tokenizer
 
 
-def get_tag_embeddings(all_tags: list):
-    """
-    Берём эмбеддинги тегов из кэша.
-    Если нет — считаем и кладём в кэш на 24 часа.
-    """
-    cache_key = 'tag_embeddings_v1'
-    cached = cache.get(cache_key)
+def mean_pooling(model_output, attention_mask):
+    token_embeddings = model_output[0]
+    input_mask_expanded = attention_mask[:, :, None].astype(float)
+    return (token_embeddings * input_mask_expanded).sum(axis=1) / input_mask_expanded.sum(axis=1)
 
-    if cached is not None:
-        # достаём тензор из кэша
-        embeddings = torch.tensor(cached)
-        return embeddings
 
-    # считаем один раз
-    model = get_model()
-    embeddings = model.encode(
-        ["passage: " + tag for tag in all_tags],
-        convert_to_tensor=True,
-        show_progress_bar=False,
+def normalize(embeddings):
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    return embeddings / np.maximum(norms, 1e-9)
+
+
+def encode(texts: list) -> np.ndarray:
+    model, tokenizer = get_model()
+    encoded = tokenizer(
+        texts,
+        padding=True,
+        truncation=True,
+        max_length=512,
+        return_tensors='np'
     )
+    outputs = model(**encoded)
+    embeddings = mean_pooling(outputs, encoded['attention_mask'])
+    return normalize(embeddings)
 
-    # сохраняем в кэш как список (Redis не умеет хранить тензоры)
-    cache.set(cache_key, embeddings.cpu().tolist(), timeout=86400)  # 24 часа
+
+def get_tag_embeddings(all_tags: list) -> np.ndarray:
+    cache_key = 'tag_embeddings_v2'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return np.array(cached)
+
+    tag_texts = ["passage: " + tag for tag in all_tags]
+    embeddings = encode(tag_texts)
+    cache.set(cache_key, embeddings.tolist(), timeout=86400)
     return embeddings
 
 
@@ -47,17 +63,10 @@ def suggest_tags(text: str, all_tags: list, top_n: int = 5, threshold: float = 0
     if not text or not all_tags:
         return []
 
-    model = get_model()
-
-    text_embedding = model.encode(
-        "query: " + text[:2000],
-        convert_to_tensor=True,
-        show_progress_bar=False,
-    )
-
+    text_embedding = encode(["query: " + text[:2000]])
     tag_embeddings = get_tag_embeddings(all_tags)
 
-    scores = util.cos_sim(text_embedding, tag_embeddings)[0]
+    scores = (tag_embeddings @ text_embedding.T).flatten()
 
     results = [
         (all_tags[i], float(scores[i]))

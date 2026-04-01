@@ -5,15 +5,14 @@ echo "========================================="
 echo "Запуск entrypoint.sh для ChemPortal"
 echo "========================================="
 
-# --- Скачиваем модель с Яндекс Диска если её нет ---
-mkdir -p /app/Portal/models/chemistry_tagger
+# --- Скачиваем квантованную модель с Яндекс Диска если её нет ---
+mkdir -p /app/Portal/models/chemistry_tagger_quantized
 
-if [ ! -f "/app/Portal/models/chemistry_tagger/modules.json" ]; then
-    echo "⚠️  Модель не найдена. Скачиваем с Яндекс Диска..."
+if [ ! -f "/app/Portal/models/chemistry_tagger_quantized/model_quantized.onnx" ]; then
+    echo "⚠️  Квантованная модель не найдена. Скачиваем с Яндекс Диска..."
 
-    PUBLIC_URL="https://disk.yandex.ru/d/ZNyHWsgs5EYYug"
+    PUBLIC_URL="https://disk.yandex.com/d/uFC48CB9PFq0Sw"
 
-    # Правильный способ получить прямую ссылку с публичного Яндекс Диска
     DIRECT_URL=$(wget -qO- \
         "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))' "$PUBLIC_URL")" \
         | python3 -c "import sys,json; print(json.load(sys.stdin)['href'])")
@@ -24,15 +23,15 @@ if [ ! -f "/app/Portal/models/chemistry_tagger/modules.json" ]; then
     fi
 
     echo "Скачиваем архив модели..."
-    wget -q --show-progress -O /tmp/chemistry_tagger.zip "$DIRECT_URL"
+    wget -q --show-progress -O /tmp/chemistry_tagger_quantized.zip "$DIRECT_URL"
 
     echo "Распаковываем..."
-    unzip -q /tmp/chemistry_tagger.zip -d /app/Portal/models/
-    rm /tmp/chemistry_tagger.zip
+    unzip -q /tmp/chemistry_tagger_quantized.zip -d /app/Portal/models/
+    rm /tmp/chemistry_tagger_quantized.zip
 
-    echo "✅ Модель успешно загружена!"
+    echo "✅ Квантованная модель успешно загружена!"
 else
-    echo "✅ Модель уже есть, пропускаем скачивание."
+    echo "✅ Квантованная модель уже есть, пропускаем скачивание."
 fi
 
 # --- Применяем миграции ---
@@ -48,3 +47,9 @@ echo "Запускаем Django..."
 echo "========================================="
 
 exec "$@"
+```
+
+И добавь в `requirements.txt`:
+```
+optimum[onnxruntime]
+onnx
