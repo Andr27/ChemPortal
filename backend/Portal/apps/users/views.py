@@ -196,15 +196,14 @@ class CreatorApplicationViewSet(GenericViewSet):
         applications = CreatorApplication.objects.filter(
             status=status_filter
         ).select_related('user', 'reviewed_by').order_by('-created_at')
-
-        serializer = CreatorApplicationDetailSerializer(applications, many=True)
+        page = self.paginate_queryset(applications)
+        serializer = CreatorApplicationDetailSerializer(page, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'], permission_classes=[IsModerator])
     def applications_detail(self, request, pk=None):
-        application = CreatorApplication.objects.get(pk=pk)
-        page = self.paginate_queryset(application)
-        serializer = CreatorApplicationDetailSerializer(page, many=True)
+        application = CreatorApplication.objects.filter(pk=pk)
+        serializer = CreatorApplicationDetailSerializer(application, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[IsModerator])
