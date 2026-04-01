@@ -9,7 +9,7 @@ import PostList from "./PostList";
 import Loader from "../../../components/UI/loader/loader";
 import {PostListSkeleton, AccountPostListSkeleton} from "../../../components/UI/skeleton/Skeleton";
 import ScrollableContainer from "../../../components/UI/ScrollableContainer/ScrollableContainer";
-import ModerationList from "./Moderation/ModerationList";
+import ModerationList from "../../moderation/components/ModerationList";
 import AccountPostList from "./AccountPostList";
 import PostService from "../API/PostService";
 import {useNavigate} from "react-router-dom";

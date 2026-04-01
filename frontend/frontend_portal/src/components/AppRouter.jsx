@@ -1,5 +1,5 @@
 import React, { useContext, Suspense } from 'react';
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { publicRoutes, privateRoutes, moderationRoutes, creatorRoutes, NotFound } from "../router";
 import {AuthContext, CreatorContext, ModeratorContext} from "../context";
 import Loader from "./UI/loader/loader";
@@ -55,6 +55,7 @@ const AppRouter = () => {
                 </>
             )}
 
+            <Route path="/" element={<Navigate to="/posts" replace />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
         </PageTransition>

@@ -4,7 +4,6 @@ import {lazy} from "react";
 const NotFound = lazy(() => import("../features/posts/pages/NotFound"));
 
 // Лента / Посты
-const Feed = lazy(() => import("../features/posts/pages/Feed"));
 const Posts = lazy(() => import("../features/posts/pages/Posts"));
 const PostsPage = lazy(() => import("../features/posts/pages/PostsPage"));
 const Bookmark = lazy(() => import("../features/posts/pages/Bookmark"));
@@ -21,9 +20,10 @@ const RefreshPassword = lazy(() => import("../features/Login/pages/RefreshPasswo
 const MyAccount = lazy(() => import("../features/account/pages/MyAccount"));
 
 // Модерация
-const Moderation = lazy(() => import("../features/posts/pages/Moderation"));
-const ModerationPostPage = lazy(() => import("../features/posts/pages/ModerationPostPage"));
-const ModerationCourseViewPage = lazy(() => import("../features/posts/pages/ModerationCourseViewPage"));
+const Moderation = lazy(() => import("../features/moderation/pages/Moderation"));
+const ModerationPostPage = lazy(() => import("../features/moderation/pages/ModerationPostPage"));
+const ModerationCourseViewPage = lazy(() => import("../features/moderation/pages/ModerationCourseViewPage"));
+const RequestRolePage = lazy(() => import("../features/moderation/pages/RequestRolePage"));
 
 // Создание
 const CreateForm = lazy(() => import("../features/posts/pages/CreateForm"));
@@ -46,8 +46,6 @@ const MaterialEditPage = lazy(() => import("../features/educations/pages/materia
 
 
 export const privateRoutes = [
-    //Лента
-    {path: '/feed', element: Feed},
     //Посты
     {path: '/posts', element: Posts},
     {path: '/posts/:id', element: PostsPage},
@@ -80,6 +78,7 @@ export const moderationRoutes = [
     {path: '/moderation', element: Moderation},
     {path: '/moderation/:id/', element: ModerationPostPage},
     {path: '/moderation/courses/:courseId', element: ModerationCourseViewPage},
+    {path: '/moderation/requests/:id', element: RequestRolePage},
 ];
 
 export const creatorRoutes = [
@@ -87,8 +86,6 @@ export const creatorRoutes = [
 ]
 
 export const publicRoutes = [
-    //Лента
-    {path: '/feed', element: Feed},
     //Посты
     {path: '/posts', element: Posts},
     {path: '/posts/:id', element: PostsPage},
