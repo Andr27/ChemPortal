@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from rest_framework.viewsets import GenericViewSet
 
 from Portal.choices import UserRole
+from Portal.pagination import StandardPagination
 from Portal.permissions import IsModerator
 from .serializers import RegistrationSerializer, MeSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, \
     ProfileSerializer, MeUpdateSerializer, CreatorApplicationSerializer, CreatorApplicationDetailSerializer, CreatorProfileSerializer
@@ -154,7 +155,7 @@ class AuthorProfileAPIView(RetrieveAPIView):
 
 class CreatorApplicationViewSet(GenericViewSet):
     permission_classes = [IsAuthenticated]
-
+    pagination_class = StandardPagination
     def get_queryset(self):
         return CreatorApplication.objects.all()
 
@@ -199,6 +200,12 @@ class CreatorApplicationViewSet(GenericViewSet):
         serializer = CreatorApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['get'], permission_classes=[IsModerator])
+    def applications_detail(self, request, pk=None):
+        application = CreatorApplication.objects.get(pk=pk)
+        page = self.paginate_queryset(application)
+        serializer = CreatorApplicationSerializer(page, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[IsModerator])
     def approve(self, request):

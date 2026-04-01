@@ -409,6 +409,7 @@ POST /api/v1/auth/creator-applications/apply/ - отправить заявку 
 }
 GET  /api/v1/auth/creator-applications/my_application/ - моя заявка
 GET  /api/v1/auth/creator-applications/applications_list/ - список всех заявок
+GET  /api/v1/auth/creator-applications/applications_detail/
 POST /api/v1/auth/creator-applications/approve/   
 {
 "application_id": {application_id}
