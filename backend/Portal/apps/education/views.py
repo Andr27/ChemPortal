@@ -344,8 +344,13 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         from apps.enrollment.models import CourseEnrollment, LessonProgress
         from apps.quiz.models import QuizAttempt
         from django.db.models import Avg
+        from django.core.cache import cache
 
         course = self.get_object()
+        cache_key = f'course_stats_{course.id}'
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
 
         enrollments = CourseEnrollment.objects.filter(course=course)
         total_students = enrollments.count()
@@ -373,8 +378,7 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
         scores = [s for s in [avg_score, avg_score_lessons] if s > 0]
         final_avg_score = round(sum(scores) / len(scores), 1) if scores else 0
-
-        return Response({
+        data = {
             'course_id': course.id,
             'course_title': course.title,
             'total_students': total_students,
@@ -385,7 +389,9 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             'avg_score': final_avg_score,
             'rating': course.rating,
             'reviews_count': course.reviews_count,
-        })
+        }
+        cache.set(cache_key, data, timeout=1800)
+        return Response(data)
 
 class ChapterViewSet(ModelViewSet):
     serializer_class = ChapterSerializer

@@ -4,6 +4,7 @@ from .models import CourseEnrollment, LessonProgress, CourseReview
 from apps.education.models import Lesson
 from django.db.models import Avg
 from apps.education.models import EducationSection, Course
+from django.core.cache import cache
 
 
 @receiver(post_save, sender=CourseEnrollment)
@@ -12,6 +13,8 @@ def enrollment_created(sender, instance, created, **kwargs):
         profile =  instance.course.created_by.profile
         profile.rating += 5
         profile.save()
+        cache.delete(f'course_stats_{instance.course.id}')
+
 
 
 @receiver(post_delete, sender=CourseEnrollment)
@@ -19,6 +22,7 @@ def enrollment_deleted(sender, instance, **kwargs):
     profile = instance.course.created_by.profile
     profile.rating = max(0, profile.rating - 5)
     profile.save()
+    cache.delete(f'course_stats_{instance.course.id}')
 
 
 
@@ -79,3 +83,8 @@ def recalculate_section_rating(section):
     ).aggregate(Avg('rating'))
     section.rating = round(result['rating__avg'] or 0, 2)
     section.save()
+
+
+
+
+

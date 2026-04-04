@@ -11,7 +11,7 @@ mkdir -p /app/Portal/models/chemistry_tagger_quantized
 if [ ! -f "/app/Portal/models/chemistry_tagger_quantized/model_quantized.onnx" ]; then
     echo "⚠️  Квантованная модель не найдена. Скачиваем с Яндекс Диска..."
 
-    PUBLIC_URL="https://disk.yandex.com/d/uFC48CB9PFq0Sw"
+    PUBLIC_URL="https://disk.yandex.com/d/VZN5RKXYvizg4w"
 
     DIRECT_URL=$(wget -qO- \
         "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))' "$PUBLIC_URL")" \
@@ -49,7 +49,3 @@ echo "========================================="
 exec "$@"
 ```
 
-И добавь в `requirements.txt`:
-```
-optimum[onnxruntime]
-onnx

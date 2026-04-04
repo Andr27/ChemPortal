@@ -6,6 +6,8 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import GenericViewSet
 
+from django.core.cache import cache
+
 from Portal.permissions import IsModerator
 from .models import Tag, TagRequest, FavoriteTag
 from .serializers import TagSerializer, TagRequestSerializer, TagRequestDetailSerializer
@@ -29,11 +31,25 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        queryset = Tag.objects.filter(is_active=True).order_by('name')
         search = self.request.query_params.get('search')
-        if search:
-            queryset = queryset.filter(name__icontains=search)
+        if not search:
+            cached = cache.get("tag_list")
+            if cached is not None:
+                return cached
+            queryset = Tag.objects.filter(is_active=True).order_by('name')
+            cache.set('tag_list', queryset, timeout=3600)
+            return queryset
+
+        queryset = Tag.objects.filter(is_active=True).order_by('name')
+        search_cap = search.capitalize()
+        queryset = (
+                queryset.filter(name__icontains=search_cap) |
+                queryset.filter(name__icontains=search.lower()) |
+                queryset.filter(name__icontains=search.upper())
+        ).distinct()
         return queryset
+
+
 
 
 
@@ -73,16 +89,22 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         all_tags = list(Tag.objects.filter(is_active=True).values_list('name', flat=True))
 
         try:
-            from .ml import suggest_tags
-            suggested_tags = suggest_tags(text=text, all_tags=all_tags, top_n=5, threshold=0.5)
-            tags = Tag.objects.filter(name__in=suggested_tags, is_active=True)
+            from .tasks import suggest_tags_async
+            result = suggest_tags_async.apply_async(
+                args=[text, all_tags],
+                kwargs={'top_n': 5, 'threshold': 0.5}
+            )
+            suggested_names = result.get(timeout=120)
+
+            tags = Tag.objects.filter(name__in=suggested_names, is_active=True)
             tags_dict = {tag.name: tag for tag in tags}
-            sorted_tags = [tags_dict[name] for name in suggested_tags if name in tags_dict]
+            sorted_tags = [tags_dict[name] for name in suggested_names if name in tags_dict]
             serializer = TagSerializer(sorted_tags, many=True, context={'request': request})
             return Response({'tags': serializer.data})
+
         except Exception as e:
             return Response(
-                {'tags': [], 'detail': f'Ошибка модели: {str(e)}'},
+                {'tags': [], 'detail': f'Ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -144,7 +166,9 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         tag_request.reviewed_by = request.user
         tag_request.save()
         from django.core.cache import cache
-        cache.delete('tag_embeddings_v1')
+        cache.delete('tag_embeddings_v2')
+        cache.delete('tags_list')
+
 
         return Response({
             'detail': f'Тег "{tag.name}" добавлен.',

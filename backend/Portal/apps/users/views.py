@@ -12,6 +12,7 @@ from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework.viewsets import GenericViewSet
+from django.core.cache import cache
 
 from Portal.choices import UserRole
 from Portal.pagination import StandardPagination
@@ -102,6 +103,7 @@ class MeAPIView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        cache.delete(f'creator_profile_{request.user.id}')
         return Response(MeSerializer(request.user).data)
 
 
@@ -266,6 +268,19 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         return User.objects.filter(
             profile__role=UserRole.CREATOR
         ).select_related('profile')
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        cache_key = f'creator_profile_{pk}'
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        cache.set(cache_key, data, timeout=3600)
+        return Response(data)
+
 
     @action(detail=True, methods=['get'])
     def activity(self, request, pk=None):
