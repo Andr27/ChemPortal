@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PostService from '../API/PostService';
-import PostGet from '../components/PostGet';
+import PostService from '../../posts/API/PostService';
+import PostGet from '../../posts/components/PostGet';
 import EducationService from '../../educations/API/EducationService';
 import Loader from '../../../components/UI/loader/loader';
 import {Helmet} from "react-helmet";
+import RequestRole from "../components/RequestRole";
 
 /* ── SVG-иконки ───────────────────────────────────────────────── */
 const IconSection = () => (
@@ -236,6 +237,13 @@ function Moderation() {
                             >
                                 Образовательный раздел
                             </button>
+                            <button
+                                type="button"
+                                className={`mod-page__mode-btn${mode === 'requests' ? ' mod-page__mode-btn--active' : ''}`}
+                                onClick={() => setMode('requests')}
+                            >
+                                Заявки на роль
+                            </button>
                         </div>
                     </div>
 
@@ -250,6 +258,7 @@ function Moderation() {
                             />
                         )}
                         {mode === 'education' && <EduModerationTab />}
+                        {mode === 'requests' && <RequestRole />}
                     </div>
                 </div>
             </div>

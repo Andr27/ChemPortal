@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import api from "../../../../API/api";
-import fallbackCover from "../../img/image.png";
+import api from "../../../API/api";
+import fallbackCover from "../../posts/img/image.png";
 
 const toAbsoluteUrl = (url) => {
     if (!url || typeof url !== "string") return "";

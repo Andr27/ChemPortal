@@ -10,6 +10,7 @@ import EduAccountPanel from '../component/EduAccountPanel';
 import AuthService from "../../Login/API/AuthService";
 import api from "../../../API/api";
 import {useToast} from "../../../components/UI/Toast/ToastContext";
+import RequestRole from "../component/RequestRole";
 
 /** Абсолютный URL для отображения медиа с бэка */
 function resolveMediaUrl(path) {
@@ -259,7 +260,16 @@ const MyAccount = () => {
                                     <p><strong>Фамилия:</strong> {user.last_name || 'Не указано'}</p>
                                     <p><strong>Имя:</strong> {user.first_name || 'Не указано'}</p>
                                     <p><strong>Уровень:</strong> {user.level ?? '—'}</p>
-                                    <p><strong>Роль:</strong> {user.role || 'Пользователь'}</p>
+                                    <p className="account-profile__role-row">
+                                        <strong>Роль:</strong> {
+                                        user.role === "user" ? "Пользователь" :
+                                            user.role === "creator" ? "Автор" :
+                                                user.role === "moderator" ? "Модератор" :
+                                                    user.role === "admin" ? "Админ" :
+                                                        (user.role || "Пользователь")
+                                    }
+                                        {!isCreator && !isModerator && <RequestRole />}
+                                    </p>
                                 </div>
                             </div>
                             <div className="account-profile__edit-row">
@@ -364,6 +374,38 @@ const MyAccount = () => {
                         </div>
                     ) : (
                         <>
+                            <div className="account-edit-modal__avatar-block">
+                                <span className="account-edit-modal__label-text">Аватар</span>
+                                <div className="account-edit-modal__avatar-row">
+                                    <div className="account-edit-modal__thumb-wrap">
+                                        {displayAvatarSrc ? (
+                                            <img src={displayAvatarSrc} alt="" className="account-edit-modal__thumb" />
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="account-edit-modal__thumb-placeholder"
+                                                onClick={() => modalAvatarInputRef.current?.click()}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="account-edit-modal__file-btn"
+                                        onClick={() => modalAvatarInputRef.current?.click()}
+                                    >
+                                        {avatarFile ? 'Выбрать другое фото' : 'Выбрать фото'}
+                                    </button>
+                                    <input
+                                        ref={modalAvatarInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className="account-profile__avatar-input-hidden"
+                                        onChange={onModalAvatarSelected}
+                                    />
+                                </div>
+                            </div>
                     <label className="account-edit-modal__label">
                         Имя
                         <input
@@ -394,39 +436,6 @@ const MyAccount = () => {
                             autoComplete="email"
                         />
                     </label>
-
-                    <div className="account-edit-modal__avatar-block">
-                        <span className="account-edit-modal__label-text">Аватар</span>
-                        <div className="account-edit-modal__avatar-row">
-                            <div className="account-edit-modal__thumb-wrap">
-                                {displayAvatarSrc ? (
-                                    <img src={displayAvatarSrc} alt="" className="account-edit-modal__thumb" />
-                                ) : (
-                                    <button
-                                        type="button"
-                                        className="account-edit-modal__thumb-placeholder"
-                                        onClick={() => modalAvatarInputRef.current?.click()}
-                                    >
-                                        +
-                                    </button>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                className="account-edit-modal__file-btn"
-                                onClick={() => modalAvatarInputRef.current?.click()}
-                            >
-                                {avatarFile ? 'Выбрать другое фото' : 'Выбрать фото'}
-                            </button>
-                            <input
-                                ref={modalAvatarInputRef}
-                                type="file"
-                                accept="image/*"
-                                className="account-profile__avatar-input-hidden"
-                                onChange={onModalAvatarSelected}
-                            />
-                        </div>
-                    </div>
                         </>
                     )}
 

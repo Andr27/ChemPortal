@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useFetching } from "../../../hooks/useFetching";
-import PostService from "../API/PostService";
+import PostService from "../../posts/API/PostService";
 import Loader from "../../../components/UI/loader/loader";
 import ArticleViewer from "../../../components/UI/MyEditor/ArticleViewer";
 import MyModal from "../../../components/UI/MyModal/MyModal";
