@@ -168,16 +168,27 @@ class CreatorApplicationViewSet(GenericViewSet):
                 {'detail': "Вы уже являетесь создателем контента"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        existing = CreatorApplication.objects.filter(
-            user=request.user,
-            status='pending'
-        ).first()
+        existing = CreatorApplication.objects.filter(user=request.user).first()
         if existing:
-            return Response(
-                {'detail': 'У вас уже есть заявка на рассмотрении'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            if existing.status == 'pending':
+                return Response(
+                    {'detail': 'У вас уже есть заявка на рассмотрении'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
+            serializer = CreatorApplicationSerializer(
+                existing,
+                data=request.data,
+                partial=False
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(
+                status='pending',
+                reject_comment='',
+                reviewed_by=None,
+                reviewed_at=None
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         serializer = CreatorApplicationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
@@ -287,8 +298,8 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         from apps.posts.models import Post
         from apps.education.models import Course, EducationSection
         from Portal.choices import ModerationStatus
-        from itertools import chain
-        import operator
+        from apps.posts.serializers import PostSerializer
+        from apps.education.serializers import CourseSerializer, EducationSectionSerializer
 
         creator = self.get_object()
 
@@ -307,17 +318,28 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             status=ModerationStatus.PUBLISHED
         ).values('id', 'title', 'created_at').order_by('-created_at')[:10]
 
-        activity = []
-
-        for p in posts:
-            activity.append({**p, 'activity_type': 'post'})
-        for c in courses:
-            activity.append({**c, 'activity_type': 'course'})
-        for s in sections:
-            activity.append({**s, 'activity_type': 'section'})
-
-        activity.sort(key=lambda x:x['created_at'], reverse=True)
-        return Response(activity[:20])
+        return Response({
+            'posts': PostSerializer(posts, many=True, context={'request': request}).data,
+            'courses': CourseSerializer(courses, many=True).data,
+            'sections': EducationSectionSerializer(sections, many=True).data,
+        })
 
 
+    @action(detail=True, methods=['get'])
+    def liked(self, request, pk=None):
+        from apps.posts.models import Post, Like
+        from apps.posts.serializers import PostSerializer
+        from Portal.choices import ModerationStatus
 
+        creator = self.get_object()
+        liked_post_ids = Like.objects.filter(
+            user=creator,
+        ).values_list('post_id', flat=True).order_by('-created_at')[:5]
+        posts = Post.objects.filter(
+            id__in=liked_post_ids,
+            status=ModerationStatus.PUBLISHED
+        )
+        posts_dict = {p.id: p for p in posts}
+        sorted_posts = [posts_dict[pid] for pid in liked_post_ids if pid in posts_dict]
+        serializer = PostSerializer(sorted_posts, many=True, context={'request': request})
+        return Response(serializer.data)

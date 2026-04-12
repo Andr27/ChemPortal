@@ -83,12 +83,22 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[IsModerator])
     def moderation_list(self, request):
         posts = Post.objects.filter(status=ModerationStatus.MODERATION)
         page = self.paginate_queryset(posts)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+    @action(detail=True, methods=['post'], permission_classes=[IsModerator])
+    def reject(self, request, pk=None):
+        obj = get_object_or_404(
+            self.get_base_queryset().filter(status=ModerationStatus.MODERATION),
+            pk=pk
+        )
+        obj.status = ModerationStatus.REJECTED
+        obj.reject_comment = request.data.get('comment', '')
+        obj.save()
+        return Response({'detail': "Отклонено"})
 
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])

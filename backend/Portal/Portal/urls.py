@@ -419,4 +419,6 @@ POST /api/v1/auth/creator-applications/reject/
 GET  /api/v1/auth/creators/                       — список всех креаторов
 GET  /api/v1/auth/creators/{id}/                  — профиль Creator'а
 GET  /api/v1/auth/creators/{id}/activity/         — лента активностей
+
+GET /api/v1/auth/creators/{id}/liked/ - лайкнутые
 '''

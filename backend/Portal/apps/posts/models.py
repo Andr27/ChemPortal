@@ -29,6 +29,7 @@ class Post(models.Model):
     )
 
     status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
+    reject_comment = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-created_at']
