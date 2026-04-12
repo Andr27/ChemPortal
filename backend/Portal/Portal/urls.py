@@ -22,7 +22,8 @@ urlpatterns = [
     path('api/v1/', include("apps.quiz.urls")),
     path('api/v1/', include('apps.enrollment.urls')),
     path('api/v1/', include('apps.categories.urls')),
-    path('api/v1/', include('apps.tags.urls'))
+    path('api/v1/', include('apps.tags.urls')),
+    path('api/v1/', include('apps.search.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -421,4 +422,16 @@ GET  /api/v1/auth/creators/{id}/                  — профиль Creator'а
 GET  /api/v1/auth/creators/{id}/activity/         — лента активностей
 
 GET /api/v1/auth/creators/{id}/liked/ - лайкнутые
+
+
+
+ПОИСК!!
+GET /api/v1/search/?q=оксиды               — ищет везде
+GET /api/v1/search/?q=оксиды&type=posts    — только посты
+GET /api/v1/search/?q=оксиды&type=courses  — только курсы
+GET /api/v1/search/?q=оксиды&type=sections — только разделы
+GET /api/v1/search/?q=оксиды&type=tags     — только теги
+GET /api/v1/search/?q=оксиды&limit=5       — лимит результатов
+
+
 '''
