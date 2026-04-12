@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'pgvector.django',
     'apps.posts.apps.PostsConfig',
     'apps.users.apps.UsersConfig',
     'apps.subscriptions.apps.SubscriptionsConfig',

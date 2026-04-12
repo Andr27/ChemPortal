@@ -432,6 +432,7 @@ GET /api/v1/search/?q=оксиды&type=courses  — только курсы
 GET /api/v1/search/?q=оксиды&type=sections — только разделы
 GET /api/v1/search/?q=оксиды&type=tags     — только теги
 GET /api/v1/search/?q=оксиды&limit=5       — лимит результатов
+GET /api/v1/search/?q=оксиды&mode=semantic     — семантический поиск
 
 
 '''
