@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import {Link, useLocation} from 'react-router-dom';
 import InformationBoard from "../../../components/UI/InformationBoard/InformationBoard";
 import MyModal from "../../../components/UI/MyModal/MyModal";
 import { useUser } from "../../../hooks/useUser";
@@ -8,6 +9,7 @@ import UserService from "../../../API/UserService";
 import { CreatorContext, ModeratorContext } from "../../../context";
 import EduAccountPanel from '../component/EduAccountPanel';
 import AuthService from "../../Login/API/AuthService";
+import AccountService from "../API/AccountService";
 import api from "../../../API/api";
 import {useToast} from "../../../components/UI/Toast/ToastContext";
 import RequestRole from "../component/RequestRole";
@@ -62,6 +64,9 @@ const MyAccount = () => {
     const [modalFieldsLoading, setModalFieldsLoading] = useState(false);
     const [avatarUploading, setAvatarUploading] = useState(false);
     const [avatarCardError, setAvatarCardError] = useState('');
+    const [subscriptions, setSubscriptions] = useState([]);
+    const [subsLoading, setSubsLoading] = useState(false);
+    const location = useLocation();
 
     const avatarInputRef = useRef(null);
     const modalAvatarInputRef = useRef(null);
@@ -71,6 +76,21 @@ const MyAccount = () => {
             if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
         };
     }, [avatarPreviewUrl]);
+
+    useEffect(() => {
+        const fetchSubs = async () => {
+            setSubsLoading(true);
+            try {
+                const response = await AccountService.GetMySubscribes();
+                setSubscriptions(Array.isArray(response.data) ? response.data : []);
+            } catch (e) {
+                console.log(e);
+            } finally {
+                setSubsLoading(false);
+            }
+        };
+        if (user?.id) fetchSubs();
+    }, [user?.id]);
 
     const openEditModal = async () => {
         if (!user) return;
@@ -261,13 +281,14 @@ const MyAccount = () => {
                                     <p><strong>Имя:</strong> {user.first_name || 'Не указано'}</p>
                                     <p><strong>Уровень:</strong> {user.level ?? '—'}</p>
                                     <p className="account-profile__role-row">
-                                        <strong>Роль:</strong> {
-                                        user.role === "user" ? "Пользователь" :
-                                            user.role === "creator" ? "Автор" :
-                                                user.role === "moderator" ? "Модератор" :
-                                                    user.role === "admin" ? "Админ" :
-                                                        (user.role || "Пользователь")
-                                    }
+                                        <strong>Роль:</strong>{' '}
+                                        <span>
+                                            {user.role === "user" ? "Пользователь" :
+                                                user.role === "creator" ? "Автор" :
+                                                    user.role === "moderator" ? "Модератор" :
+                                                        user.role === "admin" ? "Админ" :
+                                                            (user.role || "Пользователь")}
+                                        </span>
                                         {!isCreator && !isModerator && <RequestRole />}
                                     </p>
                                 </div>
@@ -283,6 +304,42 @@ const MyAccount = () => {
                             </div>
                         </div>
                     </InformationBoard>
+
+                    {/* Подписки */}
+                    <div className="account-subs">
+                        <h3 className="account-subs__title">Мои подписки</h3>
+                        {subsLoading ? (
+                            <Loader />
+                        ) : subscriptions.length > 0 ? (
+                            <div className="account-subs__list">
+                                {subscriptions.map(sub => {
+                                    const authorName = `${sub.author_first_name || ''} ${sub.author_last_name || ''}`.trim() || `Автор #${sub.author}`;
+                                    const avatarUrl = sub.author_avatar_url || sub.author_avatar;
+                                    const absAvatar = avatarUrl ? (
+                                        /^https?:\/\//i.test(avatarUrl) ? avatarUrl : resolveMediaUrl(avatarUrl)
+                                    ) : null;
+                                    return (
+                                        <Link
+                                            key={sub.id || sub.author}
+                                            to={`/author/${sub.author}`}
+                                            state={{ from: location.pathname }}
+                                            className="account-subs__item"
+                                        >
+                                            {absAvatar
+                                                ? <img src={absAvatar} alt="" className="account-subs__item-avatar" />
+                                                : <span className="account-subs__item-placeholder">
+                                                    {(sub.author_first_name?.[0] || '?').toUpperCase()}
+                                                  </span>
+                                            }
+                                            <span className="account-subs__item-name">{authorName}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <p className="account-subs__empty">Вы ещё ни на кого не подписаны</p>
+                        )}
+                    </div>
                 </div>
 
                 {(isModerator || isCreator) && (

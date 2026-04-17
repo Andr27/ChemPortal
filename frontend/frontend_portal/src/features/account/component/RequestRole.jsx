@@ -117,13 +117,14 @@ const RequestRole = ({ onSuccess }) => {
             </label>
 
             <label className="request-role-modal__label">
-                <span>Место работы</span>
+                <span>Место работы<span className="request-role-modal__req">*</span></span>
                 <input
                     className="request-role-modal__input"
                     type="text"
                     value={requestData.affiliation}
                     onChange={(e) => setRequestData({...requestData, affiliation: e.target.value})}
-                    placeholder="Университет, компания..."
+                    placeholder="Университет, компания, должность..."
+                    required
                     disabled={loading || isPending}
                 />
             </label>

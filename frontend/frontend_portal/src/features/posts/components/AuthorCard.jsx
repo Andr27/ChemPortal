@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import PostService from "../API/PostService";
 import UserService from "../../../API/UserService";
 import Mybutton from "../../../components/UI/button/Mybutton";
@@ -6,6 +7,8 @@ import {useUser} from "../../../hooks/useUser";
 
 const AuthorCard = (props) => {
     const { user } = useUser();
+    const location = useLocation();
+    const navigate = useNavigate();
     const [loading, setLoading] = React.useState(false);
     const [authorInfo, setAuthorInfo] = React.useState(null);
     const [subscribed, setSubscribed] = React.useState(props.post.is_subscribed);
@@ -74,7 +77,16 @@ const AuthorCard = (props) => {
     }, [subscribed]);
 
     return (
-        <div className="authorCard">
+        <div
+            className="authorCard"
+            style={{ cursor: 'pointer' }}
+            onClick={() =>
+                navigate(`/author/${authorInfo.id}`, {
+                    state: { from: location.pathname }
+                })
+            }
+        >
+
             {authorInfo ? (
                 <>
                     <strong>
@@ -90,9 +102,17 @@ const AuthorCard = (props) => {
                             {getSubscribersLabel(authorInfo.subscribers_count)}
                         </small>
                     </p>
-                    {user?.id && user.id !== authorInfo.id && (<Mybutton disabled={loading} onClick={Subscribe}>
-                        {loading ? '...' : (subscribed ? 'Отписаться' : 'Подписаться')}
-                    </Mybutton>)}
+                    {user?.id && user.id !== authorInfo.id && (
+                        <Mybutton
+                            disabled={loading}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                Subscribe();
+                            }}
+                        >
+                            {loading ? '...' : (subscribed ? 'Отписаться' : 'Подписаться')}
+                        </Mybutton>
+                    )}
                 </>
             ) : (
                 <div>Загрузка информации об авторе...</div>

@@ -31,5 +31,15 @@ class AccountService {
         const response = await api.get(`auth/creator-applications/${applicationID}/applications_detail/`);
         return response;
     }
+
+    static async GetAuthorInformation(authorId){
+        const response = await api.get(`auth/creators/${authorId}`);
+        return response;
+    }
+
+    static async GetMySubscribes() {
+        const response = await api.get(`subscriptions/`)
+        return response;
+    }
 }
 export default AccountService;

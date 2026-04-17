@@ -1435,7 +1435,7 @@ body {
 p.account-profile__role-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     flex-wrap: wrap;
 }
 
@@ -1880,7 +1880,7 @@ p.account-profile__role-row {
 
 .account-layout {
     display: grid;
-    grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+    grid-template-columns: minmax(290px, 430px) minmax(0, 1fr);
     gap: 20px;
     align-items: start;
 }
@@ -8197,4 +8197,394 @@ body.theme-nano .neu-btn:active {
 
 .course-stats__row-value--accent {
     color: var(--color-primary);
+}
+
+/* ══════════════════ Страница автора ══════════════════ */
+
+.author-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 0 48px;
+}
+
+.author-page__card {
+    background: var(--color-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 36px 40px;
+    width: 100%;
+}
+
+/* Шапка: аватар + имя */
+.author-page__header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 12px;
+}
+
+.author-page__avatar {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--color-bg);
+    border: 2px solid var(--card-border);
+}
+
+.author-page__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-page__avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.author-page__name-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.author-page__name {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    line-height: 1.2;
+}
+
+/* Бейдж уровня */
+.author-page__level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+
+.author-page__level-icon {
+    font-size: 14px;
+}
+
+/* Подписчики */
+.author-page__sub-count {
+    margin: 4px 0 0;
+    font-size: 15px;
+    color: var(--color-text-muted);
+}
+
+.author-page__sub-count strong {
+    color: var(--color-text-main);
+    font-weight: 700;
+}
+
+/* Статистика — строка с иконками и разделителями */
+.author-page__stats-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.author-page__stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.author-page__stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.author-page__stat-icon--posts {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+.author-page__stat-icon--courses {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.author-page__stat-icon--rating {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.author-page__stat-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-page__stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-text-main);
+    line-height: 1.2;
+}
+
+.author-page__stat-label {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.author-page__stat-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--card-border);
+    flex-shrink: 0;
+}
+
+.author-page__bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.author-page__sub-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--color-primary);
+    color: #fff;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.author-page__sub-btn:hover {
+    opacity: 0.88;
+}
+
+.author-page__sub-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.author-page__sub-btn--active {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--card-border);
+}
+
+.author-page__sub-btn--active:hover {
+    background: var(--color-danger, #ef4444);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Доп. информация */
+.author-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.author-page__field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin-bottom: 3px;
+}
+
+.author-page__field-value {
+    font-size: 14px;
+    color: var(--color-text-main);
+    line-height: 1.5;
+}
+
+.author-page__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.author-page__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--card-border);
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.12s;
+}
+
+.author-page__link:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.author-page__link-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+@media (max-width: 600px) {
+    .author-page__card {
+        padding: 20px;
+    }
+
+    .author-page__header {
+        gap: 14px;
+    }
+
+    .author-page__avatar {
+        width: 56px;
+        height: 56px;
+    }
+
+    .author-page__name {
+        font-size: 22px;
+    }
+
+    .author-page__stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+    }
+
+    .author-page__stat-value {
+        font-size: 17px;
+    }
+}
+
+/* Подписки в ЛК */
+.account-subs {
+    margin-top: 20px;
+}
+
+.account-subs__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin: 0 0 12px;
+}
+
+.account-subs__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-subs__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.12s;
+}
+
+.account-subs__item:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.account-subs__item-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.account-subs__item-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--sidebar-bg, var(--card-bg));
+    flex-shrink: 0;
+}
+
+.account-subs__item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.account-subs__item-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.account-subs__empty {
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 600px) {
+    .author-page__header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .author-page__stats {
+        justify-content: center;
+    }
+
+    .author-page__avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .author-page__name {
+        font-size: 22px;
+    }
+
+    .author-page__details {
+        padding: 16px;
+    }
 }

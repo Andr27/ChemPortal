@@ -18,7 +18,7 @@ const RefreshPassword = lazy(() => import("../features/Login/pages/RefreshPasswo
 
 // Аккаунт
 const MyAccount = lazy(() => import("../features/account/pages/MyAccount"));
-
+const AuthorInformation = lazy(() => import("../features/account/pages/AuthorInformationPage"));
 // Модерация
 const Moderation = lazy(() => import("../features/moderation/pages/Moderation"));
 const ModerationPostPage = lazy(() => import("../features/moderation/pages/ModerationPostPage"));
@@ -55,6 +55,7 @@ export const privateRoutes = [
     {path: '/tags/:slug', element: TagPostsPage},
     //Аккаунт
     {path: '/account', element: MyAccount},
+    {path: '/author/:id/', element: AuthorInformation},
     //Образовательный раздел
     {path: '/educations/my-courses', element: MyEnrollmentsPage},
     {path: '/educations/categories/:slug', element: CategoryPage},
@@ -92,6 +93,7 @@ export const publicRoutes = [
     {path: '/news', element: News},
     {path: '/videos', element: Videos},
     {path: '/tags/:slug', element: TagPostsPage},
+    {path: '/author/:id/', element: AuthorInformation},
     //Логин
     {path: '/login', element: Login},
     {path: '/login/:token', element: Login},
