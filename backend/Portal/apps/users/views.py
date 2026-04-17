@@ -115,6 +115,7 @@ class PasswordResetRequestAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = User.objects.get(email=serializer.validated_data['email'])
+        PasswordResetToken.objects.filter(user=user).delete()
         token = PasswordResetToken.objects.create(user=user)
 
         reset_link = f"http://147.45.219.171/reset-password?token={token.token}"

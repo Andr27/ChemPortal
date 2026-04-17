@@ -5,23 +5,24 @@ from apps.education.models import Lesson
 from django.db.models import Avg
 from apps.education.models import EducationSection, Course
 from django.core.cache import cache
-
+from django.db.models import F
+from apps.users.models import Profile
 
 @receiver(post_save, sender=CourseEnrollment)
 def enrollment_created(sender, instance, created, **kwargs):
     if created:
-        profile =  instance.course.created_by.profile
-        profile.rating += 5
-        profile.save()
+        Profile.objects.filter(
+            pk=instance.course.created_by.profile.pk
+        ).update(rating=F('rating') + 5)
         cache.delete(f'course_stats_{instance.course.id}')
 
 
 
 @receiver(post_delete, sender=CourseEnrollment)
 def enrollment_deleted(sender, instance, **kwargs):
-    profile = instance.course.created_by.profile
-    profile.rating = max(0, profile.rating - 5)
-    profile.save()
+    Profile.objects.filter(
+        pk=instance.course.created_by.profile.pk
+    ).update(rating=F('rating') - 5)
     cache.delete(f'course_stats_{instance.course.id}')
 
 

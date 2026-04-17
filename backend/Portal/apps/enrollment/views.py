@@ -62,20 +62,22 @@ class CourseEnrollmentViewSet(GenericViewSet):
                 'enrollment_id': enrollment.id
             })
 
-        # Создаём ChapterProgress и LessonProgress для каждой главы и урока
         chapters = course.chapters.prefetch_related('lessons').all()
         lessons_count = 0
+        chapter_progresses = []
+        lesson_progresses = []
         for chapter in chapters:
-            ChapterProgress.objects.get_or_create(
-                enrollment=enrollment,
-                chapter=chapter,
+            chapter_progresses.append(
+                ChapterProgress(enrollment=enrollment, chapter=chapter)
             )
             for lesson in chapter.lessons.all():
-                LessonProgress.objects.get_or_create(
-                    enrollment=enrollment,
-                    lesson=lesson,
+                lesson_progresses.append(
+                    LessonProgress(enrollment=enrollment, lesson=lesson)
                 )
                 lessons_count += 1
+
+        ChapterProgress.objects.bulk_create(chapter_progresses, ignore_conflicts=True)
+        LessonProgress.objects.bulk_create(lesson_progresses, ignore_conflicts=True)
 
         return Response({
             'detail': 'Вы записаны на курс',

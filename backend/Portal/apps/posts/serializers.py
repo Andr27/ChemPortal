@@ -95,28 +95,16 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     def get_is_liked(self, obj):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            return False
-        return obj.likes.filter(user=user).exists()
+        return obj.id in self.context.get('liked_ids', set())
 
     def get_is_disliked(self, obj):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            return False
-        return obj.dislikes.filter(user=user).exists()
-
-    def get_is_subscribed(self, obj):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            return False
-        return Subscription.objects.filter(user=user, author=obj.author).exists()
+        return obj.id in self.context.get('disliked_ids', set())
 
     def get_is_bookmarked(self, obj):
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            return False
-        return obj.bookmarked_by.filter(user=user).exists()
+        return obj.id in self.context.get('bookmarked_ids', set())
+
+    def get_is_subscribed(self, obj):
+        return obj.author_id in self.context.get('subscribed_ids', set())
 
     def get_author(self, obj):
         return {

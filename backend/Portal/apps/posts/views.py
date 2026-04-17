@@ -40,10 +40,37 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         return queryset
 
     def get_queryset(self):
+        user = self.request.user
+
         if self.action == 'list':
             queryset = Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
-            return self.filter_by_teg(queryset)
-        return super().get_queryset()
+            return self.filter_by_teg(queryset).select_related('author__profile').prefetch_related(
+                'tags', 'likes', 'dislikes', 'bookmarked_by', 'images')
+        return super().get_queryset().select_related('author__profile').prefetch_related(
+            'tags', 'likes', 'dislikes', 'bookmarked_by', 'images'
+        )
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        user = self.request.user
+        if user.is_authenticated:
+            context['likes_ids'] = set(
+                user.likes.values_list('post_id', flat=True)
+            )
+            context['dislikes_ids'] = set(
+                user.dislikes.values_list('post_id', flat=True)
+            )
+            context['bookmarks_ids'] = set(
+                user.bookmarks.values_list('post_id', flat=True)
+            )
+            context['subscribed_ids'] = set(
+                user.subscriptions.values_list('post_id', flat=True)
+            )
+        else:
+            context['likes_ids'] = set()
+            context['dislikes_ids'] = set()
+            context['bookmarks_ids'] = set()
+            context['subscribed_ids'] = set()
+        return context
 
     #PERMISSIONS
 
@@ -132,8 +159,11 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def all_posts_detail(self, request, pk=None):
 
-
-        post = Post.objects.get(pk=pk)
+        post = Post.objects.select_related(
+            'author__profile'
+        ).prefetch_related(
+            'tags', 'likes', 'dislikes', 'bookmarked_by', 'images'
+        ).get(pk=pk)
 
         if post.status != ModerationStatus.PUBLISHED:
             user = request.user
@@ -303,19 +333,20 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
             status=ModerationStatus.PUBLISHED,
         ).exclude(id__in=personalized_ids)
 
-        # Объединяем и сортируем (сначала персонализированные)
+
+        if tag:
+            personalized = personalized.filter(tags__slug=tag)
+            rest = rest.filter(tags__slug=tag)
+
+        if type_of_posts:
+            personalized = personalized.filter(type=type_of_posts)
+            rest = rest.filter(type=type_of_posts)
+
         from itertools import chain
         combined = list(chain(
             personalized.order_by('-created_at'),
             rest.order_by('-created_at'),
         ))
-
-        # Дополнительные фильтры (tag и type)
-        if tag:
-            combined = [p for p in combined if p.tags.filter(slug=tag).exists()]
-
-        if type_of_posts:
-            combined = [p for p in combined if p.type == type_of_posts]
 
         page = self.paginate_queryset(combined)
         serializer = self.get_serializer(page, many=True)

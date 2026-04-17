@@ -75,7 +75,10 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     def moderation_list(self, request):
         sections = self.get_base_queryset().filter(status=ModerationStatus.MODERATION)
         page = self.paginate_queryset(sections)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[IsCreator])
@@ -93,7 +96,10 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     def my_sections(self, request):
         sections = self.get_base_queryset().filter(created_by=self.request.user)
         page = self.paginate_queryset(sections)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -103,7 +109,10 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.DRAFT,
         )
         page = self.paginate_queryset(sections)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
 
@@ -114,7 +123,10 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.REJECTED,
         )
         page = self.paginate_queryset(sections)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -124,7 +136,10 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             created_by=self.request.user,
         )
         page = self.paginate_queryset(sections)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
 
@@ -219,7 +234,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     def moderation_list(self, request, **kwargs):
         courses = self.get_base_queryset().filter(status=ModerationStatus.MODERATION)
         page = self.paginate_queryset(courses)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[IsCreator])
@@ -234,7 +252,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
     def my_courses(self, request, **kwargs):
         courses = self.get_base_queryset().filter(created_by=self.request.user)
         page = self.paginate_queryset(courses)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -244,7 +265,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.DRAFT
         )
         page = self.paginate_queryset(courses)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -254,7 +278,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.REJECTED
         )
         page = self.paginate_queryset(courses)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsCreator])
@@ -264,7 +291,10 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             status=ModerationStatus.PUBLISHED
         )
         page = self.paginate_queryset(courses)
-        serializer = self.get_serializer(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
