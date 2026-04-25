@@ -81,9 +81,12 @@ api.interceptors.response.use(
                 refresh: refreshToken,
             });
 
-            const {access} = response.data;
+            const {access} = response.data.access;
+            const {refresh} = response.data.refresh;
 
             localStorage.setItem('accessToken', access);
+            localStorage.setItem('refreshToken', refresh);
+
 
             originalRequest.headers.Authorization = `Bearer ${access}`;
 
