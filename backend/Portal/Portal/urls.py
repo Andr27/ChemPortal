@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/v1/', include('apps.categories.urls')),
     path('api/v1/', include('apps.tags.urls')),
     path('api/v1/', include('apps.search.urls')),
+    path('api/v1/', include('apps.notifications.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -444,5 +445,17 @@ celery -A Portal worker --loglevel=info --pool=solo
 celery -A Portal beat --loglevel=info
 в разных терминалах
 "
+
+
+
+
+Уведомления!!!!!!!!
+GET  /api/v1/notifications/ - список уведомлений
+GET /api/v1/notifications/unread_count/ - колво непрочитанных
+POST /api/v1/notifications/mark_all_read/ - отметить все прочитанным
+POST /api/v1/notifications/{id}/mark_read/ - отметить одно сообщений
+
+
+
 
 '''

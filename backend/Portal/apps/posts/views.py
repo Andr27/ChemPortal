@@ -1,9 +1,9 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
-from django.db.models import F
+
 from rest_framework.exceptions import PermissionDenied
 from django.core.cache import cache
 
@@ -63,7 +63,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
                 user.bookmarks.values_list('post_id', flat=True)
             )
             context['subscribed_ids'] = set(
-                user.subscriptions.values_list('post_id', flat=True)
+                user.subscriptions.values_list('author_id', flat=True)
             )
         else:
             context['likes_ids'] = set()
@@ -357,7 +357,14 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+
+
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
 
     def get_queryset(self):
         post_id = self.kwargs["post_pk"]

@@ -17,7 +17,7 @@ class SubscriptionViewSet(ModelViewSet):
 
     def get_queryset(self):
         #мои подписки!!!
-        return Subscription.objects.filter(user=self.request.user)
+        return Subscription.objects.filter(user=self.request.user).select_related('author__profile')
 
 
     def perform_create(self, serializer):

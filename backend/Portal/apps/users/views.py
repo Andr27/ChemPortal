@@ -1,3 +1,5 @@
+import json
+
 from django.utils import timezone
 
 from django.core.mail import send_mail
@@ -9,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework.viewsets import GenericViewSet
@@ -278,7 +282,7 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         return User.objects.filter(
-            profile__role=UserRole.CREATOR
+            profile__role__in=[UserRole.CREATOR, UserRole.MODERATOR, UserRole.ADMIN]
         ).select_related('profile')
 
     def retrieve(self, request, *args, **kwargs):
@@ -290,7 +294,7 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        cache.set(cache_key, data, timeout=3600)
+        cache.set(cache_key, json.loads(JSONRenderer().render(data)), timeout=3600)
         return Response(data)
 
 
@@ -307,17 +311,17 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         posts = Post.objects.filter(
             author=creator,
             status=ModerationStatus.PUBLISHED
-        ).values("id", 'title', 'type', 'created_at').order_by('-created_at')[:10]
+        ).order_by('-created_at')[:10]
 
         courses = Course.objects.filter(
             created_by=creator,
             status=ModerationStatus.PUBLISHED
-        ).values('id', 'title', 'created_at').order_by('-created_at')[:10]
+        ).order_by('-created_at')[:10]
 
         sections = EducationSection.objects.filter(
             created_by=creator,
             status=ModerationStatus.PUBLISHED
-        ).values('id', 'title', 'created_at').order_by('-created_at')[:10]
+        ).order_by('-created_at')[:10]
 
         return Response({
             'posts': PostSerializer(posts, many=True, context={'request': request}).data,
@@ -344,3 +348,4 @@ class CreatorProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         sorted_posts = [posts_dict[pid] for pid in liked_post_ids if pid in posts_dict]
         serializer = PostSerializer(sorted_posts, many=True, context={'request': request})
         return Response(serializer.data)
+
