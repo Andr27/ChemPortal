@@ -31,50 +31,14 @@ import MyModal from "../../../components/UI/MyModal/MyModal";
     title="Черновики и отклонённые"
 />*/
 
-// --- Каталог тем: рендерится только когда открыт, управляет своим состоянием ---
-const CatalogContent = ({ onSelect }) => {
+// Данные получает как props — предзагружены в PostGet при монтировании страницы
+const CatalogContent = ({ onSelect, preloadedTags, isPreloading, hasMore }) => {
     const [search, setSearch] = useState('');
-    const [tags, setTags] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const isSearching = search.trim().length > 0;
 
-    // Загрузить все теги постранично и собрать в один список
-    useEffect(() => {
-        let cancelled = false;
-        const loadAll = async () => {
-            setIsLoading(true);
-            try {
-                const PAGE_SIZE = 100;
-                let currentPage = 1;
-                let allTags = [];
-                while (true) {
-                    const resp = await PostService.getTags(PAGE_SIZE, currentPage);
-                    if (cancelled) return;
-                    const data = resp.data;
-                    const list = Array.isArray(data) ? data : (data?.results ?? []);
-                    allTags = [...allTags, ...list];
-                    const count = typeof data?.count === 'number' ? data.count : list.length;
-                    if (allTags.length >= count || list.length < PAGE_SIZE) break;
-                    currentPage++;
-                }
-                if (!cancelled) setTags(allTags);
-            } catch (e) {
-                console.error('Failed to load catalog tags', e); // eslint-disable-line no-console
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        };
-        loadAll();
-        return () => { cancelled = true; };
-    }, []);
-
-    const handleSearch = (e) => {
-        setSearch(e.target.value);
-    };
-
     const filteredTags = isSearching
-        ? tags.filter(t => t.name.toLowerCase().includes(search.toLowerCase()))
-        : tags;
+        ? preloadedTags.filter(t => t.name?.toLowerCase().includes(search.toLowerCase()))
+        : preloadedTags;
 
     const grouped = Object.entries(
         filteredTags.reduce((acc, tag) => {
@@ -94,13 +58,13 @@ const CatalogContent = ({ onSelect }) => {
                 className="posts-tags-catalog__search"
                 placeholder="Поиск по тегам..."
                 value={search}
-                onChange={handleSearch}
+                onChange={e => setSearch(e.target.value)}
             />
             <div className="posts-tags-catalog__grid">
-                {isLoading && (
+                {isPreloading && (
                     <p className="posts-tags-modal__empty">Загрузка...</p>
                 )}
-                {!isLoading && grouped.map(([letter, groupTags]) => (
+                {!isPreloading && grouped.map(([letter, groupTags]) => (
                     <div key={letter} className="posts-tags-catalog__group">
                         <div className="posts-tags-catalog__letter">{letter}</div>
                         <div className="posts-tags-catalog__groupGrid">
@@ -120,8 +84,13 @@ const CatalogContent = ({ onSelect }) => {
                         </div>
                     </div>
                 ))}
-                {!isLoading && filteredTags.length === 0 && isSearching && (
+                {!isPreloading && filteredTags.length === 0 && isSearching && (
                     <p className="posts-tags-modal__empty">Ничего не найдено по запросу.</p>
+                )}
+                {hasMore && (
+                    <p className="posts-tags-modal__empty" style={{ fontSize: 13, opacity: 0.6 }}>
+                        Загружаем остальные теги...
+                    </p>
                 )}
             </div>
         </div>
@@ -154,15 +123,19 @@ const PostGet = ({
     const sortedAndSearchedPost = usePosts(posts, filter.sort, filter.query);
     const lastElement = useRef();
     // --- полоска тегов ---
-    const [tags, setTags] = useState([]);
-    const [tagPage, setTagPage] = useState(1);       // текущая страница (1-based)
-    const [tagDirection, setTagDirection] = useState(null); // 'left' | 'right'
+    const [allTags, setAllTags] = useState([]);        // накопленный список всех загруженных тегов
+    const [visibleStart, setVisibleStart] = useState(0); // индекс первого видимого тега
+    const [tagLoadedPages, setTagLoadedPages] = useState(0); // сколько страниц уже загружено
     const [tagTotalPages, setTagTotalPages] = useState(1);
     const [isTagsLoading, setIsTagsLoading] = useState(false);
+    const [tagDirection, setTagDirection] = useState(null); // 'left' | 'right'
     const TAG_STRIP_LIMIT = 6;
 
     // --- каталог тем ---
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+    const [catalogTags, setCatalogTags] = useState([]);
+    const [catalogLoading, setCatalogLoading] = useState(false);
+    const [catalogHasMore, setCatalogHasMore] = useState(false);
 
     const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
 
@@ -209,19 +182,50 @@ const PostGet = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, limit]);
 
-    // Загрузка страницы полоски тегов
-    useEffect(() => {
-        let cancelled = false;
-        const loadTagPage = async () => {
-            setIsTagsLoading(true);
-            try {
-                const resp = await PostService.getTags(TAG_STRIP_LIMIT, tagPage);
-                if (cancelled) return;
+    // Фоновая подгрузка одной страницы тегов (без spinner-а)
+    const preloadTagPage = (pageToLoad) => {
+        PostService.getTags(TAG_STRIP_LIMIT, pageToLoad)
+            .then(resp => {
                 const data = resp.data;
                 const list = Array.isArray(data) ? data : (data?.results ?? []);
-                const count = typeof data?.count === 'number' ? data.count : list.length;
-                setTags(list);
-                setTagTotalPages(Math.max(1, Math.ceil(count / TAG_STRIP_LIMIT)));
+                if (list.length > 0) {
+                    setAllTags(prev => [...prev, ...list]);
+                    setTagLoadedPages(prev => prev + 1);
+                }
+            })
+            .catch(e => console.error('Failed to preload tags', e)); // eslint-disable-line no-console
+    };
+
+    // Загрузка полоски тегов: 2 страницы при монтировании + сразу фоном грузим 3-ю
+    useEffect(() => {
+        let cancelled = false;
+        const loadInitial = async () => {
+            setIsTagsLoading(true);
+            try {
+                const resp1 = await PostService.getTags(TAG_STRIP_LIMIT, 1);
+                if (cancelled) return;
+                const data1 = resp1.data;
+                const list1 = Array.isArray(data1) ? data1 : (data1?.results ?? []);
+                const count = typeof data1?.count === 'number' ? data1.count : list1.length;
+                const total = Math.max(1, Math.ceil(count / TAG_STRIP_LIMIT));
+                setTagTotalPages(total);
+
+                let combined = [...list1];
+                let loaded = 1;
+                if (total > 1) {
+                    const resp2 = await PostService.getTags(TAG_STRIP_LIMIT, 2);
+                    if (cancelled) return;
+                    const data2 = resp2.data;
+                    const list2 = Array.isArray(data2) ? data2 : (data2?.results ?? []);
+                    combined = [...combined, ...list2];
+                    loaded = 2;
+                }
+                if (!cancelled) {
+                    setAllTags(combined);
+                    setTagLoadedPages(loaded);
+                    // Сразу тянем страницу 3 в фоне — к моменту первого клика → она уже будет готова
+                    if (loaded < total) preloadTagPage(loaded + 1);
+                }
             } catch (e) {
                 // eslint-disable-next-line no-console
                 console.error('Failed to load tags', e);
@@ -229,10 +233,53 @@ const PostGet = ({
                 if (!cancelled) setIsTagsLoading(false);
             }
         };
-        loadTagPage();
+        loadInitial();
         return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tagPage]);
+    }, []);
+
+    // Предзагрузка каталога тегов при монтировании — к открытию модала данные уже готовы
+    useEffect(() => {
+        let cancelled = false;
+        const loadCatalog = async () => {
+            setCatalogLoading(true);
+            try {
+                const PAGE_SIZE = 100;
+                const resp1 = await PostService.getTags(PAGE_SIZE, 1);
+                if (cancelled) return;
+                const data1 = resp1.data;
+                const list1 = Array.isArray(data1) ? data1 : (data1?.results ?? []);
+                const count = typeof data1?.count === 'number' ? data1.count : list1.length;
+                const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
+                setCatalogTags(list1);
+                setCatalogLoading(false);
+                if (totalPages > 1) {
+                    setCatalogHasMore(true);
+                    let done = 0;
+                    const remaining = totalPages - 1;
+                    Array.from({ length: remaining }, (_, i) => i + 2).forEach(pageNum => {
+                        PostService.getTags(PAGE_SIZE, pageNum)
+                            .then(resp => {
+                                if (cancelled) return;
+                                const d = resp.data;
+                                const list = Array.isArray(d) ? d : (d?.results ?? []);
+                                setCatalogTags(prev => [...prev, ...list]);
+                                done += 1;
+                                if (done === remaining) setCatalogHasMore(false);
+                            })
+                            .catch(() => {
+                                done += 1;
+                                if (done === remaining) setCatalogHasMore(false);
+                            });
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to preload catalog', e); // eslint-disable-line no-console
+                if (!cancelled) { setCatalogLoading(false); setCatalogHasMore(false); }
+            }
+        };
+        loadCatalog();
+        return () => { cancelled = true; };
+    }, []);
 
     useEffect(() => {
         const threshold = 8;
@@ -251,8 +298,23 @@ const PostGet = ({
         };
     }, []);
 
-    const hasPrevTagPage = tagPage > 1;
-    const hasNextTagPage = tagPage < tagTotalPages;
+    const visibleTags = allTags.slice(visibleStart, visibleStart + TAG_STRIP_LIMIT);
+    const hasPrevTags = visibleStart > 0;
+    // → активна, если в allTags есть следующая порция
+    const hasNextTags = visibleStart + TAG_STRIP_LIMIT < allTags.length || tagLoadedPages < tagTotalPages;
+
+    const handleNextTags = () => {
+        const newStart = visibleStart + TAG_STRIP_LIMIT;
+        setVisibleStart(newStart);       // мгновенно — данные уже в allTags
+        setTagDirection('left');
+        // Пока пользователь смотрит на новую страницу — тихо тянем следующую
+        if (tagLoadedPages < tagTotalPages) preloadTagPage(tagLoadedPages + 1);
+    };
+
+    const handlePrevTags = () => {
+        setVisibleStart(prev => Math.max(0, prev - TAG_STRIP_LIMIT));
+        setTagDirection('right');
+    };
 
     return (
         <div className={`posts-page ${className}`.trim()}>
@@ -273,7 +335,7 @@ const PostGet = ({
                                 />
                             </div>
                         </div>
-                        {(tags.length > 0 || isTagsLoading) && (
+                        {(allTags.length > 0 || isTagsLoading) && (
                             <div
                                 className={`posts-tags-strip ${isHeaderScrolled ? 'posts-tags-strip--scrolled' : ''}`.trim()}
                                 aria-label="Популярные теги"
@@ -288,8 +350,8 @@ const PostGet = ({
                                 <button
                                     type="button"
                                     className="posts-tags-strip__next"
-                                    disabled={!hasPrevTagPage}
-                                    onClick={() => { setTagDirection('right'); setTagPage(p => p - 1); }}
+                                    disabled={!hasPrevTags}
+                                    onClick={handlePrevTags}
                                     aria-label="Предыдущая страница тем"
                                 >
                                     ←
@@ -300,7 +362,7 @@ const PostGet = ({
                                 >
                                     {isTagsLoading
                                         ? <span className="posts-tags-strip__loading">...</span>
-                                        : tags.map((tag) => (
+                                        : visibleTags.map((tag) => (
                                             <button
                                                 key={tag.id}
                                                 type="button"
@@ -315,8 +377,8 @@ const PostGet = ({
                                 <button
                                     type="button"
                                     className="posts-tags-strip__next"
-                                    disabled={!hasNextTagPage}
-                                    onClick={() => { setTagDirection('left'); setTagPage(p => p + 1); }}
+                                    disabled={!hasNextTags}
+                                    onClick={handleNextTags}
                                     aria-label="Следующая страница тем"
                                 >
                                     →
@@ -380,6 +442,9 @@ const PostGet = ({
                             setIsCatalogOpen(false);
                             navigate(`/tags/${tag.slug}`, { state: { fromList: effectiveOriginPath } });
                         }}
+                        preloadedTags={catalogTags}
+                        isPreloading={catalogLoading}
+                        hasMore={catalogHasMore}
                     />
                 )}
             </MyModal>

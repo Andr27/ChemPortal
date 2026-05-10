@@ -38,49 +38,15 @@ const remapEditorImageIds = (node, idMap) => {
     return nextNode;
 };
 
-const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
+// Данные получает как props — предзагружены в PostForm при монтировании
+const CatalogModalContent = ({ preloadedTags, isPreloading, hasMore, selectedTags, onSelect }) => {
     const [search, setSearch] = useState('');
-    const [allTags, setAllTags] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        let cancelled = false;
-        const loadAll = async () => {
-            setIsLoading(true);
-            try {
-                const PAGE_SIZE = 100;
-                let currentPage = 1;
-                let acc = [];
-                // eslint-disable-next-line no-constant-condition
-                while (true) {
-                    const resp = await PostService.getTags(PAGE_SIZE, currentPage);
-                    if (cancelled) return;
-                    const data = resp.data;
-                    const list = Array.isArray(data) ? data : (data?.results ?? []);
-                    acc = [...acc, ...list];
-                    const count = typeof data?.count === 'number' ? data.count : list.length;
-                    if (acc.length >= count || list.length < PAGE_SIZE) break;
-                    currentPage += 1;
-                }
-                if (!cancelled) setAllTags(acc);
-            } catch (e) {
-                // eslint-disable-next-line no-console
-                console.error('Failed to load catalog tags for post form', e);
-                if (!cancelled) setAllTags(availableTags);
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        };
-        loadAll();
-        return () => { cancelled = true; };
-    }, [availableTags]);
-
-    const base = allTags.length ? allTags : availableTags;
     const trimmed = search.trim();
     const lower = trimmed.toLowerCase();
+
     const filtered = trimmed
-        ? base.filter(t => t?.name?.toLowerCase().includes(lower))
-        : base;
+        ? preloadedTags.filter(t => t?.name?.toLowerCase().includes(lower))
+        : preloadedTags;
 
     const grouped = Object.entries(
         filtered.reduce((acc, tag) => {
@@ -103,10 +69,10 @@ const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
                 onChange={e => setSearch(e.target.value)}
             />
             <div className="posts-tags-catalog__grid">
-                {isLoading && (
+                {isPreloading && (
                     <p className="posts-tags-modal__empty">Загрузка...</p>
                 )}
-                {!isLoading && grouped.map(([letter, groupTags]) => (
+                {!isPreloading && grouped.map(([letter, groupTags]) => (
                     <div key={letter} className="posts-tags-catalog__group">
                         <div className="posts-tags-catalog__letter">{letter}</div>
                         <div className="posts-tags-catalog__groupGrid">
@@ -119,9 +85,7 @@ const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
                                         <button
                                             key={tag.id}
                                             type="button"
-                                            className={
-                                                `posts-tags-catalog__item${isActive ? ' posts-tags-catalog__item--active' : ''}`
-                                            }
+                                            className={`posts-tags-catalog__item${isActive ? ' posts-tags-catalog__item--active' : ''}`}
                                             onClick={() => onSelect(tag)}
                                         >
                                             {tag.name}
@@ -131,8 +95,13 @@ const CatalogModalContent = ({ availableTags, selectedTags, onSelect }) => {
                         </div>
                     </div>
                 ))}
-                {!isLoading && filtered.length === 0 && trimmed && (
+                {!isPreloading && filtered.length === 0 && trimmed && (
                     <p className="posts-tags-modal__empty">Ничего не найдено по запросу.</p>
+                )}
+                {hasMore && (
+                    <p className="posts-tags-modal__empty" style={{ fontSize: 13, opacity: 0.6 }}>
+                        Загружаем остальные теги...
+                    </p>
                 )}
             </div>
         </div>
@@ -155,6 +124,9 @@ const PostForm = ({onSuccess}) => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [isSuggestingTags, setIsSuggestingTags] = useState(false);
     const [isTagCatalogOpen, setIsTagCatalogOpen] = useState(false);
+    const [catalogTags, setCatalogTags] = useState([]);
+    const [catalogLoading, setCatalogLoading] = useState(false);
+    const [catalogHasMore, setCatalogHasMore] = useState(false);
 
     const [createPost, isLoading, error] = useFetching(async () => {
         const usedImageIds = collectEditorImageIds(post.body, []);
@@ -338,6 +310,51 @@ const PostForm = ({onSuccess}) => {
         };
     }, []);
 
+    // Предзагрузка каталога тегов при монтировании — к открытию модала данные уже готовы
+    useEffect(() => {
+        let cancelled = false;
+        const loadCatalog = async () => {
+            setCatalogLoading(true);
+            try {
+                const PAGE_SIZE = 100;
+                const resp1 = await PostService.getTags(PAGE_SIZE, 1);
+                if (cancelled) return;
+                const data1 = resp1.data;
+                const list1 = Array.isArray(data1) ? data1 : (data1?.results ?? []);
+                const count = typeof data1?.count === 'number' ? data1.count : list1.length;
+                const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
+                setCatalogTags(list1);
+                setCatalogLoading(false);
+                if (totalPages > 1) {
+                    setCatalogHasMore(true);
+                    let done = 0;
+                    const remaining = totalPages - 1;
+                    Array.from({ length: remaining }, (_, i) => i + 2).forEach(pageNum => {
+                        PostService.getTags(PAGE_SIZE, pageNum)
+                            .then(resp => {
+                                if (cancelled) return;
+                                const d = resp.data;
+                                const list = Array.isArray(d) ? d : (d?.results ?? []);
+                                setCatalogTags(prev => [...prev, ...list]);
+                                done += 1;
+                                if (done === remaining) setCatalogHasMore(false);
+                            })
+                            .catch(() => {
+                                done += 1;
+                                if (done === remaining) setCatalogHasMore(false);
+                            });
+                    });
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.error('Failed to preload catalog for post form', e);
+                if (!cancelled) { setCatalogLoading(false); setCatalogHasMore(false); }
+            }
+        };
+        loadCatalog();
+        return () => { cancelled = true; };
+    }, []);
+
     const toggleTag = (tag) => {
         setSelectedTags((prev) => {
             if (prev.some((t) => t.id === tag.id)) {
@@ -516,7 +533,9 @@ const PostForm = ({onSuccess}) => {
             >
                 {isTagCatalogOpen && (
                     <CatalogModalContent
-                        availableTags={availableTags}
+                        preloadedTags={catalogTags}
+                        isPreloading={catalogLoading}
+                        hasMore={catalogHasMore}
                         selectedTags={selectedTags}
                         onSelect={(tag) => {
                             toggleTag(tag);

@@ -3195,7 +3195,7 @@ body.theme-nano .neu-btn:active {
 
 .post-form__editor {
     border-radius: 12px;
-    overflow: hidden;
+    overflow: clip;
 }
 
 .post-form__editor .editor-container {
@@ -6295,7 +6295,7 @@ body.theme-nano .neu-btn:active {
 .edu-create__editor-wrap {
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: clip;
 }
 
 /* ── Курс ── */
@@ -6356,7 +6356,7 @@ body.theme-nano .neu-btn:active {
     border: 1px solid var(--card-border);
     border-radius: 14px;
     background: var(--color-surface);
-    overflow: hidden;
+    overflow: clip;
     box-shadow: var(--card-shadow);
 }
 
@@ -6435,7 +6435,7 @@ body.theme-nano .neu-btn:active {
 .edu-lesson-row {
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: clip;
     background: var(--color-bg-dark, #f9fafb);
     transition: box-shadow 0.15s;
 }
@@ -6499,7 +6499,7 @@ body.theme-nano .neu-btn:active {
 .edu-lesson-row__editor {
     border: 1px solid var(--card-border);
     border-radius: 8px;
-    overflow: hidden;
+    overflow: clip;
     min-height: 140px;
 }
 
