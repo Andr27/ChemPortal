@@ -8,6 +8,7 @@ import SectionCoursesPreview from "../components/courses/sectionCoursesPreview";
 import EducationBackLink from "../components/EducationBackLink";
 import iconCube from "../../../img/icon/cube.svg";
 import {Helmet} from "react-helmet";
+import GlobalSearchInline from "../../search/components/GlobalSearchInline";
 
 const getSectionBackLabel = (fromPath) => {
     if (!fromPath) return 'К разделам';
@@ -39,11 +40,9 @@ const SectionPage = () => {
 
     if (isLoading && !section) {
         return (
-            <div className="page-wrapper">
-                <div className="education-section-page">
-                    <div className="education-block__loader">
-                        <Loader />
-                    </div>
+            <div className="App">
+                <div className="education-block__loader">
+                    <Loader />
                 </div>
             </div>
         );
@@ -51,52 +50,59 @@ const SectionPage = () => {
 
     if (error && !section && !params.id) {
         return (
-            <div className="page-wrapper">
-                <div className="education-section-page">
-                    <p className="education-block__error">Произошла ошибка: {String(error)}</p>
-                </div>
+            <div className="App">
+                <p className="education-block__error">Произошла ошибка: {String(error)}</p>
             </div>
         );
     }
 
     return (
-        <div className="page-wrapper section-page-wrapper">
+        <div className="App">
             <Helmet>
-                <title>{section?.title}</title>
+                <title>{section?.title || 'Раздел'}</title>
             </Helmet>
-            <div className="education-section-page">
-                {params.id && (
-                    <div className="education-back-link-wrap">
-                        <EducationBackLink to={backPath}>{backLabel}</EducationBackLink>
+            <div className="posts-page__header">
+                <div className="posts-page__controls-row">
+                    <div className="posts-page__filters">
+                        <GlobalSearchInline />
                     </div>
-                )}
-                <div className="section-page-card">
-                    <div className="section-page-card__strip" aria-hidden="true" />
-                    <div className="section-page-card__body">
-                        <div className="section-page-card__head">
-                            <div className="section-page-card__icon section-page-card__icon--cube" aria-hidden="true">
-                                <span
-                                    className="section-page-card__icon-img"
-                                    style={{ maskImage: `url(${iconCube})`, WebkitMaskImage: `url(${iconCube})` }}
-                                />
-                            </div>
-                            <h1 className="section-page-card__title">
-                                {section?.title ?? 'Раздел'}
-                            </h1>
-                        </div>
-                        {section?.description && (
-                            <p className="section-page-card__description">
-                                {section.description}
-                            </p>
-                        )}
-                    </div>
-
-                    {sectionForChildren && (
-                        <div className="section-page-card__content">
-                            <SectionMaterialsPreview section={sectionForChildren} />
-                            <SectionCoursesPreview section={sectionForChildren} />
+                </div>
+            </div>
+            <div className="posts-page__content">
+                <div className="education-section-page">
+                    {params.id && (
+                        <div className="education-back-link-wrap">
+                            <EducationBackLink to={backPath}>{backLabel}</EducationBackLink>
                         </div>
                     )}
+                    <div className="section-page-card">
+                        <div className="section-page-card__strip" aria-hidden="true" />
+                        <div className="section-page-card__body">
+                            <div className="section-page-card__head">
+                                <div className="section-page-card__icon section-page-card__icon--cube" aria-hidden="true">
+                                    <span
+                                        className="section-page-card__icon-img"
+                                        style={{ maskImage: `url(${iconCube})`, WebkitMaskImage: `url(${iconCube})` }}
+                                    />
+                                </div>
+                                <h1 className="section-page-card__title">
+                                    {section?.title ?? 'Раздел'}
+                                </h1>
+                            </div>
+                            {section?.description && (
+                                <p className="section-page-card__description">
+                                    {section.description}
+                                </p>
+                            )}
+                        </div>
+
+                        {sectionForChildren && (
+                            <div className="section-page-card__content">
+                                <SectionMaterialsPreview section={sectionForChildren} />
+                                <SectionCoursesPreview section={sectionForChildren} />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

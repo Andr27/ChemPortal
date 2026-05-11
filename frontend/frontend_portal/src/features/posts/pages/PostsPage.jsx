@@ -25,6 +25,14 @@ const BACK_PATH_LABELS = {
     '/account': 'В личный кабинет'
 };
 
+const getBackLabel = (path, customLabel) => {
+    if (customLabel) return customLabel;
+    if (BACK_PATH_LABELS[path]) return BACK_PATH_LABELS[path];
+    if (/^\/author\/\d+/.test(path)) return 'К автору';
+    if (/^\/tags\//.test(path)) return 'К тегу';
+    return 'К статьям';
+};
+
 const PostsPage = () => {
     const [editPost, setEditPost] = useState(false);
     const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -33,7 +41,7 @@ const PostsPage = () => {
     const location = useLocation();
     const params = useParams();
     const backPath = location.state?.from || '/posts';
-    const backLabel = BACK_PATH_LABELS[backPath] || 'К статьям';
+    const backLabel = getBackLabel(backPath, location.state?.fromLabel);
     const toast = useToast();
     const [post, setPost] = useState({body: '', title: ''});
     const [loading, setLoading] = useState(false);

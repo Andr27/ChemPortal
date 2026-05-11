@@ -1,6 +1,5 @@
 import React from 'react';
 import Myinput from "../../../../components/UI/input/Myinput";
-import MySelect from "../../../../components/UI/select/MySelect";
 
 const MaterialsFilter = ({ filter, setFilter }) => {
     return (
@@ -9,16 +8,7 @@ const MaterialsFilter = ({ filter, setFilter }) => {
                 type="search"
                 value={filter.query}
                 onChange={(e) => setFilter({ ...filter, query: e.target.value })}
-                placeholder="Поиск..."
-            />
-            <MySelect
-                value={filter.sort}
-                onChange={(selectedSort) => setFilter({ ...filter, sort: selectedSort })}
-                defaultValue="Сортировка"
-                options={[
-                    { value: "title", name: "По названию" },
-                    { value: "description", name: "По описанию" },
-                ]}
+                placeholder="Поиск по лекциям..."
             />
         </div>
     );

@@ -3,12 +3,14 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Loader from "../../../components/UI/loader/loader";
 import MyModal from "../../../components/UI/MyModal/MyModal";
 import educationService from "../API/EducationService";
+import {useUser} from "../../../hooks/useUser";
 import {Helmet} from "react-helmet";
 
 const QuizPage = () => {
     const params = useParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useUser();
 
     const sectionId = params.id;
     const courseId = params.courseId;
@@ -20,7 +22,10 @@ const QuizPage = () => {
     const fromProgressPath  = location.state?.fromProgress  || null;
     const fromModeration    = location.state?.fromModeration === true;
     const role = useMemo(() => localStorage.getItem('role') || 'user', []);
-    const canSeeCorrectAnswers = fromModeration || role === 'admin' || role === 'creator';
+    // Определяется после загрузки baseQuiz: креатор видит ответы только в своих тестах,
+    // админ/модератор и режим модерации — всегда. Бэк отдаёт админ-сериализатор только этим ролям,
+    // иначе вернёт 403 в /quizzes/{id}/admin_detail/.
+    const [canSeeCorrectAnswers, setCanSeeCorrectAnswers] = useState(false);
 
     const backToLessonPath = `/educations/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}`;
 
@@ -98,8 +103,17 @@ const QuizPage = () => {
 
                 const quizId = baseQuiz.id;
 
+                // Креатор видит правильные ответы только если он автор теста — иначе бэк ответит 403.
+                const ownerId = baseQuiz?.created_by?.id ?? baseQuiz?.created_by;
+                const isOwner = ownerId != null && user?.id != null && Number(ownerId) === Number(user.id);
+                const canSeeAnswers = fromModeration
+                    || role === 'admin'
+                    || role === 'moderator'
+                    || (role === 'creator' && isOwner);
+                setCanSeeCorrectAnswers(canSeeAnswers);
+
                 // Получаем полные данные теста с вопросами
-                const quizResp = canSeeCorrectAnswers
+                const quizResp = canSeeAnswers
                     ? await educationService.getQuizAdminDetail(quizId)
                     : await educationService.getQuizById(quizId);
                 const fullQuiz = quizResp.data;

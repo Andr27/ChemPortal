@@ -464,7 +464,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: -14px;
     height: 56px;
     background: var(--color-bg);
     opacity: 0;
@@ -513,17 +513,15 @@ body {
     min-width: 0;
 }
 
-/* Поиск и селект сортировки в одну линию */
+/* Поиск на всю ширину (сортировка убрана) */
 .posts-page__filters > div {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
     align-items: center;
 }
 
 .posts-page__filters input {
     flex: 1;
-    min-width: 180px;
+    min-width: 0;
 }
 
 .posts-tags-strip {
@@ -8460,6 +8458,228 @@ body.theme-nano .neu-btn:active {
     object-fit: contain;
 }
 
+/* ── Активность + лайки под карточкой автора ── */
+.author-page__below {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.author-activity,
+.author-liked {
+    background: var(--color-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 20px 22px;
+    min-width: 0;
+}
+
+.author-activity__title,
+.author-liked__title {
+    margin: 0 0 14px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.author-activity__placeholder,
+.author-liked__placeholder {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.author-activity__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.author-activity__item {
+    margin: 0;
+}
+
+.author-activity__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.author-activity__row--link:hover {
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-color: var(--card-hover-border);
+}
+
+.author-activity__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.author-activity__icon--post,
+.author-activity__icon--news {
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+}
+
+.author-activity__icon--video {
+    background: rgba(236, 72, 153, 0.12);
+    color: #ec4899;
+}
+
+.author-activity__icon--course {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+
+.author-activity__icon--section {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+
+.author-activity__row-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.author-activity__row-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.author-activity__type {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.author-activity__date {
+    color: var(--color-text-muted);
+}
+
+.author-activity__row-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+
+.author-liked__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.author-liked__item {
+    margin: 0;
+}
+
+.author-liked__link {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.author-liked__link:hover {
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-color: var(--card-hover-border);
+}
+
+.author-liked__cover {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-bg);
+    border: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.author-liked__cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.author-liked__cover-placeholder {
+    color: var(--color-text-muted);
+    font-size: 18px;
+}
+
+.author-liked__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.author-liked__post-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+
+.author-liked__author {
+    font-size: 11.5px;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .author-page__below {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 @media (max-width: 600px) {
     .author-page__card {
         padding: 20px;
@@ -8486,6 +8706,11 @@ body.theme-nano .neu-btn:active {
 
     .author-page__stat-value {
         font-size: 17px;
+    }
+
+    .author-activity,
+    .author-liked {
+        padding: 16px 18px;
     }
 }
 
@@ -8586,5 +8811,387 @@ body.theme-nano .neu-btn:active {
 
     .author-page__details {
         padding: 16px;
+    }
+}
+
+/* ══════════════════ Глобальный поиск (inline) ══════════════════ */
+
+/* Поиск занимает всю ширину шапки (сортировка убрана) */
+.posts-page__filters {
+    display: flex;
+    align-items: center;
+}
+
+/* В .posts-page__header > * правилом задан z-index: 1, и .posts-tags-strip
+   идёт в DOM после controls-row → теги рисуются поверх popover-а поиска.
+   Поднимаем controls-row выше тегов в общем stacking context шапки. */
+.posts-page__controls-row {
+    position: relative;
+    z-index: 5;
+}
+
+/* Обёртка inline-поиска. Position relative + z-index — чтобы popover был выше
+   псевдоэлемента .posts-page__header::after (зтм при скролле). */
+.global-search-inline {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+    z-index: 200;
+}
+
+.global-search-inline__input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.global-search-inline__icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Селектор с тегом input нужен для специфичности 0,1,1 — равной правилу
+   ".posts-page__header input" выше в файле; при равенстве побеждает то, что идёт
+   позже, поэтому наш блок выигрывает. Без тега специфичность была 0,1,0 и проигрывала
+   даже с !important. */
+input.global-search-inline__input {
+    width: 100%;
+    padding: 10px 40px 10px 48px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--header-input-border);
+    background: var(--header-input-bg);
+    color: var(--header-input-text);
+    font-family: inherit;
+    font-size: 15px !important;
+    min-height: 0 !important;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+/* Снять стандартные WebKit-декорации type="search" — они дают свою лупу/крестик */
+input.global-search-inline__input::-webkit-search-decoration,
+input.global-search-inline__input::-webkit-search-cancel-button,
+input.global-search-inline__input::-webkit-search-results-button,
+input.global-search-inline__input::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    display: none;
+}
+
+.global-search-inline__input::placeholder {
+    color: var(--header-input-placeholder);
+}
+
+.global-search-inline__input:focus {
+    outline: none;
+    border-color: var(--header-input-focus-border);
+    box-shadow: 0 0 0 3px var(--header-input-focus-ring);
+    background: var(--header-input-focus-bg);
+}
+
+.global-search-inline__clear {
+    position: absolute;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.global-search-inline__clear:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-text-main);
+}
+
+/* Выпадающая панель — на всю ширину шапки */
+.global-search-inline__popover {
+    /* position: fixed — popover рендерится в body через React Portal,
+       координаты top/left/width задаются inline-стилями из getBoundingClientRect.
+       Так он гарантированно поверх stacking context шапки и зтм-маски. */
+    position: fixed;
+    background: var(--color-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+    padding: 10px 14px 12px;
+    z-index: 1000;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.global-search-inline__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.global-search-inline__tab {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.global-search-inline__tab:hover {
+    border-color: var(--color-primary);
+    color: var(--color-text-main);
+}
+
+.global-search-inline__tab--active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+.global-search-inline__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.global-search-inline__placeholder {
+    margin: 0;
+    padding: 16px 0;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.global-search-inline__placeholder--error {
+    color: #e11d48;
+}
+
+.global-search-inline__section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.global-search-inline__section + .global-search-inline__section {
+    margin-top: 2px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--card-border);
+}
+
+.global-search-inline__section-title {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+}
+
+/* Группа результатов одного типа */
+.search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.search-group__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.search-group__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.search-group__count {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+/* Сетка карточек результатов — 3 колонки на десктопе, 2/1 на планшете/мобиле */
+.search-group__body {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+@media (max-width: 900px) {
+    .search-group__body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .search-group__body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.search-group__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Карточка результата — двухстрочная (kind + title сверху, meta снизу) */
+.search-result {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.15s, border-color 0.15s;
+    width: 100%;
+    min-width: 0;
+}
+
+.search-result:hover {
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    border-color: var(--card-hover-border);
+}
+
+.search-result:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.search-result:disabled:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+.search-result__kind {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+    white-space: nowrap;
+    align-self: center;
+}
+
+.search-result--course .search-result__kind {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+
+.search-result--section .search-result__kind {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+
+.search-result--tag .search-result__kind {
+    background: rgba(236, 72, 153, 0.12);
+    color: #ec4899;
+}
+
+.search-result__title {
+    grid-column: 2 / 4;
+    grid-row: 1 / 2;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.search-result__meta {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    min-width: 0;
+}
+
+.search-result__meta > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-result__score {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+    justify-self: end;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+/* Теги остаются flex-wrap, не в сетке */
+.search-result--tag {
+    display: inline-flex;
+    grid-template-columns: none;
+    width: auto;
+    padding: 4px 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-result--tag .search-result__kind {
+    grid-column: auto;
+    grid-row: auto;
+}
+
+.search-result--tag .search-result__title {
+    grid-column: auto;
+    grid-row: auto;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    input.global-search-inline__input {
+        padding: 9px 36px 9px 44px !important;
+        font-size: 14px !important;
     }
 }

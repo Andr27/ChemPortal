@@ -9,6 +9,8 @@ import api from '../../../API/api';
 import vkIcon from '../../../img/icon/vk.svg';
 import telegramIcon from '../../../img/icon/telegram.svg';
 import siteIcon from '../../../img/icon/site.svg';
+import AuthorActivity from '../component/AuthorActivity';
+import AuthorLikedPosts from '../component/AuthorLikedPosts';
 
 const toAbsoluteUrl = (url) => {
     if (!url || typeof url !== 'string') return '';
@@ -41,6 +43,9 @@ const AuthorInformationPage = () => {
     const [loading, setLoading] = useState(true);
     const [subLoading, setSubLoading] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
+    const [activity, setActivity] = useState(null);
+    const [likedPosts, setLikedPosts] = useState([]);
+    const [extrasLoading, setExtrasLoading] = useState(true);
 
     const getMySubscribe = async () => {
         try {
@@ -87,9 +92,25 @@ const AuthorInformationPage = () => {
         }
     };
 
+    const fetchExtras = async () => {
+        setExtrasLoading(true);
+        try {
+            const [activityResp, likedResp] = await Promise.all([
+                AccountService.GetCreatorActivity(id).catch(() => null),
+                AccountService.GetCreatorLiked(id).catch(() => null),
+            ]);
+            setActivity(activityResp?.data ?? { posts: [], courses: [], sections: [] });
+            const likedData = likedResp?.data;
+            setLikedPosts(Array.isArray(likedData) ? likedData : (likedData?.results ?? []));
+        } finally {
+            setExtrasLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchAuthorData();
         getMySubscribe();
+        fetchExtras();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
@@ -229,6 +250,12 @@ const AuthorInformationPage = () => {
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* Активность автора + его лайки */}
+                <div className="author-page__below">
+                    <AuthorActivity activity={activity} isLoading={extrasLoading} />
+                    <AuthorLikedPosts posts={likedPosts} isLoading={extrasLoading} />
                 </div>
             </div>
         </div>

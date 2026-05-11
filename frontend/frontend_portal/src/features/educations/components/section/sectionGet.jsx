@@ -3,8 +3,8 @@ import {useFetching} from "../../../../hooks/useFetching";
 import {getPageCount} from "../../../../utils/pages";
 import {useObserver} from "../../../../hooks/useObserver";
 import ScrollableContainer from "../../../../components/UI/ScrollableContainer/ScrollableContainer";
-import SectionFilter from "./sectionFilter";
 import educationService from "../../API/EducationService";
+import GlobalSearchInline from "../../../search/components/GlobalSearchInline";
 
 /*                   Один метод
 <PostGet
@@ -32,7 +32,6 @@ const SectionGet = ({
                      preContent = null,  // контент между поиском и списком разделов
                  }) => {
     const [sections, setSections] = useState([]); // eslint-disable-line no-unused-vars
-    const [filter, setFilter] = useState({ sort: '', query: '' });
     const [totalPages, setTotalPages] = useState(0);
     const [limit] = useState(12);
     const [page, setPage] = useState(1);
@@ -73,10 +72,7 @@ const SectionGet = ({
                     <div className="posts-page__header">
                         <div className="posts-page__controls-row">
                             <div className="posts-page__filters">
-                                <SectionFilter
-                                    filter={filter}
-                                    setFilter={setFilter}
-                                />
+                                <GlobalSearchInline />
                             </div>
                         </div>
                     </div>

@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { useFetching } from "../../../../hooks/useFetching";
 import Loader from "../../../../components/UI/loader/loader";
 import ScrollableContainer from "../../../../components/UI/ScrollableContainer/ScrollableContainer";
-import { useMaterials } from "../../hooks/useMaterials";
 import MaterialsList from "./materialsList";
-import MaterialsFilter from "./materialsFilter";
+import GlobalSearchInline from "../../../search/components/GlobalSearchInline";
 import educationService from "../../API/EducationService";
 import { getPageCount } from "../../../../utils/pages";
 import { useObserver } from "../../../../hooks/useObserver";
@@ -23,13 +22,11 @@ const MaterialsGet = ({
     className = ''
 }) => {
     const [materials, setMaterials] = useState([]);
-    const [filter, setFilter] = useState({ sort: '', query: '' });
     const [limit] = useState(12);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const lastElement = useRef(null);
 
-    const sortedAndSearchedMaterials = useMaterials(materials, filter.sort, filter.query);
     const sectionForList = section || (sectionId != null ? { id: sectionId } : null);
 
     const [fetchMaterials, isPostLoading, postError] = useFetching(async (limit, page, id) => {
@@ -78,10 +75,7 @@ const MaterialsGet = ({
                         <div className="posts-page__controls-row">
                             {showSearch && (
                                 <div className="posts-page__filters">
-                                    <MaterialsFilter
-                                        filter={filter}
-                                        setFilter={setFilter}
-                                    />
+                                    <GlobalSearchInline />
                                 </div>
                             )}
                         </div>
@@ -98,7 +92,7 @@ const MaterialsGet = ({
                 )}
 
                 <div className="posts-page__content">
-                    {(sortedAndSearchedMaterials?.length ?? 0) === 0 && !isPostLoading && !postError && (
+                    {(materials?.length ?? 0) === 0 && !isPostLoading && !postError && (
                         <h2 style={{ textAlign: 'center', marginTop: 24, color: '#6b7280' }}>
                             {(materials?.length ?? 0) === 0 ? `${title} не найдены` : 'Ничего не найдено'}
                         </h2>
@@ -107,7 +101,7 @@ const MaterialsGet = ({
                     {sectionForList && (
                         <MaterialsList
                             section={sectionForList}
-                            materials={sortedAndSearchedMaterials ?? []}
+                            materials={materials ?? []}
                             backPath={sectionId != null ? `/educations/${sectionId}/materials` : undefined}
                         />
                     )}

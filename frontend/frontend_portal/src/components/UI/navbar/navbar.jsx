@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {AuthContext, CreatorContext, ModeratorContext} from "../../../context";
 import AuthService from "../../../features/Login/API/AuthService";
 import MyLink from "../MyLink/MyLink";
@@ -14,8 +14,8 @@ import iconMyCourses from '../../../img/icon/myCourses.svg';
 import iconModeration from '../../../img/icon/moderation.svg';
 import iconBookmarks from '../../../img/icon/bookmarks.svg';
 import iconCreate from '../../../img/icon/create.svg';
-import iconUser from '../../../img/icon/user.svg';
 import iconLogin from '../../../img/icon/login.svg';
+import UserPanel from '../UserPanel/UserPanel';
 
 const THEME_STORAGE_KEY = "site-theme";
 const A11Y_STORAGE_KEY = "site-accessible";
@@ -30,12 +30,10 @@ const Navbar = () => {
     const {clearUser} = useUser();
     const navigate = useNavigate();
     const location = useLocation();
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME);
     const [isAccessible, setIsAccessible] = useState(() => localStorage.getItem(A11Y_STORAGE_KEY) === 'true');
     const [prevTheme, setPrevTheme] = useState(() => localStorage.getItem('site-theme-before-a11y') || DEFAULT_THEME);
     const [isScrolled, setIsScrolled] = useState(false);
-    const userMenuRef = useRef(null);
 
     const hasPostGet = POSTGET_ROUTES.some(route => location.pathname === route) || /^\/educations\/[^/]+\/(materials|courses)$/.test(location.pathname);
 
@@ -45,30 +43,7 @@ const Navbar = () => {
         setIsAuth(false);
         setIsModerator(false);
         setIsCreator(false);
-        setIsUserMenuOpen(false);
     };
-
-    useEffect(() => {
-        const handleOutsideClick = (event) => {
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-                setIsUserMenuOpen(false);
-            }
-        };
-
-        const handleEscape = (event) => {
-            if (event.key === 'Escape') {
-                setIsUserMenuOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleOutsideClick);
-        document.addEventListener('keydown', handleEscape);
-
-        return () => {
-            document.removeEventListener('mousedown', handleOutsideClick);
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, []);
 
     useEffect(() => {
         const syncTheme = (event) => {
@@ -103,15 +78,7 @@ const Navbar = () => {
         };
     }, [hasPostGet]);
 
-    const handleAccountClick = () => {
-        setIsUserMenuOpen(false);
-        navigate('/account');
-    };
-
-    const userMenuItems = [
-        {id: 'account', label: 'Личный кабинет', onClick: handleAccountClick},
-        {id: 'logout', label: 'Выход', onClick: logout, isDanger: true},
-    ];
+    const handleAccountClick = () => navigate('/account');
 
     const navbarClassName = cl.navbar;
     const setTheme = (themeName) => {
@@ -207,33 +174,10 @@ const Navbar = () => {
 
                     <div className={cl.navbar__bottomRow}>
                         {isAuth ? (
-                            <div className={cl.navbar__userMenuWrapper} ref={userMenuRef}>
-                                <button
-                                    type="button"
-                                    className={cl.navbar__userTrigger}
-                                    onClick={() => setIsUserMenuOpen(prev => !prev)}
-                                    aria-label="Открыть меню пользователя"
-                                    aria-haspopup="menu"
-                                    aria-expanded={isUserMenuOpen}
-                                >
-                                    <span className={cl.navbar__userIcon} style={{ maskImage: `url(${iconUser})`, WebkitMaskImage: `url(${iconUser})` }} aria-hidden="true" />
-                                </button>
-                                {isUserMenuOpen && (
-                                    <div className={cl.navbar__dropdown} role="menu">
-                                        {userMenuItems.map((item) => (
-                                            <button
-                                                key={item.id}
-                                                type="button"
-                                                className={`${cl.navbar__dropdownItem} ${item.isDanger ? cl.navbar__dropdownItemDanger : ''}`}
-                                                onClick={item.onClick}
-                                                role="menuitem"
-                                            >
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <UserPanel
+                                onLogout={logout}
+                                onNavigateAccount={handleAccountClick}
+                            />
                         ) : (
                             <MyLink to="/login" className={cl.navbar__navLink}>
                                 <span className={cl.navbar__navIcon} style={{ maskImage: `url(${iconLogin})`, WebkitMaskImage: `url(${iconLogin})` }} aria-hidden="true" />

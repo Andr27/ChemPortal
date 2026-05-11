@@ -87,7 +87,7 @@ function TagPostsPage() {
     return (
         <div className="App">
             <Helmet>
-                <title>{tag?.name}</title>
+                <title>{tag?.name || 'Теги'}</title>
             </Helmet>
             <PostGet
                 key={slug}

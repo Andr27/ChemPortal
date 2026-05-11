@@ -371,6 +371,172 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
     margin-right: 4px;
 }
 
+/* ── Уведомления ──────────────────────────────────── */
+
+.navbar__notifWrapper {
+    position: relative;
+}
+
+.navbar__notifBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 2px solid var(--color-border-subtle);
+    background: transparent;
+    color: var(--color-text-main);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background-color 0.16s ease-out, color 0.14s ease-out;
+}
+
+.navbar__notifBtn:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.navbar__notifBadge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    pointer-events: none;
+    box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+.navbar__notifPanel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    width: 300px;
+    max-height: 440px;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 14px;
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.22);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.navbar__notifHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.navbar__notifMarkAll {
+    border: none;
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 6px;
+    transition: background 0.12s;
+}
+
+.navbar__notifMarkAll:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.navbar__notifList {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navbar__notifItem {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 8px;
+    row-gap: 2px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s;
+    width: 100%;
+}
+
+.navbar__notifItem:hover {
+    background: var(--color-bg-dark);
+}
+
+.navbar__notifItem--unread {
+    background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+}
+
+.navbar__notifItem--unread:hover {
+    background: color-mix(in srgb, var(--color-primary) 13%, transparent);
+}
+
+.navbar__notifDot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    flex-shrink: 0;
+    display: block;
+}
+
+.navbar__notifText {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 13px;
+    color: var(--color-text-main);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.navbar__notifTime {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
+/* Нет точки — текст занимает оба столбца */
+.navbar__notifItem:not(.navbar__notifItem--unread) .navbar__notifText,
+.navbar__notifItem:not(.navbar__notifItem--unread) .navbar__notifTime {
+    grid-column: 1 / span 2;
+}
+
+.navbar__notifEmpty {
+    padding: 24px 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
 @media (max-width: 900px) {
     .navbar {
         padding: 8px 12px 4px;
@@ -519,6 +685,14 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
     .navbar__bottomRow .navbar__userMenuWrapper,
     .navbar__bottomRow > a.navbar__navLink {
         order: 1;
+    }
+
+    /* Панель уведомлений на мобильном: открывается вправо от сайдбара */
+    .navbar__notifPanel {
+        left: 0;
+        width: min(300px, calc(100vw - 80px));
+        bottom: auto;
+        top: 0;
     }
 
     .navbar__navLink {

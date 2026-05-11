@@ -41,5 +41,15 @@ class AccountService {
         const response = await api.get(`subscriptions/`)
         return response;
     }
+
+    static async GetCreatorActivity(authorId) {
+        const response = await api.get(`auth/creators/${authorId}/activity/`);
+        return response;
+    }
+
+    static async GetCreatorLiked(authorId) {
+        const response = await api.get(`auth/creators/${authorId}/liked/`);
+        return response;
+    }
 }
 export default AccountService;

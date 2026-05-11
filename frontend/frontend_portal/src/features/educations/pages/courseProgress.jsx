@@ -233,7 +233,7 @@ const CourseProgress = () => {
     return (
         <div className="page-wrapper section-page-wrapper">
             <Helmet>
-                <title>{course?.title}</title>
+                <title>{course?.title || 'Курс'}</title>
             </Helmet>
             <div className="education-section-page">
                 <div className="education-back-link-wrap">

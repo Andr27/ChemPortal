@@ -1,10 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {usePosts} from "../hooks/usePosts";
 import {useFetching} from "../../../hooks/useFetching";
 import UserService from "../../../API/UserService";
 import {getPageCount} from "../../../utils/pages";
 import {useObserver} from "../../../hooks/useObserver";
-import PostFilter from "./PostFilter";
 import PostList from "./PostList";
 import Loader from "../../../components/UI/loader/loader";
 import {PostListSkeleton, AccountPostListSkeleton} from "../../../components/UI/skeleton/Skeleton";
@@ -14,6 +12,7 @@ import AccountPostList from "./AccountPostList";
 import PostService from "../API/PostService";
 import {useNavigate} from "react-router-dom";
 import MyModal from "../../../components/UI/MyModal/MyModal";
+import GlobalSearchInline from "../../search/components/GlobalSearchInline";
 
 /*                   Один метод
 <PostGet
@@ -116,11 +115,9 @@ const PostGet = ({
                  }) => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
-    const [filter, setFilter] = useState({ sort: '', query: '' });
     const [totalPages, setTotalPages] = useState(0);
     const [limit] = useState(12);
     const [page, setPage] = useState(1);
-    const sortedAndSearchedPost = usePosts(posts, filter.sort, filter.query);
     const lastElement = useRef();
     // --- полоска тегов ---
     const [allTags, setAllTags] = useState([]);        // накопленный список всех загруженных тегов
@@ -329,10 +326,7 @@ const PostGet = ({
                     <div className={`posts-page__header ${isHeaderScrolled ? 'posts-page__header--scrolled' : ''}`}>
                         <div className="posts-page__controls-row">
                             <div className="posts-page__filters">
-                                <PostFilter
-                                    filter={filter}
-                                    setFilter={setFilter}
-                                />
+                                <GlobalSearchInline />
                             </div>
                         </div>
                         {(allTags.length > 0 || isTagsLoading) && (
@@ -406,16 +400,16 @@ const PostGet = ({
                             : <PostListSkeleton count={6} />
                     ) : typeList === 'moderation' ? (
                         <ModerationList
-                            posts={sortedAndSearchedPost}
+                            posts={posts}
                         />
                     ) : compactList ? (
                         <AccountPostList
-                            posts={sortedAndSearchedPost}
+                            posts={posts}
                             listPath={listPath}
                         />
                     ) : (
                         <PostList
-                            posts={sortedAndSearchedPost}
+                            posts={posts}
                             listPath={listPath}
                         />
                     )}

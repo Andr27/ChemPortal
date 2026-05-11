@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { useFetching } from "../../../../hooks/useFetching";
 import Loader from "../../../../components/UI/loader/loader";
 import ScrollableContainer from "../../../../components/UI/ScrollableContainer/ScrollableContainer";
-import { useCourses } from "../../hooks/useCourses";
 import CoursesList from "./coursesList";
-import CoursesFilter from "./coursesFilter";
+import GlobalSearchInline from "../../../search/components/GlobalSearchInline";
 import educationService from "../../API/EducationService";
 import { getPageCount } from "../../../../utils/pages";
 import { useObserver } from "../../../../hooks/useObserver";
@@ -23,13 +22,11 @@ const CoursesGet = ({
     className = ''
 }) => {
     const [courses, setCourses] = useState([]);
-    const [filter, setFilter] = useState({ sort: '', query: '' });
     const [limit] = useState(12);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const lastElement = useRef(null);
 
-    const sortedAndSearchedCourses = useCourses(courses, filter.sort, filter.query);
     const sectionForList = section || (sectionId != null ? { id: sectionId } : null);
 
     const [fetchCourses, isPostLoading, postError] = useFetching(async (limit, page, id) => {
@@ -78,10 +75,7 @@ const CoursesGet = ({
                         <div className="posts-page__controls-row">
                             {showSearch && (
                                 <div className="posts-page__filters">
-                                    <CoursesFilter
-                                        filter={filter}
-                                        setFilter={setFilter}
-                                    />
+                                    <GlobalSearchInline />
                                 </div>
                             )}
                         </div>
@@ -98,7 +92,7 @@ const CoursesGet = ({
                 )}
 
                 <div className="posts-page__content">
-                    {(sortedAndSearchedCourses?.length ?? 0) === 0 && !isPostLoading && !postError && (
+                    {(courses?.length ?? 0) === 0 && !isPostLoading && !postError && (
                         <h2 style={{ textAlign: 'center', marginTop: 24, color: '#6b7280' }}>
                             {(courses?.length ?? 0) === 0 ? `${title} не найдены` : 'Ничего не найдено'}
                         </h2>
@@ -107,7 +101,7 @@ const CoursesGet = ({
                     {sectionForList && (
                         <CoursesList
                             section={sectionForList}
-                            courses={sortedAndSearchedCourses ?? []}
+                            courses={courses ?? []}
                             backPath={sectionId != null ? `/educations/${sectionId}/courses` : undefined}
                         />
                     )}

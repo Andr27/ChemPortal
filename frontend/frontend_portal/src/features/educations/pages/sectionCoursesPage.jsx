@@ -14,7 +14,7 @@ const SectionCoursesPage = () => {
     return (
         <div className="App">
             <Helmet>
-                <title>Курсы в секции: {params.title}</title>
+                <title>Курсы раздела</title>
             </Helmet>
             <CoursesGet
                 sectionId={sectionId}

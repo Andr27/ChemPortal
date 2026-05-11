@@ -14,7 +14,7 @@ const SectionMaterialsPage = () => {
     return (
         <div className="App">
             <Helmet>
-                <title>Материалы в секции: {params.title}</title>
+                <title>Лекции раздела</title>
             </Helmet>
             <MaterialsGet
                 sectionId={sectionId}
