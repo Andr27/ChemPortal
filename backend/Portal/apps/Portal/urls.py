@@ -456,10 +456,6 @@ POST /api/v1/notifications/mark_all_read/ - отметить все прочит
 POST /api/v1/notifications/{id}/mark_read/ - отметить одно сообщений
 
 
-Комментарии к урокам!!!!!!!
-GET /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/ - все комментарии
-GET /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/{comments.id}/ - конкретный коммент
-POST /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/{comments.id}/pin/ - закрепить комментн
-POST /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/ - аписать коммент 
-DELETE /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/{comments.id} - УДАЛИТЬ КОММЕНТ
+
+
 '''

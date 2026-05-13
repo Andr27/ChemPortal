@@ -3,22 +3,23 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied, NotFound
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework import status
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
 
 from Portal.mixins import StatusAccessMixin, ModeratorMixin
-from Portal.permissions import IsCreator, IsModerator
+from Portal.permissions import IsCreator, IsModerator, IsAdmin
 from Portal.choices import ModerationStatus, UserRole
 from Portal.pagination import StandardPagination
 
 
 
-from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson
+from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson, LessonComments
 from .permissions import IsSectionOwner, IsCourseOwner
 from .serializers import EducationSectionSerializer, SectionMaterialSerializer, CourseSerializer, \
-EducationSectionDetailSerializer, CourseDetailSerializer, ChapterSerializer, LessonSerializer
+    EducationSectionDetailSerializer, CourseDetailSerializer, ChapterSerializer, LessonSerializer, \
+    LessonCommentsSerializer
 
 
 class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
@@ -38,109 +39,35 @@ class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
     #permissions
     def get_permissions(self):
-        if self.action == "create":
-            return [IsCreator()]
-        if self.action in ['approve', 'reject', 'moderation_list']:
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAdmin()]
+        if self.action in ['approve', 'reject', 'moderation_list',
+                           'my_sections', 'my_draft_sections',
+                           'my_published_sections', 'my_reject_sections']:
             return [IsModerator()]
-        return super().get_permissions()
+        return [AllowAny()]
 
 
 
     #create update delete
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(
+            created_by=self.request.user,
+            status=ModerationStatus.PUBLISHED
+        )
 
     def perform_update(self, serializer):
-        obj = self.get_object()
         user = self.request.user
-
-        if obj.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
-            raise PermissionDenied("Вы не можете редактировать этот раздел")
-
-        if obj.status == ModerationStatus.PUBLISHED and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
-            raise PermissionDenied("Нельзя редактировать опубликованный раздел")
-
-        serializer.save(status=ModerationStatus.DRAFT)
-
+        obj = self.get_object()
+        if user.profile.role not in [UserRole.ADMIN]:
+            raise PermissionDenied("Только администратор может редактировать разделы")
+        serializer.save()
 
     def perform_destroy(self, instance):
         user = self.request.user
-        if instance.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
-            raise PermissionDenied("Вы не можете удалить этот раздел")
+        if user.profile.role not in [UserRole.ADMIN]:
+            raise PermissionDenied("Только администратор может удалять разделы")
         instance.delete()
-
-
-    #moderation list
-    @action(detail=False, methods=['get'], permission_classes=[IsModerator])
-    def moderation_list(self, request):
-        sections = self.get_base_queryset().filter(status=ModerationStatus.MODERATION)
-        page = self.paginate_queryset(sections)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(sections, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['post'], permission_classes=[IsCreator])
-    def create_and_send_to_moderation(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(
-            created_by=request.user,
-            status=ModerationStatus.MODERATION,
-        )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    #my section
-    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
-    def my_sections(self, request):
-        sections = self.get_base_queryset().filter(created_by=self.request.user)
-        page = self.paginate_queryset(sections)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(sections, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
-    def my_draft_sections(self, request):
-        sections = self.get_base_queryset().filter(
-            created_by=self.request.user,
-            status=ModerationStatus.DRAFT,
-        )
-        page = self.paginate_queryset(sections)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(sections, many=True)
-        return Response(serializer.data)
-
-
-    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
-    def my_reject_sections(self, request):
-        sections = self.get_base_queryset().filter(
-            created_by=self.request.user,
-            status=ModerationStatus.REJECTED,
-        )
-        page = self.paginate_queryset(sections)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(sections, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsCreator])
-    def my_published_sections(self, request):
-        sections = self.get_base_queryset().filter(
-            status=ModerationStatus.PUBLISHED,
-            created_by=self.request.user,
-        )
-        page = self.paginate_queryset(sections)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(sections, many=True)
-        return Response(serializer.data)
 
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
@@ -170,9 +97,7 @@ class SectionMaterialViewSet(ModelViewSet):
         return SectionMaterial.objects.filter(section=section)
 
     def perform_create(self, serializer):
-        section = EducationSection.objects.get(pk=self.kwargs['section_pk'])
-        if section.created_by != self.request.user:
-            raise PermissionDenied("Вы не можете добавить материал в чужой раздел")
+        section = get_object_or_404(EducationSection, pk=self.kwargs['section_pk'])
         serializer.save(section=section)
 
     def get_permissions(self):
@@ -208,10 +133,11 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
 
     #cud
     def perform_create(self, serializer):
-        section = EducationSection.objects.get(pk=self.kwargs['section_pk'])
-        if section.created_by != self.request.user:
-            raise PermissionDenied('Вы не можете создать курс в чужом разделе')
-        serializer.save(section=section, created_by=self.request.user)
+        section = get_object_or_404(EducationSection, pk=self.kwargs['section_pk'])
+        serializer.save(
+            created_by=self.request.user,
+            section=section
+        )
 
     def perform_update(self, serializer):
         obj = self.get_object()
@@ -540,3 +466,61 @@ class GlobalCourseViewSet(ListModelMixin, GenericViewSet):
         page = self.paginate_queryset(courses)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+
+
+class LessonCommentsViewSet(ModelViewSet):
+    serializer_class = LessonCommentsSerializer
+
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        if self.action == 'pin':
+            return [IsCreator()]
+        return [IsAuthenticated()]
+
+
+    def get_queryset(self):
+        lesson_id = self.kwargs['lesson_pk']
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        if self.action == 'list':
+            return LessonComments.objects.filter(
+                lesson=lesson,
+                parent__isnull=True).prefetch_related(
+                'children__author__profile'
+            ).select_related(
+                'author__profile'
+            )
+        return LessonComments.objects.filter(lesson=lesson)
+
+
+    def perform_create(self, serializer):
+        lesson_id = self.kwargs['lesson_pk']
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        parent_id = self.request.data.get('parent')
+        parent = None
+        if parent_id:
+            parent = get_object_or_404(LessonComments, id=parent_id, lesson=lesson)
+        serializer.save(author=self.request.user, lesson=lesson, parent=parent)
+
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.text = '[комментарий удален]'
+        instance.save()
+
+    @action(detail=True, methods=['post'])
+    def pin(self, request, **kwargs):
+        comment = self.get_object()
+        lesson = comment.lesson
+        course = lesson.chapter.course
+        if course.created_by != self.request.user:
+            return Response({
+                "detail": "Только автор курса может закреплять комментарии"
+            }, status=status.HTTP_403_FORBIDDEN)
+        LessonComments.objects.filter(lesson=lesson, is_pinned=True).update(is_pinned=False)
+        comment.is_pinned = True
+        comment.save()
+        return Response({"detail": "Комментарий закреплен"})

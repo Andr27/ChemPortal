@@ -135,3 +135,25 @@ class SectionMaterialImage(models.Model):
 
     def __str__(self):
         return f"Image for material {self.material_id}"
+
+
+
+class LessonComments(models.Model):
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_comments')
+    text = models.TextField()
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
+    is_deleted = models.BooleanField(default=False)
+    is_pinned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = "Комментарий к уроку"
+        verbose_name_plural = "Комментарии к уроку"
+
+

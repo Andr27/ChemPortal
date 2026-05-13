@@ -20,3 +20,5 @@ class CanEditPost(BasePermission):
             return False
 
         return True
+
+

@@ -17,7 +17,6 @@ ENV/
 backend/Portal/__pycache__/
 backend/Portal/*.pyc
 backend/Portal/*.pyo
-backend/Portal/db.sqlite3
 backend/Portal/db.sqlite3-journal
 backend/Portal/media/
 backend/Portal/staticfiles/

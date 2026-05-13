@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Portal.choices import ModerationStatus
-from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson, SectionMaterialImage
+from .models import EducationSection, SectionMaterial, Course, Chapter, Lesson, SectionMaterialImage, LessonComments
 
 
 class EducationSectionSerializer(serializers.ModelSerializer):
@@ -117,20 +117,28 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class EducationSectionDetailSerializer(EducationSectionSerializer):
-    """Детальный вид раздела — с материалами и курсами"""
     materials = SectionMaterialSerializer(many=True, read_only=True)
     courses = serializers.SerializerMethodField()
+    top_courses = serializers.SerializerMethodField()
+
 
     class Meta(EducationSectionSerializer.Meta):
-        fields = EducationSectionSerializer.Meta.fields + ('materials', 'courses')
+        fields = EducationSectionSerializer.Meta.fields + (
+            'materials', 'courses', 'top_courses'
+        )
 
     def get_courses(self, obj):
         published = obj.courses.filter(status=ModerationStatus.PUBLISHED)
         return CourseSerializer(published, many=True).data
 
+    def get_top_courses(self, obj):
+        top = obj.courses.filter(
+            status=ModerationStatus.PUBLISHED
+        ).order_by('-rating')[:5]
+        return CourseSerializer(top, many=True).data
 
 class CourseDetailSerializer(CourseSerializer):
-    """Детальный вид курса — с главами и уроками"""
+    """Детальный вид курса с главами и уроками"""
     chapters = ChapterSerializer(many=True, read_only=True)
     chapters_count = serializers.SerializerMethodField()
 
@@ -139,4 +147,33 @@ class CourseDetailSerializer(CourseSerializer):
 
     def get_chapters_count(self, obj):
         return obj.chapters.count()
+
+
+
+class LessonCommentsSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = LessonComments
+        fields = ('id', 'author', 'text', 'parent', 'children',
+                  'is_deleted', 'is_pinned', 'created_at')
+        read_only_fields = ('author', 'is_deleted', 'is_pinned', 'created_at')
+
+
+    def get_author(self, obj):
+        return {
+            "id": obj.author.id,
+            "first_name": obj.author.first_name,
+            "last_name": obj.author.last_name,
+            'avatar': obj.author.profile.avatar.url if obj.author.profile.avatar else None
+        }
+
+    def get_children(self, obj):
+        if obj.is_deleted:
+            return []
+        children = obj.children.all()
+        return LessonCommentsSerializer(children, many=True).data
+
 

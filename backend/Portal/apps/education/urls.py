@@ -2,14 +2,14 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from .views import (
     EducationSectionViewSet, SectionMaterialViewSet,
-    CourseViewSet, ChapterViewSet, LessonViewSet, GlobalCourseViewSet,
+    CourseViewSet, ChapterViewSet, LessonViewSet, GlobalCourseViewSet, LessonCommentsViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'education/sections', EducationSectionViewSet, basename='sections')
 router.register(r'education/courses', GlobalCourseViewSet, basename='global-courses')
 
-# Section → Materials, Courses
+# Section -> Materials, Courses
 sections_router = routers.NestedDefaultRouter(
     router,
     r'education/sections',
@@ -18,7 +18,7 @@ sections_router = routers.NestedDefaultRouter(
 sections_router.register(r'materials', SectionMaterialViewSet, basename='section-materials')
 sections_router.register(r'courses', CourseViewSet, basename='section-courses')
 
-# Course → Chapters
+# Course -> Chapters
 courses_router = routers.NestedDefaultRouter(
     sections_router,
     r'courses',
@@ -26,7 +26,7 @@ courses_router = routers.NestedDefaultRouter(
 )
 courses_router.register(r'chapters', ChapterViewSet, basename='course-chapters')
 
-# Chapter → Lessons
+# Chapter -> Lessons
 chapters_router = routers.NestedDefaultRouter(
     courses_router,
     r'chapters',
@@ -35,11 +35,27 @@ chapters_router = routers.NestedDefaultRouter(
 chapters_router.register(r'lessons', LessonViewSet, basename='chapter-lessons')
 
 
+#Lessom 2 Comments
+
+lessons_router = routers.NestedDefaultRouter(
+    chapters_router,
+    r'lessons',
+    lookup='lesson'
+)
+
+lessons_router.register(r'comments', LessonCommentsViewSet, basename='lesson-comments')
+
+
+
 
 urlpatterns = (
     router.urls +
     sections_router.urls +
     courses_router.urls +
-    chapters_router.urls
+    chapters_router.urls +
+    lessons_router.urls
 
 )
+
+
+
