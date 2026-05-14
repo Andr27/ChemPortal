@@ -1,0 +1,87 @@
+/* Skeleton pulse animation */
+@keyframes skeleton-shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+.skeleton-pulse {
+    background: linear-gradient(
+        90deg,
+        var(--color-bg-dark, #e0e0e0) 25%,
+        var(--color-surface, #f0f0f0) 37%,
+        var(--color-bg-dark, #e0e0e0) 63%
+    );
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Post card skeleton */
+.skeleton-post {
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.skeleton-post::before {
+    background: var(--color-bg-dark, #e0e0e0) !important;
+}
+
+.skeleton-post .skeleton-post__cover {
+    margin: -18px -20px 0 -14px;
+    overflow: hidden;
+}
+
+.skeleton-post__body {
+    padding: 14px 0 8px;
+}
+
+.skeleton-post__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-subtle, #e5e7eb);
+    margin-top: 10px;
+}
+
+/* Account post skeleton */
+.skeleton-account-post {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border-subtle, #e5e7eb);
+    border-radius: 13px;
+}
+
+.skeleton-account-post__accent {
+    align-self: stretch;
+}
+
+.skeleton-account-post__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+/* Section card skeleton */
+.skeleton-section {
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border-subtle, #e5e7eb);
+    border-radius: 16px;
+    overflow: hidden;
+    pointer-events: none;
+    border-left: none !important;
+}
+
+.skeleton-section__body {
+    padding: 20px 18px 18px;
+}
+
+.skeleton-section__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}

@@ -1,0 +1,28 @@
+.articleViewer {
+    margin: 0 auto;
+    padding: 0 0 24px 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 760px;
+}
+
+.articleViewerTitle {
+    text-align: left;
+    margin: 0 0 16px 0;
+    padding: 0;
+    border: none;
+    color: var(--color-text-main);
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+/* Текст статьи в просмотре: без внутреннего отступа,
+   чуть крупнее, чем базовый шрифт редактора */
+.articleViewer :global(.ProseMirror) {
+    padding: 0;
+    font-size: 17px;
+    line-height: 1.6;
+}

@@ -1,0 +1,30 @@
+.myModal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 120;
+}
+.myModalContent {
+    padding: 28px 32px;
+    background: var(--color-surface);
+    border-radius: 18px;
+    min-width: 280px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+    border: 1px solid var(--color-border-subtle);
+}
+
+.myModal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
