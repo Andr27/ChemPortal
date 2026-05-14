@@ -352,6 +352,18 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @action(detail=True, methods=['get'], permission_classes=[IsModerator])
+    def ai_analyze(self, request, pk=None):
+        post = self.get_object()
+        from apps.search.ai_moderation import analyze_context
+        result = analyze_context(post.title, post.body or '')
+        return Response(
+            {
+                "post_id": post.id,
+                "post_title": post.title,
+                **result,
+            }
+        )
 
 
 

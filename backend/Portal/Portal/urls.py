@@ -462,4 +462,45 @@ GET /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.
 POST /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/{comments.id}/pin/ - закрепить комментн
 POST /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/ - аписать коммент 
 DELETE /api/v1/education/section/{section.id}/courses/{course.id}/chapter/{chapter.id}/lesson/{lesson.id}/comments/{comments.id} - УДАЛИТЬ КОММЕНТ
+
+
+JSON КУРСЫ!!!!
+GET /api/v1/education/sections/{section.id}/courses/{course.id}/export_json/ - экспорт курса в json
+POST /api/v1/education/sections/{section.id}/courses/import_json/ - импорт курса с json
+
+
+АНАЛИЗ ТЕКСТА ЧЕРЕЗ ИИИ!!
+GET /api/v1/posts/{post.id}/ai_analyze/ - анализ поста
+возвращает:
+{
+    "post_id": 2,
+    "post_title": "БЛЯТЬ",
+    "sentiment": {
+        "label": "POSITIVE", - это анализ тональности
+        "score": 0.435,
+        "scores": {
+            "negative": 0.342,
+            "neutral": 0.223,
+            "positive": 0.435
+        }
+    },
+    "stop_words": [
+        "купить",
+        "продать",
+        "казино",
+        "ставки",
+        "кредит",
+        "блять",
+        "пиздец"
+    ], - все стоп слова которые нашлись
+    "risk": "high", - риск публикации
+    "warnings": [
+        "найдены стоп слова: купить, продать, казино, ставки, кредит, блять, пиздец", - это если получится подсветить было бы ништяк
+        "Найдено 5 внешних ссылок: https://wen-ware.com/, https://wen-ware.com/, https://wen-ware.com/, https://wen-ware.com/, https://wen-ware.com/" - ссылки на внешние сайты
+    ],
+    "recommendation": "Требует внимания" - ну и рекомендация итоговая чо делать
+}
+
+GET /api/v1/education/sections/{section.id}/courses/{course.id}/ai_analyze/ - анализ курса
+
 '''

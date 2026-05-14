@@ -1,3 +1,5 @@
+from email._header_value_parser import Section
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -348,6 +350,87 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
         }
         cache.set(cache_key, data, timeout=1800)
         return Response(data)
+
+
+    @action(detail=True, methods=['get'], permission_classes=[IsCreator])
+    def export_json(self, request, **kwargs):
+        course = self.get_object()
+
+        if course.created_by != request.user:
+            return Response({"detail": "Только автор может экспортировать курс"}, status=status.HTTP_403_FORBIDDEN)
+
+        data = {
+            'title': course.title,
+            'description': course.description,
+            'chapters': []
+        }
+        for chapter in course.chapters.all().order_by('order'):
+            chapter_data = {
+                'title': chapter.title,
+                'description': chapter.description,
+                'order': chapter.order,
+                'lessons': []
+            }
+            for lesson in chapter.lessons.all().order_by('order'):
+                chapter_data['lessons'].append({
+                    'title': lesson.title,
+                    'type': lesson.type,
+                    'content': lesson.content,
+                    'order': lesson.order,
+                })
+            data['chapters'].append(chapter_data)
+        return Response(data)
+
+
+
+    @action(detail=False, methods=['post'], permission_classes=[IsCreator])
+    def import_json(self, request, **kwargs):
+        section_pk = self.kwargs.get('section_pk')
+        section = get_object_or_404(Section, pk=section_pk)
+
+        data = request.data
+        if not data.get('title'):
+            return Response({'detail': "Нужен title"}, status=status.HTTP_400_BAD_REQUEST)
+
+        course = Course.objects.create(
+            title=data['title'],
+            description=data.get('description', ''),
+            section=section,
+            created_by=request.user,
+            status=ModerationStatus.DRAFT
+        )
+
+        for ch in data.get('chapters', []):
+            chapter = Chapter.objects.create(
+                course=course,
+                title=ch['title'],
+                description=ch.get('description', ''),
+                order=ch.get('order', 0),
+            )
+            for ls in ch.get('lessons', []):
+                Lesson.objects.create(
+                    chapter=chapter,
+                    title=ls['title'],
+                    type=ls.get('type', 'lecture'),
+                    content=ls.get('content', ''),
+                    order=ls.get('order', 0),
+                )
+        serializer = CourseSerializer(course)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsModerator])
+    def ai_analyze(self, request, **kwargs):
+        course = self.get_object()
+        from apps.search.ai_moderation import analyze_context
+        result = analyze_context(course.title, course.description or '')
+        return Response(
+            {
+                "course_id": course.id,
+                "course_title": course.title,
+                **result,
+            }
+        )
+
 
 class ChapterViewSet(ModelViewSet):
     serializer_class = ChapterSerializer
