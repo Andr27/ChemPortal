@@ -1,0 +1,89 @@
+version: '3.9'
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: portal_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: portal_db
+      POSTGRES_USER: portal_user
+      POSTGRES_PASSWORD: WerZxc2000VB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: portal_redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portal_backend
+    command: gunicorn --workers 2 --bind 0.0.0.0:8000 Portal.wsgi
+    volumes:
+      - model_volume:/app/models
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    expose:
+      - "8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - backend/.env.prod
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend/frontend_portal
+      dockerfile: ../Dockerfile
+    container_name: portal_frontend
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portal_celery_worker
+    command: celery -A Portal worker --loglevel=info --concurrency=1
+    volumes:
+      - model_volume:/app/models
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - backend/.env.prod
+    restart: unless-stopped
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portal_celery_beat
+    command: celery -A Portal beat --loglevel=info
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - backend/.env.prod
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  model_volume:
+  static_volume:
+  media_volume:
