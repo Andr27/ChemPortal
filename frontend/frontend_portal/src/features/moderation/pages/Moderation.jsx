@@ -124,18 +124,28 @@ const EduModerationTab = () => {
     const [message,  setMessage]      = useState('');
 
     useEffect(() => {
-        Promise.all([
-            EducationService.requestedSection(),
-            EducationService.getModerationCoursesGlobal(),
-        ])
-            .then(([sRes, cRes]) => {
-                const sd = sRes.data;
-                const cd = cRes.data;
-                setSections(Array.isArray(sd) ? sd : (sd?.results ?? []));
-                setCourses( Array.isArray(cd) ? cd : (cd?.results ?? []));
-            })
-            .catch(() => setMessage('Не удалось загрузить данные'))
-            .finally(() => setLoading(false));
+        const load = async () => {
+            try {
+                const [sRes, cRes] = await Promise.allSettled([
+                    EducationService.requestedSection(),
+                    EducationService.getModerationCoursesGlobal(),
+                ]);
+                if (sRes.status === 'fulfilled') {
+                    const sd = sRes.value.data;
+                    setSections(Array.isArray(sd) ? sd : (sd?.results ?? []));
+                }
+                if (cRes.status === 'fulfilled') {
+                    const cd = cRes.value.data;
+                    setCourses(Array.isArray(cd) ? cd : (cd?.results ?? []));
+                }
+                if (sRes.status === 'rejected' && cRes.status === 'rejected') {
+                    setMessage('Не удалось загрузить данные');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
     }, []);
 
     const handleApprove = async (id) => {

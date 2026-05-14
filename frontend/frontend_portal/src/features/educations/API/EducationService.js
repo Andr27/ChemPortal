@@ -484,5 +484,41 @@ class EducationService {
         return response;
     }
 
+    // lesson comments
+    static async getLessonComments(sectionId, courseId, chapterId, lessonId) {
+        return api.get(`education/sections/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}/comments/`);
+    }
+
+    static async addLessonComment(sectionId, courseId, chapterId, lessonId, text) {
+        return api.post(`education/sections/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}/comments/`, { text });
+    }
+
+    static async deleteLessonComment(sectionId, courseId, chapterId, lessonId, commentId) {
+        return api.delete(`education/sections/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}/comments/${commentId}/`);
+    }
+
+    static async pinLessonComment(sectionId, courseId, chapterId, lessonId, commentId) {
+        return api.post(`education/sections/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}/comments/${commentId}/pin/`);
+    }
+
+    static async unpinLessonComment(sectionId, courseId, chapterId, lessonId, commentId) {
+        return api.post(`education/sections/${sectionId}/courses/${courseId}/chapters/${chapterId}/lessons/${lessonId}/comments/${commentId}/unpin/`);
+    }
+
+    // JSON export/import
+    static async exportCourseJson(sectionId, courseId) {
+        const response = await api.get(`education/sections/${sectionId}/courses/${courseId}/export_json/`);
+        return response;
+    }
+
+    static async importCourseJson(sectionId, jsonData) {
+        const response = await api.post(`education/sections/${sectionId}/courses/import_json/`, jsonData);
+        return response;
+    }
+
+    static async aiAnalyzeCourse(sectionId, courseId) {
+        const response = await api.get(`education/sections/${sectionId}/courses/${courseId}/ai_analyze/`);
+        return response;
+    }
 }
 export default EducationService;

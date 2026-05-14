@@ -154,4 +154,9 @@ export default class PostService {
         return response;
     }
 
+    static async aiAnalyzePost(postId) {
+        const response = await api.get(`posts/${postId}/ai_analyze/`);
+        return response;
+    }
+
 }

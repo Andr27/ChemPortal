@@ -5,6 +5,7 @@ import Loader from "../../../components/UI/loader/loader";
 import ArticleViewer from "../../../components/UI/MyEditor/ArticleViewer";
 import educationService from "../API/EducationService";
 import {Helmet} from "react-helmet";
+import LessonCommentsList from "../components/lessons/LessonCommentsList";
 
 const plainTextToDoc = (text) => {
     if (text == null || text === '') return null;
@@ -326,6 +327,18 @@ const LessonPage = () => {
                                 )}
                             </div>
                         )}
+
+                    </div>
+                </div>
+
+                <div className="section-page-card" style={{ marginTop: '16px' }}>
+                    <div className="section-page-card__content">
+                        <LessonCommentsList
+                            sectionId={sectionId}
+                            courseId={courseId}
+                            chapterId={chapterId}
+                            lessonId={lessonId}
+                        />
                     </div>
                 </div>
             </div>

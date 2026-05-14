@@ -444,6 +444,49 @@ const CourseEditPage = () => {
         }
     };
 
+    const importFileRef = useRef(null);
+    const [isImporting, setIsImporting] = useState(false);
+
+    const handleImportJson = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        try {
+            setIsImporting(true);
+            const text = await file.text();
+            const json = JSON.parse(text);
+
+            if (json.title) setCourseTitle(json.title);
+            if (json.description !== undefined) setCourseDescription(json.description ?? '');
+
+            if (Array.isArray(json.chapters) && json.chapters.length > 0) {
+                const built = json.chapters.map(ch => {
+                    const lessons = Array.isArray(ch.lessons) && ch.lessons.length > 0
+                        ? ch.lessons.map(ls => {
+                            let content = null;
+                            if (ls.content) {
+                                try {
+                                    content = typeof ls.content === 'string'
+                                        ? JSON.parse(ls.content)
+                                        : ls.content;
+                                } catch (_) { content = null; }
+                            }
+                            return { id: localId(), title: ls.title || '', content, images: [], quiz: null, quizIdOriginal: null };
+                        })
+                        : [makeLesson()];
+                    return { id: localId(), title: ch.title || '', description: ch.description || '', lessons };
+                });
+                setChapters(built);
+            }
+
+            toast.success('Данные из JSON загружены в форму');
+        } catch (err) {
+            toast.error('Ошибка чтения JSON: проверьте формат файла');
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
     if (isLoading && !course) {
         return (
             <div className="page-wrapper section-page-wrapper">
@@ -561,12 +604,25 @@ const CourseEditPage = () => {
                                     className="edu-create__save-btn"
                                     onClick={handleDeleteCourse}
                                     disabled={isSaving || isDeleting}
-                                    style={{
-                                        background: 'var(--color-danger, #e55)',
-                                        color: '#fff',
-                                    }}
+                                    style={{ background: 'var(--color-danger, #e55)', color: '#fff' }}
                                 >
                                     {isDeleting ? 'Удаляем...' : 'Удалить курс'}
+                                </button>
+                                <input
+                                    ref={importFileRef}
+                                    type="file"
+                                    accept=".json,application/json"
+                                    style={{ display: 'none' }}
+                                    onChange={handleImportJson}
+                                />
+                                <button
+                                    type="button"
+                                    className="edu-create__save-btn edu-create__save-btn--draft"
+                                    onClick={() => importFileRef.current?.click()}
+                                    disabled={isSaving || isDeleting || isImporting}
+                                    title="Импортировать курс из JSON-файла"
+                                >
+                                    {isImporting ? 'Импорт...' : '⬆ Импорт JSON'}
                                 </button>
                             </div>
 

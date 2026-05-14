@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {AuthContext, CreatorContext, ModeratorContext} from "../../../context";
 import AuthService from "../../../features/Login/API/AuthService";
 import MyLink from "../MyLink/MyLink";
@@ -34,6 +34,8 @@ const Navbar = () => {
     const [isAccessible, setIsAccessible] = useState(() => localStorage.getItem(A11Y_STORAGE_KEY) === 'true');
     const [prevTheme, setPrevTheme] = useState(() => localStorage.getItem('site-theme-before-a11y') || DEFAULT_THEME);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const settingsRef = useRef(null);
 
     const hasPostGet = POSTGET_ROUTES.some(route => location.pathname === route) || /^\/educations\/[^/]+\/(materials|courses)$/.test(location.pathname);
 
@@ -88,7 +90,6 @@ const Navbar = () => {
 
     const toggleAccessible = () => {
         if (!isAccessible) {
-            // Включаем: запоминаем текущую тему, переключаем на accessible
             const current = activeTheme !== 'theme-accessible' ? activeTheme : prevTheme;
             setPrevTheme(current);
             localStorage.setItem('site-theme-before-a11y', current);
@@ -96,12 +97,37 @@ const Navbar = () => {
             setIsAccessible(true);
             setTheme('theme-accessible');
         } else {
-            // Выключаем: возвращаем предыдущую тему
             localStorage.setItem(A11Y_STORAGE_KEY, 'false');
             setIsAccessible(false);
             setTheme(prevTheme);
         }
     };
+
+    const selectTheme = (themeName) => {
+        if (themeName === 'theme-accessible') {
+            if (!isAccessible) toggleAccessible();
+        } else {
+            if (isAccessible) {
+                localStorage.setItem(A11Y_STORAGE_KEY, 'false');
+                setIsAccessible(false);
+            }
+            setPrevTheme(themeName);
+            localStorage.setItem('site-theme-before-a11y', themeName);
+            setTheme(themeName);
+        }
+        setSettingsOpen(false);
+    };
+
+    useEffect(() => {
+        if (!settingsOpen) return;
+        const handleClickOutside = (e) => {
+            if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+                setSettingsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [settingsOpen]);
 
     return (
         <div className={navbarClassName}>
@@ -185,48 +211,45 @@ const Navbar = () => {
                             </MyLink>
                         )}
 
-                        <div className={cl.navbar__themeSwitch} aria-label="Переключение темы">
+                        <div className={cl.navbar__themeSwitch} ref={settingsRef}>
                             <button
                                 type="button"
-                                className={`${cl.navbar__themeBtn} ${isAccessible ? cl.navbar__a11yActive : ''}`}
-                                onClick={toggleAccessible}
-                                aria-label={isAccessible ? "Выключить версию для слабовидящих" : "Версия для слабовидящих"}
-                                title="Версия для слабовидящих"
+                                className={`${cl.navbar__themeBtn} ${settingsOpen ? cl.navbar__themeBtnActive : ''}`}
+                                onClick={() => setSettingsOpen(o => !o)}
+                                aria-label="Настройки отображения"
+                                title="Настройки отображения"
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                    <circle cx="12" cy="12" r="3" />
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                                 </svg>
                             </button>
-                            {!isAccessible && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const next = activeTheme === "theme-chem" ? "theme-nano" : "theme-chem";
-                                    setPrevTheme(next);
-                                    setTheme(next);
-                                }}
-                                className={cl.navbar__themeBtn}
-                                aria-label={activeTheme === "theme-chem" ? "Включить тёмную тему" : "Включить светлую тему"}
-                            >
-                                {activeTheme === "theme-chem" ? (
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                                    </svg>
-                                ) : (
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="5" />
-                                        <line x1="12" y1="1" x2="12" y2="3" />
-                                        <line x1="12" y1="21" x2="12" y2="23" />
-                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                                        <line x1="1" y1="12" x2="3" y2="12" />
-                                        <line x1="21" y1="12" x2="23" y2="12" />
-                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                                    </svg>
-                                )}
-                            </button>
+
+                            {settingsOpen && (
+                                <div className={cl.navbar__settingsMenu}>
+                                    {[
+                                        { key: 'theme-chem',       label: 'Светлая тема' },
+                                        { key: 'theme-nano',       label: 'Тёмная тема' },
+                                        { key: 'theme-accessible', label: 'Для слабовидящих' },
+                                    ].map(({ key, label }) => {
+                                        const isActive = isAccessible
+                                            ? key === 'theme-accessible'
+                                            : activeTheme === key;
+                                        return (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                className={`${cl.navbar__settingsItem} ${isActive ? cl.navbar__settingsItemActive : ''}`}
+                                                onClick={() => selectTheme(key)}
+                                            >
+                                                <span className={cl.navbar__settingsItemCheck} aria-hidden="true">
+                                                    {isActive ? '✓' : ''}
+                                                </span>
+                                                {label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             )}
                         </div>
                     </div>

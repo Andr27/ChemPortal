@@ -7,6 +7,7 @@ import EducationBackLink from "../../educations/components/EducationBackLink";
 import ChapterList from "../../educations/components/chapters/chapterList";
 import MyModal from "../../../components/UI/MyModal/MyModal";
 import iconCube from "../../../img/icon/cube.svg";
+import AiAnalysisPanel from "../components/AiAnalysisPanel";
 
 const ModerationCourseViewPage = () => {
     const { courseId } = useParams();
@@ -29,6 +30,11 @@ const ModerationCourseViewPage = () => {
 
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
+
+    const [aiData,    setAiData]    = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError,   setAiError]   = useState('');
+    const [aiVisible, setAiVisible] = useState(false);
 
     // Если sectionId нет в state — ищем курс в списке на модерацию
     useEffect(() => {
@@ -97,6 +103,21 @@ const ModerationCourseViewPage = () => {
             setModError(e?.response?.data?.detail || 'Ошибка при обработке');
         } finally {
             setModLoading(false);
+        }
+    };
+
+    const handleAiAnalyze = async () => {
+        if (aiVisible && aiData) { setAiVisible(false); return; }
+        setAiVisible(true);
+        setAiError('');
+        setAiLoading(true);
+        try {
+            const response = await educationService.aiAnalyzeCourse(sectionId, courseId);
+            setAiData(response.data);
+        } catch (e) {
+            setAiError('Не удалось выполнить анализ');
+        } finally {
+            setAiLoading(false);
         }
     };
 
@@ -178,6 +199,13 @@ const ModerationCourseViewPage = () => {
                     <div className="mod-bar__actions">
                         {modError && <span className="mod-bar__error">{modError}</span>}
                         <button
+                            className="mod-bar__btn mod-bar__btn--ai"
+                            onClick={handleAiAnalyze}
+                            disabled={aiLoading || !sectionId}
+                        >
+                            {aiLoading ? 'Анализ...' : aiVisible ? 'Скрыть анализ' : 'ИИ-анализ'}
+                        </button>
+                        <button
                             className="mod-bar__btn mod-bar__btn--reject"
                             onClick={openRejectModal}
                             disabled={modLoading}
@@ -193,6 +221,15 @@ const ModerationCourseViewPage = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* ИИ-анализ */}
+                {aiVisible && (
+                    <AiAnalysisPanel
+                        data={aiData}
+                        loading={aiLoading}
+                        error={aiError}
+                    />
+                )}
 
                 {/* Карточка курса — точь-в-точь как в CourseProgress */}
                 <div className="course-page__card">

@@ -5,6 +5,7 @@ import PostService from "../../posts/API/PostService";
 import Loader from "../../../components/UI/loader/loader";
 import ArticleViewer from "../../../components/UI/MyEditor/ArticleViewer";
 import MyModal from "../../../components/UI/MyModal/MyModal";
+import AiAnalysisPanel from "../components/AiAnalysisPanel";
 
 const ModerationPostPage = () => {
     const params = useParams();
@@ -17,6 +18,11 @@ const ModerationPostPage = () => {
 
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
+
+    const [aiData,    setAiData]    = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError,   setAiError]   = useState('');
+    const [aiVisible, setAiVisible] = useState(false);
 
     const navigate = useNavigate();
     const backPath = location.state?.from || '/moderation';
@@ -93,6 +99,21 @@ const ModerationPostPage = () => {
         }
     };
 
+    const handleAiAnalyze = async () => {
+        if (aiVisible && aiData) { setAiVisible(false); return; }
+        setAiVisible(true);
+        setAiError('');
+        setAiLoading(true);
+        try {
+            const response = await PostService.aiAnalyzePost(params.id);
+            setAiData(response.data);
+        } catch (e) {
+            setAiError('Не удалось выполнить анализ');
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchModPostsById(params.id);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,6 +137,13 @@ const ModerationPostPage = () => {
                     <div className="mod-bar__actions">
                         {apError && <span className="mod-bar__error">{apError}</span>}
                         <button
+                            className="mod-bar__btn mod-bar__btn--ai"
+                            onClick={handleAiAnalyze}
+                            disabled={aiLoading}
+                        >
+                            {aiLoading ? 'Анализ...' : aiVisible ? 'Скрыть анализ' : 'ИИ-анализ'}
+                        </button>
+                        <button
                             className="mod-bar__btn mod-bar__btn--reject"
                             onClick={openRejectModal}
                             disabled={loadingAp || loadingRe}
@@ -131,6 +159,15 @@ const ModerationPostPage = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* ИИ-анализ */}
+                {aiVisible && (
+                    <AiAnalysisPanel
+                        data={aiData}
+                        loading={aiLoading}
+                        error={aiError}
+                    />
+                )}
 
                 {/* Белая карточка контента под mod-bar */}
                 <div className="post-article-card" style={{ marginBottom: 24 }}>

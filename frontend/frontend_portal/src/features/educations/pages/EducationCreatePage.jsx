@@ -368,6 +368,8 @@ const EducationCreatePage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const nextEditorImageIdRef = useRef(1);
+    const importFileRef = useRef(null);
+    const [isImporting, setIsImporting] = useState(false);
 
     const [sections, setSections] = useState([]);
     const [selectedSectionId, setSelectedSectionId] = useState('');
@@ -610,6 +612,47 @@ const EducationCreatePage = () => {
         }
     };
 
+    const handleImportJson = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = '';
+        try {
+            setIsImporting(true);
+            const text = await file.text();
+            const json = JSON.parse(text);
+
+            if (json.title) setCourseTitle(json.title);
+            if (json.description !== undefined) setCourseDescription(json.description ?? '');
+
+            if (Array.isArray(json.chapters) && json.chapters.length > 0) {
+                const built = json.chapters.map(ch => {
+                    const lessons = Array.isArray(ch.lessons) && ch.lessons.length > 0
+                        ? ch.lessons.map(ls => {
+                            let content = null;
+                            if (ls.content) {
+                                try {
+                                    content = typeof ls.content === 'string'
+                                        ? JSON.parse(ls.content)
+                                        : ls.content;
+                                } catch (_) { content = null; }
+                            }
+                            return { id: localId(), title: ls.title || '', content, images: [], quiz: null };
+                        })
+                        : [makeLesson()];
+                    return { id: localId(), title: ch.title || '', description: ch.description || '', lessons };
+                });
+                setChapters(built);
+            }
+
+            setContentType('course');
+            toast.success('Данные из JSON загружены в форму');
+        } catch (err) {
+            toast.error('Ошибка чтения JSON: проверьте формат файла');
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
     return (
         <div className="edu-create">
             <Helmet>
@@ -717,22 +760,48 @@ const EducationCreatePage = () => {
                 {saveSuccess && <p className="edu-create__success">
                     {contentType === 'lecture' ? 'Материал добавлен!' : 'Сохранено!'} Переход на страницу разделов...
                 </p>}
-                <div className="edu-create__footer-btns">
+                <div className="edu-create__footer-btns" style={{ justifyContent: 'space-between', width: '100%' }}>
                     {contentType === 'lecture' ? (
-                        <button type="button" className="edu-create__save-btn edu-create__save-btn--moderation"
-                            onClick={() => handleSave(false)} disabled={isSaving}>
-                            {isSaving ? 'Добавляем...' : 'Добавить'}
-                        </button>
+                        <>
+                            <div />
+                            <button type="button" className="edu-create__save-btn edu-create__save-btn--moderation"
+                                onClick={() => handleSave(false)} disabled={isSaving}>
+                                {isSaving ? 'Добавляем...' : 'Добавить'}
+                            </button>
+                        </>
                     ) : (
                         <>
-                            <button type="button" className="edu-create__save-btn edu-create__save-btn--draft"
-                                onClick={() => handleSave(false)} disabled={isSaving}>
-                                {isSaving ? 'Сохранение...' : 'Сохранить в черновик'}
-                            </button>
-                            <button type="button" className="edu-create__save-btn edu-create__save-btn--moderation"
-                                onClick={() => handleSave(true)} disabled={isSaving}>
-                                {isSaving ? 'Отправка...' : 'Создать и отправить на модерацию'}
-                            </button>
+                            {/* Левая часть — импорт */}
+                            <div>
+                                <input
+                                    ref={importFileRef}
+                                    type="file"
+                                    accept=".json,application/json"
+                                    style={{ display: 'none' }}
+                                    onChange={handleImportJson}
+                                />
+                                <button
+                                    type="button"
+                                    className="edu-create__save-btn edu-create__save-btn--draft"
+                                    onClick={() => importFileRef.current?.click()}
+                                    disabled={isSaving || isImporting}
+                                    title="Загрузить курс из JSON-файла"
+                                >
+                                    {isImporting ? 'Импорт...' : '⬆ Импорт JSON'}
+                                </button>
+                            </div>
+
+                            {/* Правая часть — сохранение */}
+                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <button type="button" className="edu-create__save-btn edu-create__save-btn--draft"
+                                    onClick={() => handleSave(false)} disabled={isSaving || isImporting}>
+                                    {isSaving ? 'Сохранение...' : 'Сохранить в черновик'}
+                                </button>
+                                <button type="button" className="edu-create__save-btn edu-create__save-btn--moderation"
+                                    onClick={() => handleSave(true)} disabled={isSaving || isImporting}>
+                                    {isSaving ? 'Отправка...' : 'Создать и отправить на модерацию'}
+                                </button>
+                            </div>
                         </>
                     )}
                 </div>
