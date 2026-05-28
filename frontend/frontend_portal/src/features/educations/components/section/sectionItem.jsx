@@ -35,9 +35,6 @@ const SectionItem = (props) => {
                     </div>
                     <h3 className="section-card__title">{props.section.title}</h3>
                 </div>
-                <p className="section-card__description">
-                    {props.section.description || 'Краткое описание раздела появится здесь.'}
-                </p>
             </div>
         </article>
     );

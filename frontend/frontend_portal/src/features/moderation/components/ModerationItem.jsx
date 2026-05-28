@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import api from "../../../API/api";
 import fallbackCover from "../../posts/img/image.png";
+import { makeExcerpt } from "../../../utils/textExcerpt";
 
 const toAbsoluteUrl = (url) => {
     if (!url || typeof url !== "string") return "";
@@ -20,7 +21,7 @@ const PostItem = (props) => {
     const rawCover = props.post.image_main || props.post.main_image;
     const coverUrl = rawCover ? toAbsoluteUrl(rawCover) : fallbackCover;
 
-    const excerpt = props.post.excerpt || props.post.description || props.post.summary || "";
+    const excerpt = makeExcerpt(props.post.body, 15);
 
     return (
         <div

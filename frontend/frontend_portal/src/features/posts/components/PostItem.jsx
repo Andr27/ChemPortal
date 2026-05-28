@@ -6,6 +6,7 @@ import { AuthContext } from "../../../context";
 import eyeIcon from "../../../img/icon/eye-alt-svgrepo-com.svg";
 import api from "../../../API/api";
 import fallbackCover from "../img/image.png";
+import { makeExcerpt } from "../../../utils/textExcerpt";
 
 const toAbsoluteUrl = (url) => {
     if (!url || typeof url !== "string") return "";
@@ -17,6 +18,13 @@ const toAbsoluteUrl = (url) => {
     }
 };
 
+const truncateTitle = (title, maxWords = 10) => {
+    if (!title) return '';
+    const words = title.trim().split(/\s+/);
+    if (words.length <= maxWords) return title;
+    return words.slice(0, maxWords).join(' ') + '...';
+};
+
 const PostItem = (props) => {
     const navigate = useNavigate();
     const { isAuth } = useContext(AuthContext);
@@ -25,6 +33,7 @@ const PostItem = (props) => {
 
     const rawCover = props.post.image_main || props.post.main_image;
     const coverUrl = rawCover ? toAbsoluteUrl(rawCover) : fallbackCover;
+    const isVideo = listPath === '/videos' || props.post.type === 'video' || props.post.post_type === 'video';
 
     return (
         <div
@@ -53,14 +62,16 @@ const PostItem = (props) => {
             <div className="post__top">
                 <div className="post__main">
                     <div className="post__header-row">
-                        <div className="post__content">
-                            {props.post.title}
+                        <div className="post__content" title={props.post.title}>
+                            {truncateTitle(props.post.title)}
                         </div>
                     </div>
 
-                    <div className="post__excerpt">
-                        Здесь будет краткое описание статьи в пару строк, чтобы заинтересовать читателя.
-                    </div>
+                    {!isVideo && (
+                        <div className="post__excerpt">
+                            {makeExcerpt(props.post.body, 15) || 'Здесь будет краткое описание статьи.'}
+                        </div>
+                    )}
                 </div>
             </div>
 

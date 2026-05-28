@@ -1,12 +1,35 @@
 import React, {useEffect, useRef, useState} from "react";
 import './styles/App.css';
-import {BrowserRouter} from "react-router-dom";
+import {BrowserRouter, useLocation, useNavigate} from "react-router-dom";
 import Navbar from "./components/UI/navbar/navbar";
 import AppRouter from "./components/AppRouter";
 import {AuthContext, CreatorContext, ModeratorContext, UserContext} from "./context";
 import AuthService from "./features/Login/API/AuthService";
 import ScrollTopButton from "./components/UI/ScrollTopButton/ScrollTopButton";
-import {ToastProvider} from "./components/UI/Toast/ToastContext";
+import {ToastProvider, useToast} from "./components/UI/Toast/ToastContext";
+
+// Маршруты, требующие авторизации — с них перебрасываем на /login при истечении сессии
+const PROTECTED_PREFIXES = ['/account', '/moderation', '/bookmarks', '/create', '/educations/my-courses'];
+
+// Обработчик события auth-expired внутри Router+ToastProvider:
+// показывает тост и редиректит с защищённых страниц на /login.
+const AuthExpiredHandler = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const toast = useToast();
+    useEffect(() => {
+        const onExpired = () => {
+            toast.error('Сессия истекла. Войдите снова.');
+            const onProtected = PROTECTED_PREFIXES.some(p => location.pathname.startsWith(p));
+            if (onProtected) {
+                navigate('/login', { state: { from: location.pathname } });
+            }
+        };
+        window.addEventListener('auth-expired', onExpired);
+        return () => window.removeEventListener('auth-expired', onExpired);
+    }, [navigate, location.pathname, toast]);
+    return null;
+};
 
 const MAIN_SCROLL_EVENT = 'main-scroll';
 
@@ -100,6 +123,19 @@ function App() {
         return () => window.removeEventListener("site-theme-change", onThemeChange);
     }, []);
 
+    // При истечении сессии — сбрасываем React-состояние,
+    // чтобы UI сразу показал "вышедшего" пользователя без перезагрузки страницы.
+    useEffect(() => {
+        const onAuthExpired = () => {
+            setIsAuth(false);
+            setIsModerator(false);
+            setIsCreator(false);
+            setUser(null);
+        };
+        window.addEventListener('auth-expired', onAuthExpired);
+        return () => window.removeEventListener('auth-expired', onAuthExpired);
+    }, []);
+
     // Событие скролла из main (на мобильных скролл в layout__content) — для анимации навбара как на ПК
     useEffect(() => {
         const el = mainContentRef.current;
@@ -119,6 +155,7 @@ function App() {
                     <CreatorContext.Provider value={{isCreator, setIsCreator}}>
                     <BrowserRouter>
                         <ToastProvider>
+                        <AuthExpiredHandler />
                         <div className="layout">
                             <aside className="layout__sidebar">
                                 <Navbar/>

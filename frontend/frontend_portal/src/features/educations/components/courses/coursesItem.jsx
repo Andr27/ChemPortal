@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { makeExcerpt } from "../../../../utils/textExcerpt";
 
 const CourseItem = (props) => {
     const navigate = useNavigate();
@@ -28,7 +29,7 @@ const CourseItem = (props) => {
                     </div>
 
                     <div className="post__excerpt">
-                        {props.course.description || 'Здесь будет краткое описание курса в пару строк, чтобы заинтересовать читателя.'}
+                        {makeExcerpt(props.course.body || props.course.description, 15) || 'Здесь будет краткое описание курса.'}
                     </div>
                 </div>
             </div>

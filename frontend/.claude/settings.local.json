@@ -6,7 +6,16 @@
       "Bash(node -e ' *)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Валера\\\\OneDrive\\\\Документы\\\\project\\\\backend\" -Recurse -Directory)",
       "Bash(Select-Object -First 20)",
-      "Bash(findstr /i \"moderation\\\\|class.*ViewSet\")"
+      "Bash(findstr /i \"moderation\\\\|class.*ViewSet\")",
+      "Bash(extract-text \"C:\\\\Users\\\\Валера\\\\OneDrive\\\\Desktop\\\\КР Семенников.docx\")",
+      "Bash(where pandoc *)",
+      "Bash(pandoc --version)",
+      "Bash(ls \"C:\\\\Users\\\\Валера\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\2357c601-8e42-45e3-a65a-4099a687c2e8\\\\08e659d6-883b-44e3-8288-0c720f7b78ce\\\\skills\\\\docx\\\\scripts\")",
+      "Bash(python /c/Users/Валера/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/2357c601-8e42-45e3-a65a-4099a687c2e8/08e659d6-883b-44e3-8288-0c720f7b78ce/skills/docx/scripts/office/unpack.py 'C:\\\\Users\\\\Валера\\\\OneDrive\\\\Desktop\\\\КР Семенников.docx' /tmp/kr_unpacked)",
+      "PowerShell($skillDir = \"$env:APPDATA\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\2357c601-8e42-45e3-a65a-4099a687c2e8\\\\08e659d6-883b-44e3-8288-0c720f7b78ce\\\\skills\\\\docx\"; Test-Path \"$skillDir\\\\scripts\\\\office\\\\unpack.py\")",
+      "Bash(ls /c/Temp/kr_unpacked/word/ 2>&1 | head -30)",
+      "PowerShell(python -c \"import zipfile, xml.etree.ElementTree as ET, sys, io; sys.stdout.reconfigure\\(encoding='utf-8'\\); z=zipfile.ZipFile\\(r'C:\\\\Temp\\\\kr.docx'\\); d=z.read\\('word/document.xml'\\).decode\\('utf-8'\\); root=ET.fromstring\\(d\\); ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}; texts=[]; [texts.append\\(t.text\\) for t in root.iter\\('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t'\\) if t.text]; print\\('\\\\n'.join\\(texts[:200]\\)\\)\")",
+      "Bash(python C:\\\\\\\\Temp\\\\\\\\inspect_styles.py)"
     ],
     "defaultMode": "auto"
   }
