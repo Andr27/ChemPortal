@@ -101,7 +101,7 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.id in self.context.get('disliked_ids', set())
 
     def get_is_bookmarked(self, obj):
-        return obj.id in self.context.get('bookmarked_ids', set())
+        return obj.id in self.context.get('bookmarks_ids', set())
 
     def get_is_subscribed(self, obj):
         return obj.author_id in self.context.get('subscribed_ids', set())
