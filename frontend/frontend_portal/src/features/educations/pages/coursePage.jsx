@@ -41,6 +41,7 @@ const CoursePage = () => {
     const [isEnrolled, setIsEnrolled] = useState(false);
     const [enrollmentId, setEnrollmentId] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const role = useMemo(() => localStorage.getItem('role') || 'user', []);
 
     useEffect(() => {
@@ -155,6 +156,25 @@ const CoursePage = () => {
         { state: { from: location.state?.from || location.pathname } }
     );
 
+    const handleExportJson = async () => {
+        try {
+            setIsExporting(true);
+            const response = await educationService.exportCourseJson(sectionId, courseId);
+            const json = JSON.stringify(response.data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `course_${courseId}_${(course?.title || 'export').replace(/\s+/g, '_')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            toast.error('Не удалось экспортировать курс');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     return (
         <div className="page-wrapper section-page-wrapper">
             <Helmet>
@@ -184,13 +204,24 @@ const CoursePage = () => {
                         </div>
                         <CoursesStats sectionId={sectionId} courseId={courseId} />
                         {canEdit && (
-                            <button
-                                type="button"
-                                className="edu-create__save-btn edu-create__save-btn--draft"
-                                onClick={openEdit}
-                            >
-                                Редактировать
-                            </button>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <button
+                                    type="button"
+                                    className="edu-create__save-btn edu-create__save-btn--draft"
+                                    onClick={openEdit}
+                                >
+                                    Редактировать
+                                </button>
+                                <button
+                                    type="button"
+                                    className="edu-create__save-btn edu-create__save-btn--draft"
+                                    onClick={handleExportJson}
+                                    disabled={isExporting}
+                                    title="Скачать курс в формате JSON"
+                                >
+                                    {isExporting ? 'Экспорт...' : '⬇ JSON'}
+                                </button>
+                            </div>
                         )}
                         <div className="course-page__hero-action">
                             {isAuth ? (

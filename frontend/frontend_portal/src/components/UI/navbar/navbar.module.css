@@ -211,7 +211,7 @@ body.theme-chem .navbar__brandHomeLink {
 .navbar__themeSwitch {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    position: relative;
 }
 
 .navbar__themeBtn {
@@ -234,14 +234,58 @@ body.theme-chem .navbar__brandHomeLink {
     color: var(--color-text-main);
 }
 
-.navbar__a11yActive {
-    background: var(--color-primary);
-    color: #fff;
+.navbar__themeBtnActive {
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    color: var(--color-primary);
 }
 
-.navbar__a11yActive:hover {
-    background: var(--color-primary-dark);
-    color: #fff;
+.navbar__settingsMenu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    min-width: 180px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle, #e2e8f0);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 200;
+}
+
+.navbar__settingsItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-main);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s;
+    text-align: left;
+}
+
+.navbar__settingsItem:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.navbar__settingsItemActive {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.navbar__settingsItemCheck {
+    width: 16px;
+    font-size: 13px;
+    flex-shrink: 0;
+    color: var(--color-primary);
 }
 
 .navbar__navLink {

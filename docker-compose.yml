@@ -25,7 +25,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: portal_backend
-    command: gunicorn --workers 2 --bind 0.0.0.0:8000 Portal.wsgi
+    command: gunicorn --workers 1 --bind 0.0.0.0:8000 --timeout 300 Portal.wsgi
     volumes:
       - model_volume:/app/models
       - static_volume:/app/staticfiles

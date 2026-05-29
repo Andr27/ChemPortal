@@ -19,6 +19,20 @@ const processedQueue = (error, token = null) => {
     failedQueue = [];
 };
 
+// Полная очистка auth-данных + уведомление React-приложения,
+// чтобы оно сразу обновило UI (без перезагрузки страницы).
+const handleAuthExpired = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('auth');
+    localStorage.removeItem('role');
+    localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth-expired'));
+    }
+};
+
 api.interceptors.request.use(
     (config) => {
         if (config.url.includes('token/')) {
@@ -50,9 +64,7 @@ api.interceptors.response.use(
         }
 
         if (originalRequest.url === 'token/refresh/') {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            window.location.href = '/login';
+            handleAuthExpired();
             return Promise.reject(error);
         }
 
@@ -93,10 +105,7 @@ api.interceptors.response.use(
             return api(originalRequest);
         } catch (refreshError) {
             processedQueue(refreshError, null);
-
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('auth');
+            handleAuthExpired();
             return Promise.reject(refreshError);
         } finally {
             isRefreshing = false;

@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer, util
 
-
+#sadfasd
 model = SentenceTransformer('models/chemistry_tagger')
 text = "Оксиды — это бинарные соединения кислорода с другими элементами. Рассмотрим основные оксиды металлов и их свойства"
 tags = [
