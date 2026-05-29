@@ -502,5 +502,18 @@ GET /api/v1/posts/{post.id}/ai_analyze/ - анализ поста
 }
 
 GET /api/v1/education/sections/{section.id}/courses/{course.id}/ai_analyze/ - анализ курса
+  
+  
+  
+ЭКСПЕРТНАЯ МОДЕРАЦИЯ!!!!!!!!!!!
 
+GET /api/v1/posts/expert_queue/ - очередь для экспертов!!
+POST /api/v1/posts/{id}/expert_vote/ - проголосовать!!
+Body: {"vote": "approve"/"reject", "comment": "Хорошая статья"} 
+GET /api/v1/posts/{id}/expert_reviews/ - посмотреть чо там вообще по голосам
+
+ДЛЯ КУРСОВ!!!
+GET /api/v1/education/sections/{id}/courses/expert_queue/
+POST /api/v1/education/sections/{id}/courses/{id}/expert_vote/
+GET /api/v1/education/sections/{id}/courses/{id}/expert_reviews/ 
 '''

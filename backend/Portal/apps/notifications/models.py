@@ -18,6 +18,7 @@ class Notification(models.Model):
         ('certificate', 'Сертификат получен'),
         ('new_follower', 'Новый подписчик'),
         ('course_review', 'Отзыв на курс'),
+        ('expert_review_needed', 'Требуется экспертная оценка'),
     ]
 
 

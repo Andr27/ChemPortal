@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from Portal.permissions import IsCreator, IsModerator
+from apps.notifications.models import Notification
+from apps.users.models import Profile
 
 
 class StatusAccessMixin:
@@ -61,6 +63,19 @@ class ModeratorMixin:
 
         setattr(obj, self.status_field, ModerationStatus.MODERATION)
         obj.save()
+
+        expert_ids = Profile.objects.filter(
+            role=UserRole.EXPERT
+        ).values_list('user_id', flat=True)
+        Notification.objects.bulk_create([
+            Notification(
+                user_id=uid,
+                type='expert_review_needed',
+                title='Новый материал ждёт вашей оценки',
+                message=f'«{obj.title}» отправлен на экспертную проверку.',
+            )
+            for uid in expert_ids
+        ])
         return Response({"detail": "Отправлено на модерацию"})
 
     @action(detail=True, methods=['post'], permission_classes=[IsModerator])

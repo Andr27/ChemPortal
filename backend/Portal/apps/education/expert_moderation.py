@@ -39,6 +39,28 @@ def process_vote(obj, expert, vote, comment=''):
         _apply_decision(obj, 'rejected')
         decision = 'rejected'
 
+    if decision in ('approved', 'rejected'):
+        from apps.notifications.models import Notification
+        from apps.posts.models import Post
+
+        if isinstance(obj, Post):
+            author = obj.author
+        else:
+            author = obj.created_by
+
+        title = 'Одобрено экспертным советом' if decision == 'approved' else 'Отклонено экспертным советом'
+        message = (
+            f'Ваш материал «{obj.title}» одобрен — 2 эксперта проголосовали за.'
+            if decision == 'approved'
+            else f'Ваш материал «{obj.title}» отклонён — 2 эксперта проголосовали против.'
+        )
+        Notification.objects.create(
+            user=author,
+            type='moderation_approved' if decision == 'approved' else 'moderation_rejected',
+            title=title,
+            message=message,
+        )
+
     return {
         'your_vote': vote,
         'votes': {
