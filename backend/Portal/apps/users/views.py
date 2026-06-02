@@ -26,6 +26,10 @@ from .serializers import RegistrationSerializer, MeSerializer, PasswordResetSeri
 from .models import EmailConfirmationToken, PasswordResetToken, PendingUser, CreatorApplication
 
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+from rest_framework import serializers as rf_serializers
+
+
 class RegistrationAPIView(APIView):
     permission_classes = []
 
@@ -61,6 +65,24 @@ class RegistrationAPIView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
+
+
+@extend_schema(
+    request=inline_serializer(
+        name='ConfirmEmailRequest',
+        fields={'token': rf_serializers.CharField()}
+    ),
+    responses={
+        200: inline_serializer(
+            name='ConfirmEmailSuccess',
+            fields={'message': rf_serializers.CharField()}
+        ),
+        400: inline_serializer(
+            name='ConfirmEmailError',
+            fields={'detail': rf_serializers.CharField()}
+        ),
+    }
+)
 class ConfirmEmailAPIView(APIView):
     permission_classes = []
 

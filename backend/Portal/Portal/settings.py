@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'drf_spectacular',
     'pgvector.django',
     'apps.posts.apps.PostsConfig',
     'apps.users.apps.UsersConfig',
@@ -158,10 +159,10 @@ STATIC_ROOT = '/app/staticfiles'
 from datetime import timedelta
 #настройка jwt
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
@@ -207,8 +208,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Химия и новые материалы API',
+    'DESCRIPTION': 'Документация API образовательного портала',
+    'VERSION': '1.0.0',
+}
 
 
 #CORS(ПОМЕНЯТЬ ПЕРЕД ОКОНЧАНИЕМ))!!!!!

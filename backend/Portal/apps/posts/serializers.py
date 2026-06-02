@@ -114,7 +114,7 @@ class PostSerializer(serializers.ModelSerializer):
         }
 
 
-class RecursiveCommentSerializer(serializers.ModelSerializer):
+class RecursiveCommentSerializer(serializers.Serializer):
     def to_representation(self, value):
         serializer = CommentSerializer(value, context=self.context)
         return serializer.data
