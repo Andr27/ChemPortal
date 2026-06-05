@@ -499,7 +499,7 @@ class ChapterViewSet(ModelViewSet):
         if course.status != ModerationStatus.PUBLISHED:
             if not user.is_authenticated:
                 return Chapter.objects.none()
-            if course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
+            if course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN, UserRole.EXPERT]:
                 return Chapter.objects.none()
 
         return Chapter.objects.filter(
@@ -546,7 +546,7 @@ class LessonViewSet(ModelViewSet):
         if chapter.course.status != ModerationStatus.PUBLISHED:
             if not user.is_authenticated:
                 return Lesson.objects.none()
-            if chapter.course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN]:
+            if chapter.course.created_by != user and user.profile.role not in [UserRole.MODERATOR, UserRole.ADMIN, UserRole.EXPERT]:
                 return Lesson.objects.none()
 
         return Lesson.objects.filter(chapter_id=self.kwargs['chapter_pk'])

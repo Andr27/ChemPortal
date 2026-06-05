@@ -165,7 +165,7 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
             user_role = getattr(getattr(user, "profile", None), "role", None)
             if (not user.is_authenticated) or (
                     post.author != user
-                    and user_role not in [UserRole.MODERATOR, UserRole.ADMIN]
+                    and user_role not in [UserRole.MODERATOR, UserRole.ADMIN, UserRole.EXPERT]
             ):
                 raise PermissionDenied("У вас нет доступа к этому посту")
 
