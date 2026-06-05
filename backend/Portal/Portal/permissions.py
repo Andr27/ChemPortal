@@ -21,7 +21,8 @@ class IsCreator(RolePermission):
     allowed_roles = {
         UserRole.ADMIN,
         UserRole.MODERATOR,
-        UserRole.CREATOR
+        UserRole.CREATOR,
+        UserRole.EXPERT,
     }
 
 
@@ -36,3 +37,13 @@ class IsAdmin(RolePermission):
     allowed_roles = {
         UserRole.ADMIN,
     }
+
+
+class IsExpert(RolePermission):
+    allowed_roles = {
+        UserRole.EXPERT,
+        UserRole.ADMIN,
+    }
+
+
+

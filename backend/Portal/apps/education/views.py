@@ -11,7 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
 
 from Portal.mixins import StatusAccessMixin, ModeratorMixin
-from Portal.permissions import IsCreator, IsModerator, IsAdmin
+from Portal.permissions import IsCreator, IsModerator, IsAdmin, IsExpert
 from Portal.choices import ModerationStatus, UserRole
 from Portal.pagination import StandardPagination
 
@@ -22,6 +22,7 @@ from .permissions import IsSectionOwner, IsCourseOwner
 from .serializers import EducationSectionSerializer, SectionMaterialSerializer, CourseSerializer, \
     EducationSectionDetailSerializer, CourseDetailSerializer, ChapterSerializer, LessonSerializer, \
     LessonCommentsSerializer
+
 
 
 class EducationSectionViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
@@ -120,7 +121,7 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
             return CourseDetailSerializer
         return CourseSerializer
 
-    def get_queryset(self):
+    def get_base_queryset(self):
         return Course.objects.filter(
             section_id=self.kwargs['section_pk']
         ).prefetch_related('chapters__lessons')
@@ -430,6 +431,61 @@ class CourseViewSet(ModeratorMixin, StatusAccessMixin, ModelViewSet):
                 **result,
             }
         )
+
+    @action(detail=True, methods=['post'], permission_classes=[IsExpert])
+    def expert_vote(self, request, **kwargs):
+        from .expert_moderation import process_vote
+        course = self.get_object()
+        if course.status != ModerationStatus.MODERATION:
+            return Response({'detail': 'Курс не на модерации'}, status=400)
+        vote = request.data.get('vote')
+        if vote not in ['approve', 'reject']:
+            return Response({'detail': 'vote: approve / reject'}, status=400)
+        result = process_vote(course, request.user, vote, request.data.get('comment', ''))
+        return Response(result)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsExpert])
+    def expert_reviews(self, request, **kwargs):
+        from .expert_moderation import get_votes
+        course = self.get_object()
+        votes = get_votes(course)
+        return Response({
+            'course_id': course.id,
+            'status': course.status,
+            'votes': {
+                'approve': votes['approve'],
+                'reject': votes['reject'],
+                'total': votes['total'],
+            },
+            'reviews': [
+                {
+                    'expert': {
+                        'id': r.expert.id,
+                        'first_name': r.expert.first_name,
+                        'last_name': r.expert.last_name,
+                    },
+                    'vote': r.vote,
+                    'comment': r.comment,
+                    'created_at': r.created_at,
+                }
+                for r in votes['reviews']
+            ]
+        })
+
+    @action(detail=False, methods=['get'], permission_classes=[IsExpert])
+    def expert_queue(self, request, **kwargs):
+        from django.contrib.contenttypes.models import ContentType
+        from .models import ExpertReview
+        ct = ContentType.objects.get_for_model(Course)
+        voted_ids = ExpertReview.objects.filter(
+            content_type=ct, expert=request.user
+        ).values_list('object_id', flat=True)
+        courses = Course.objects.filter(
+            status=ModerationStatus.MODERATION
+        ).exclude(id__in=voted_ids).select_related('section', 'created_by')
+        page = self.paginate_queryset(courses)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class ChapterViewSet(ModelViewSet):

@@ -157,3 +157,33 @@ class LessonComments(models.Model):
         verbose_name_plural = "Комментарии к уроку"
 
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+class ExpertReview(models.Model):
+    VOTE_CHOICES = [
+        ('approve', 'Одобрить'),
+        ('reject', 'Отклонить'),
+        ('request_changes', 'Запросить правки'),
+    ]
+
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    expert = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='expert_reviews'
+    )
+    vote = models.CharField(max_length=20, choices=VOTE_CHOICES)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('content_type', 'object_id', 'expert')
+        verbose_name = 'Экспертный отзыв'
+        verbose_name_plural = 'Экспертные отзывы'
+
+    def __str__(self):
+        return f"{self.expert.email} → {self.content_object} ({self.vote})"

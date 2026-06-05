@@ -6,6 +6,7 @@ class UserRole(models.TextChoices):
     GUEST = 'guest', "Гость"
     USER = 'user', "Пользователь"
     CREATOR = 'creator', "Создатель контента"
+    EXPERT = 'expert', "Эксперт"
     MODERATOR = 'moderator', "Модератор"
     ADMIN = 'admin', "Админ"
 

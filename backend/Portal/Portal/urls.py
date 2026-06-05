@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 
 urlpatterns = [
@@ -25,6 +25,9 @@ urlpatterns = [
     path('api/v1/', include('apps.tags.urls')),
     path('api/v1/', include('apps.search.urls')),
     path('api/v1/', include('apps.notifications.urls')),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -502,5 +505,18 @@ GET /api/v1/posts/{post.id}/ai_analyze/ - анализ поста
 }
 
 GET /api/v1/education/sections/{section.id}/courses/{course.id}/ai_analyze/ - анализ курса
+  
+  
+  
+ЭКСПЕРТНАЯ МОДЕРАЦИЯ!!!!!!!!!!!
 
+GET /api/v1/posts/expert_queue/ - очередь для экспертов!!
+POST /api/v1/posts/{id}/expert_vote/ - проголосовать!!
+Body: {"vote": "approve"/"reject", "comment": "Хорошая статья"} 
+GET /api/v1/posts/{id}/expert_reviews/ - посмотреть чо там вообще по голосам
+
+ДЛЯ КУРСОВ!!!
+GET /api/v1/education/sections/{id}/courses/expert_queue/
+POST /api/v1/education/sections/{id}/courses/{id}/expert_vote/
+GET /api/v1/education/sections/{id}/courses/{id}/expert_reviews/ 
 '''

@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.core.cache import cache
 
 from Portal.mixins import ModeratorMixin, StatusAccessMixin
-from Portal.permissions import IsCreator, IsModerator
+from Portal.permissions import IsCreator, IsModerator, IsExpert
 from Portal.choices import ModerationStatus, UserRole
 
 
@@ -16,11 +16,6 @@ from .models import Post, Comment, Like, Dislike
 from .serializers import PostSerializer, CommentSerializer
 from .pagination import PostAPIListPagination
 from apps.bookmarks.models import Bookmark
-
-
-
-
-
 
 
 
@@ -366,6 +361,61 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
         )
 
 
+
+    @action(detail=True, methods=['post'], permission_classes=[IsExpert])
+    def expert_vote(self, request, pk=None):
+        from apps.education.expert_moderation import process_vote
+        post = self.get_object()
+        if post.status != ModerationStatus.MODERATION:
+            return Response({'detail': 'Пост не на модерации'}, status=400)
+        vote = request.data.get('vote')
+        if vote not in ['approve', 'reject']:
+            return Response({'detail': 'vote: approve / reject'}, status=400)
+        result = process_vote(post, request.user, vote, request.data.get('comment', ''))
+        return Response(result)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsExpert])
+    def expert_reviews(self, request, pk=None):
+        from apps.education.expert_moderation import get_votes
+        post = self.get_object()
+        votes = get_votes(post)
+        return Response({
+            'post_id': post.id,
+            'status': post.status,
+            'votes': {
+                'approve': votes['approve'],
+                'reject': votes['reject'],
+                'total': votes['total'],
+            },
+            'reviews': [
+                {
+                    'expert': {
+                        'id': r.expert.id,
+                        'first_name': r.expert.first_name,
+                        'last_name': r.expert.last_name,
+                    },
+                    'vote': r.vote,
+                    'comment': r.comment,
+                    'created_at': r.created_at,
+                }
+                for r in votes['reviews']
+            ]
+        })
+
+    @action(detail=False, methods=['get'], permission_classes=[IsExpert])
+    def expert_queue(self, request):
+        from django.contrib.contenttypes.models import ContentType
+        from apps.education.models import ExpertReview
+        ct = ContentType.objects.get_for_model(Post)
+        voted_ids = ExpertReview.objects.filter(
+            content_type=ct, expert=request.user
+        ).values_list('object_id', flat=True)
+        posts = Post.objects.filter(
+            status=ModerationStatus.MODERATION
+        ).exclude(id__in=voted_ids).select_related('author__profile')
+        page = self.paginate_queryset(posts)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
