@@ -24,6 +24,10 @@ const Moderation = lazy(() => import("../features/moderation/pages/Moderation"))
 const ModerationPostPage = lazy(() => import("../features/moderation/pages/ModerationPostPage"));
 const ModerationCourseViewPage = lazy(() => import("../features/moderation/pages/ModerationCourseViewPage"));
 const RequestRolePage = lazy(() => import("../features/moderation/pages/RequestRolePage"));
+// Экспертная модерация
+const ExpertModeration = lazy(() => import("../features/moderation/pages/ExpertModeration"));
+const ExpertPostPage = lazy(() => import("../features/moderation/pages/ExpertPostPage"));
+const ExpertCourseViewPage = lazy(() => import("../features/moderation/pages/ExpertCourseViewPage"));
 
 // Создание
 const CreateForm = lazy(() => import("../features/posts/pages/CreateForm"));
@@ -80,6 +84,14 @@ export const moderationRoutes = [
     {path: '/moderation/:id/', element: ModerationPostPage},
     {path: '/moderation/courses/:courseId', element: ModerationCourseViewPage},
     {path: '/moderation/requests/:id', element: RequestRolePage},
+];
+
+// Экспертная модерация — те же пути, что и у модератора, но другие страницы.
+// Роль у пользователя одна, поэтому коллизии путей не возникает.
+export const expertRoutes = [
+    {path: '/moderation', element: ExpertModeration},
+    {path: '/moderation/:id/', element: ExpertPostPage},
+    {path: '/moderation/courses/:courseId', element: ExpertCourseViewPage},
 ];
 
 export const creatorRoutes = [

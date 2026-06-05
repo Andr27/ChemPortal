@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef} from 'react';
-import {AuthContext, ModeratorContext, CreatorContext} from "../../../context";
+import {AuthContext, ModeratorContext, CreatorContext, ExpertContext} from "../../../context";
 import AuthService from "../API/AuthService";
 import {useNavigate} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -8,6 +8,7 @@ const Login = () => {
     const {setIsAuth} = useContext(AuthContext);
     const {setIsCreator} = useContext(CreatorContext);
     const {setIsModerator} = useContext(ModeratorContext);
+    const {setIsExpert} = useContext(ExpertContext);
     const navigate = useNavigate();
 
     // Login state
@@ -57,7 +58,8 @@ const Login = () => {
                     await AuthService.fetchAndSaveUserRole();
                     const role = localStorage.getItem('role');
                     if (role === 'moderator' || role === 'admin') setIsModerator(true);
-                    if (role === 'creator' || role === 'moderator' || role === 'admin') setIsCreator(true);
+                    if (role === 'creator' || role === 'moderator' || role === 'admin' || role === 'expert') setIsCreator(true);
+                    if (role === 'expert') setIsExpert(true);
                 } catch (roleError) {
                     localStorage.setItem('role', 'user');
                 }

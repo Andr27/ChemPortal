@@ -520,5 +520,41 @@ class EducationService {
         const response = await api.get(`education/sections/${sectionId}/courses/${courseId}/ai_analyze/`);
         return response;
     }
+
+    /* ЭКСПЕРТНАЯ МОДЕРАЦИЯ КУРСОВ */
+    // Очередь курсов для эксперта. На бэке эндпоинт вложен в раздел
+    // (education/sections/{id}/courses/expert_queue/), но возвращает ВСЕ курсы
+    // на модерации глобально, игнорируя id раздела. Поэтому берём id любого
+    // существующего раздела, чтобы построить корректный URL.
+    static async getCourseExpertQueue(limit = 10, page = 1) {
+        const secRes = await api.get('education/sections/', { params: { limit: 1, page: 1 } });
+        const secData = secRes.data;
+        const sections = Array.isArray(secData) ? secData : (secData?.results ?? []);
+        const anySectionId = sections[0]?.id;
+        if (!anySectionId) {
+            // нет ни одного раздела → курсов на модерации тоже нет
+            return { data: { results: [], count: 0 } };
+        }
+        const response = await api.get(
+            `education/sections/${anySectionId}/courses/expert_queue/`,
+            { params: { limit, page } }
+        );
+        return response;
+    }
+
+    static async expertVoteCourse(sectionId, courseId, vote, comment = '') {
+        const response = await api.post(
+            `education/sections/${sectionId}/courses/${courseId}/expert_vote/`,
+            { vote, comment }
+        );
+        return response;
+    }
+
+    static async getCourseExpertReviews(sectionId, courseId) {
+        const response = await api.get(
+            `education/sections/${sectionId}/courses/${courseId}/expert_reviews/`
+        );
+        return response;
+    }
 }
 export default EducationService;
