@@ -159,4 +159,25 @@ export default class PostService {
         return response;
     }
 
+    /* ЭКСПЕРТНАЯ МОДЕРАЦИЯ */
+    // очередь статей для эксперта (исключает уже проголосованные)
+    static async getExpertQueue(limit = 10, page = 1) {
+        const response = await api.get('posts/expert_queue/', {
+            params: { limit, page },
+        });
+        return response;
+    }
+
+    // проголосовать за/против публикации статьи
+    static async expertVotePost(postId, vote, comment = '') {
+        const response = await api.post(`posts/${postId}/expert_vote/`, { vote, comment });
+        return response;
+    }
+
+    // текущие голоса экспертов по статье
+    static async getPostExpertReviews(postId) {
+        const response = await api.get(`posts/${postId}/expert_reviews/`);
+        return response;
+    }
+
 }

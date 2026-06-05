@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {AuthContext, CreatorContext, ModeratorContext} from "../../../context";
+import {AuthContext, CreatorContext, ExpertContext, ModeratorContext} from "../../../context";
 import AuthService from "../../../features/Login/API/AuthService";
 import MyLink from "../MyLink/MyLink";
 import {useUser} from "../../../hooks/useUser";
@@ -27,6 +27,7 @@ const Navbar = () => {
     const {isAuth, setIsAuth} = useContext(AuthContext);
     const {isModerator, setIsModerator} = useContext(ModeratorContext);
     const {isCreator, setIsCreator} = useContext(CreatorContext);
+    const {isExpert, setIsExpert} = useContext(ExpertContext);
     const {clearUser} = useUser();
     const navigate = useNavigate();
     const location = useLocation();
@@ -45,6 +46,7 @@ const Navbar = () => {
         setIsAuth(false);
         setIsModerator(false);
         setIsCreator(false);
+        setIsExpert(false);
     };
 
     useEffect(() => {
@@ -181,10 +183,10 @@ const Navbar = () => {
 
                 <div className={cl.navbar__right}>
                     <div className={cl.navbar__rightStack}>
-                        {isModerator && (
+                        {(isModerator || isExpert) && (
                             <MyLink to="/moderation" className={cl.navbar__navLink}>
                                 <span className={cl.navbar__navIcon} style={{ maskImage: `url(${iconModeration})`, WebkitMaskImage: `url(${iconModeration})` }} aria-hidden="true" />
-                                <span className={cl.navbar__navText}>Модерация</span>
+                                <span className={cl.navbar__navText}>{isExpert && !isModerator ? 'Экспертиза' : 'Модерация'}</span>
                             </MyLink>
                         )}
                         {isCreator && (

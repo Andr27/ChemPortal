@@ -3,7 +3,7 @@ import './styles/App.css';
 import {BrowserRouter, useLocation, useNavigate} from "react-router-dom";
 import Navbar from "./components/UI/navbar/navbar";
 import AppRouter from "./components/AppRouter";
-import {AuthContext, CreatorContext, ModeratorContext, UserContext} from "./context";
+import {AuthContext, CreatorContext, ExpertContext, ModeratorContext, UserContext} from "./context";
 import AuthService from "./features/Login/API/AuthService";
 import ScrollTopButton from "./components/UI/ScrollTopButton/ScrollTopButton";
 import {ToastProvider, useToast} from "./components/UI/Toast/ToastContext";
@@ -44,6 +44,7 @@ function App() {
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [isCreator, setIsCreator] = useState(false);
+    const [isExpert, setIsExpert] = useState(false);
 
     useEffect(() => {
         const loadUser = () => {
@@ -62,7 +63,10 @@ function App() {
             if (role) {
                 setIsModerator(role === 'admin' || role === 'moderator');
 
-                setIsCreator(role === 'creator' || role === 'admin' || role === 'moderator');
+                // эксперт на бэке тоже относится к создателям контента (IsCreator)
+                setIsCreator(role === 'creator' || role === 'admin' || role === 'moderator' || role === 'expert');
+
+                setIsExpert(role === 'expert');
             }
 
             setIsLoading(false);
@@ -130,6 +134,7 @@ function App() {
             setIsAuth(false);
             setIsModerator(false);
             setIsCreator(false);
+            setIsExpert(false);
             setUser(null);
         };
         window.addEventListener('auth-expired', onAuthExpired);
@@ -153,6 +158,7 @@ function App() {
             <AuthContext.Provider value={{ isAuth, setIsAuth, isLoading }}>
                 <ModeratorContext.Provider value={{ isModerator, setIsModerator }}>
                     <CreatorContext.Provider value={{isCreator, setIsCreator}}>
+                    <ExpertContext.Provider value={{isExpert, setIsExpert}}>
                     <BrowserRouter>
                         <ToastProvider>
                         <AuthExpiredHandler />
@@ -167,6 +173,7 @@ function App() {
                         </div>
                         </ToastProvider>
                     </BrowserRouter>
+                    </ExpertContext.Provider>
                     </CreatorContext.Provider>
                 </ModeratorContext.Provider>
             </AuthContext.Provider>

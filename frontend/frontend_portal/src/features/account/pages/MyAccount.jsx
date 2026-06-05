@@ -285,9 +285,10 @@ const MyAccount = () => {
                                         <span>
                                             {user.role === "user" ? "Пользователь" :
                                                 user.role === "creator" ? "Автор" :
-                                                    user.role === "moderator" ? "Модератор" :
-                                                        user.role === "admin" ? "Админ" :
-                                                            (user.role || "Пользователь")}
+                                                    user.role === "expert" ? "Эксперт" :
+                                                        user.role === "moderator" ? "Модератор" :
+                                                            user.role === "admin" ? "Админ" :
+                                                                (user.role || "Пользователь")}
                                         </span>
                                         {!isCreator && !isModerator && <RequestRole />}
                                     </p>

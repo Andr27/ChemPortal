@@ -25,6 +25,7 @@
     padding: 0 16px 0;
     position: relative;
     overflow: visible;
+    background-color: var(--color-surface);
 }
 
 /* Невидимый блок по размеру лого, на всю ширину страницы — при скролле даёт тень снизу.
@@ -635,23 +636,25 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
         display: none;
     }
 
-    /* Верхний отсек с лого — на всю ширину навбара */
+    /* Верхний отсек с лого — на всю ширину навбара.
+       Навбар уже имеет фон var(--color-surface), поэтому bleed через
+       отрицательные margin не нужен — он только вылезал за край сайдбара. */
     .navbar__topSection {
         background-color: var(--color-surface);
         padding: 0;
-        margin-left: -6px;
-        margin-right: -6px;
-        width: calc(100% + 12px);
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
         box-sizing: border-box;
     }
 
     .navbar__logoBlock {
-        margin-left: -6px;
-        margin-right: -6px;
-        padding-left: 6px;
-        padding-right: 6px;
-        overflow: visible;
-        width: calc(100% + 12px);
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        overflow: hidden;
+        width: 100%;
         box-sizing: border-box;
     }
 
@@ -661,11 +664,11 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
         overflow: visible;
     }
 
-    /* Сам логотип (картинка) увеличен в 1.5 раза */
+    /* Логотип увеличен, но в масштабе должен влезать в ширину сайдбара (72px) */
     .navbar__brandLogo {
         height: 72px;
         width: auto;
-        max-width: 64px;
+        max-width: 44px;
         object-fit: contain;
         transform: scale(1.5);
         transform-origin: center center;
@@ -678,14 +681,14 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
 
     /* Блок с кнопками — на всю ширину и до самого низа навбара */
     .navbar__bottomSection {
-        margin-left: -6px;
-        margin-right: -6px;
+        margin-left: 0;
+        margin-right: 0;
         margin-bottom: -10px;
-        padding: 12px 6px 16px;
+        padding: 12px 0 16px;
         align-items: center;
         display: flex;
         flex-direction: column;
-        width: calc(100% + 12px);
+        width: 100%;
         box-sizing: border-box;
         flex: 1 1 auto;
         min-height: 0;
@@ -818,29 +821,29 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
     .navbar__topSection {
         background-color: var(--color-surface);
         padding: 0;
-        margin-left: -4px;
-        margin-right: -4px;
-        width: calc(100% + 8px);
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
         box-sizing: border-box;
     }
 
     .navbar__logoBlock {
-        margin-left: -4px;
-        margin-right: -4px;
-        padding-left: 4px;
-        padding-right: 4px;
-        overflow: visible;
-        width: calc(100% + 8px);
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        overflow: hidden;
+        width: 100%;
         box-sizing: border-box;
     }
 
     .navbar__bottomSection {
-        margin-left: -4px;
-        margin-right: -4px;
+        margin-left: 0;
+        margin-right: 0;
         margin-bottom: -10px;
-        width: calc(100% + 8px);
-        padding-left: 4px;
-        padding-right: 4px;
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
         padding-bottom: 16px;
         box-sizing: border-box;
     }
@@ -851,7 +854,7 @@ body.theme-nano .navbar__navLink:not([aria-current="page"]) .navbar__navIcon {
     }
 
     .navbar__brandLogo {
-        max-width: 60px;
+        max-width: 40px;
         height: 72px;
         object-fit: contain;
         transform: scale(1.5);
