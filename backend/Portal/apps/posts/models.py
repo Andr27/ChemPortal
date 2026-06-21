@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 from Portal.choices import ModerationStatus
 from apps.tags.models import Tag
 
@@ -31,10 +33,15 @@ class Post(models.Model):
     status = models.CharField(max_length=20, choices=ModerationStatus.choices, default=ModerationStatus.DRAFT)
     reject_comment = models.TextField(blank=True, default='')
 
+    # Предрасчитанный tsvector для полнотекстового поиска.
+    # Поддерживается сигналом post_save, GIN-индекс ускоряет поиск с O(n) до O(log n).
+    search_vector = SearchVectorField(blank=True, null=True, editable=False)
+
     class Meta:
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['created_at']),
+            GinIndex(fields=['search_vector'], name='posts_search_vec_gin_idx'),
         ]
     def __str__(self):
         return self.title

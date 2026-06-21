@@ -15,6 +15,7 @@ import iconModeration from '../../../img/icon/moderation.svg';
 import iconBookmarks from '../../../img/icon/bookmarks.svg';
 import iconCreate from '../../../img/icon/create.svg';
 import iconLogin from '../../../img/icon/login.svg';
+import iconNavigator from '../../../img/icon/navigator.svg';
 import UserPanel from '../UserPanel/UserPanel';
 
 const THEME_STORAGE_KEY = "site-theme";
@@ -179,6 +180,10 @@ const Navbar = () => {
                             <span className={cl.navbar__navText}>Мои курсы</span>
                         </MyLink>
                     )}
+                    <MyLink to="/navigator" className={cl.navbar__navLink}>
+                        <span className={cl.navbar__navIcon} style={{ maskImage: `url(${iconNavigator})`, WebkitMaskImage: `url(${iconNavigator})` }} aria-hidden="true" />
+                        <span className={cl.navbar__navText}>Навигатор</span>
+                    </MyLink>
                 </nav>
 
                 <div className={cl.navbar__right}>

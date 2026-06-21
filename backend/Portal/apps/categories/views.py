@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 
 
 from Portal.choices import ModerationStatus
@@ -19,6 +20,15 @@ class CategoryViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 
     def get_queryset(self):
         return Category.objects.filter(is_active=True)
+
+    def list(self, request, *args, **kwargs):
+        # Категории меняются редко — кэшируем готовый ответ на 10 минут.
+        cached = cache.get('categories_list')
+        if cached is not None:
+            return Response(cached)
+        response = super().list(request, *args, **kwargs)
+        cache.set('categories_list', response.data, timeout=600)
+        return response
 
     @action(detail=True, methods=['get'])
     def sections(self, request, slug=None):

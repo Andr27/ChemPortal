@@ -120,7 +120,36 @@ export default class PostService {
 
     static async suggestTagsByText(text) {
         const response = await api.post('tags/suggest/', { text });
-        return response;
+        const data = response?.data || {};
+
+        // Старый синхронный формат: бэкенд сразу вернул теги — отдаём как есть.
+        if (Array.isArray(data) || data.tags) {
+            return response;
+        }
+
+        // Новый асинхронный формат: пришёл task_id, опрашиваем статус, пока
+        // Celery не посчитает теги. Воркер при этом не блокируется.
+        const taskId = data.task_id;
+        if (!taskId) {
+            return { ...response, data: { tags: [] } };
+        }
+
+        const MAX_ATTEMPTS = 15;
+        const DELAY_MS = 1000;
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+            const statusResp = await api.get('tags/suggest/status/', { params: { task_id: taskId } });
+            const sd = statusResp?.data || {};
+            if (sd.status === 'done') {
+                return { ...statusResp, data: { tags: sd.tags || [] } };
+            }
+            if (sd.status === 'error') {
+                return { ...statusResp, data: { tags: [] } };
+            }
+            // status === 'processing' — продолжаем опрос
+        }
+        // Не дождались — возвращаем пустой список, чтобы UI не завис.
+        return { ...response, data: { tags: [] } };
     }
 
     static async requestNewTag(name, reason) {

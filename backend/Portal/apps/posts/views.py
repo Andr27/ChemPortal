@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 from rest_framework.exceptions import PermissionDenied
 from django.core.cache import cache
@@ -39,8 +40,14 @@ class PostViewSet(ModeratorMixin, StatusAccessMixin, viewsets.ModelViewSet):
 
         if self.action == 'list':
             queryset = Post.objects.filter(status=ModerationStatus.PUBLISHED, type="article")
-            return self.filter_by_teg(queryset).select_related('author__profile').prefetch_related(
-                'tags', 'likes', 'dislikes', 'bookmarked_by', 'images')
+            # Аннотируем счётчик лайков на уровне SQL, чтобы избежать N+1 в сериализаторе.
+            # Только ОДНА Count-аннотация по many-relation: две (likes + dislikes) в одном
+            # annotate() перемножают JOIN'ы и завышают счётчики (cartesian product).
+            return self.filter_by_teg(queryset).annotate(
+                likes_count_ann=Count('likes'),
+            ).select_related('author__profile').prefetch_related(
+                'tags', 'images')
+        # Для не-list действий likes/dislikes нужны как полноценные объекты (флаги и т.п.)
         return super().get_queryset().select_related('author__profile').prefetch_related(
             'tags', 'likes', 'dislikes', 'bookmarked_by', 'images'
         )

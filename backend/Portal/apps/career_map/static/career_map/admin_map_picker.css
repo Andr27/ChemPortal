@@ -1,0 +1,51 @@
+.cm-map-box {
+    margin: 8px 0 16px;
+    max-width: 760px;
+}
+
+.cm-map-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#cm-map-search-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#cm-map-search-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #20a8a8;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#cm-map-search-btn:hover {
+    background: #178f8f;
+}
+
+#cm-map-search-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+#cm-map-picker {
+    height: 380px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    z-index: 0;
+}
+
+.cm-map-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #777;
+}

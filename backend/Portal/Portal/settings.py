@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'corsheaders',
     'rest_framework',
     'drf_spectacular',
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'apps.tags.apps.TagsConfig',
     'apps.search.apps.SearchConfig',
     'apps.notifications.apps.NotificationsConfig',
+    'apps.career_map.apps.CareerMapConfig',
 ]
 
 MIDDLEWARE = [
@@ -115,6 +117,10 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        # Переиспользование соединений вместо открытия нового на каждый запрос.
+        # Для gunicorn с одним воркером даёт значительный прирост под нагрузкой.
+        'CONN_MAX_AGE': int(os.getenv('CONN_MAX_AGE', '60')),
+        'CONN_HEALTH_CHECKS': True,
     }
 }
 
@@ -264,7 +270,7 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Добро пожаловать в панель управления ChemPortal",
     "copyright": "ChemPortal",
 
-    "search_model": ["auth.User", "posts.Post", "education.Course"],
+    "search_model": ["auth.User", "posts.Post", "education.Course", "career_map.Organization"],
 
     "topmenu_links": [
         {"name": "Сайт", "url": "http://localhost:3000", "new_window": True},
@@ -289,8 +295,13 @@ JAZZMIN_SETTINGS = {
         "education",
         "quiz",
         "enrollment",
+        "career_map",
+        "categories",
+        "tags",
         "subscriptions",
         "bookmarks",
+        "notifications",
+        "search",
     ],
 
     "icons": {
@@ -315,6 +326,14 @@ JAZZMIN_SETTINGS = {
         "enrollment.CourseCertificate": "fas fa-certificate",
         "subscriptions.Subscription": "fas fa-bell",
         "bookmarks.Bookmark": "fas fa-bookmark",
+        "notifications.Notification": "fas fa-envelope",
+        "tags.Tag": "fas fa-tag",
+        "tags.TagRequest": "fas fa-tags",
+        "categories.Category": "fas fa-folder-tree",
+        "career_map.Organization": "fas fa-map-marker-alt",
+        "career_map.Industry": "fas fa-industry",
+        "career_map.Direction": "fas fa-compass",
+        "career_map.Vacancy": "fas fa-briefcase",
     },
 
     "default_icon_parents": "fas fa-folder",

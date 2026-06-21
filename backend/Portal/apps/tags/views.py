@@ -33,12 +33,17 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     def get_queryset(self):
         search = self.request.query_params.get('search')
         if not search:
-            cached = cache.get("tag_list")
-            if cached is not None:
-                return cached
-            queryset = Tag.objects.filter(is_active=True).order_by('name')
-            cache.set('tag_list', queryset, timeout=3600)
-            return queryset
+            # Кэшируем список id активных тегов, а не QuerySet (QuerySet ленивый
+            # и при сериализации всё равно ходит в БД; pickle QuerySet ещё и хрупок).
+            cached = cache.get("tag_list_ids")
+            if cached is None:
+                cached = list(
+                    Tag.objects.filter(is_active=True)
+                    .order_by('name')
+                    .values_list('id', flat=True)
+                )
+                cache.set("tag_list_ids", cached, timeout=3600)
+            return Tag.objects.filter(id__in=cached).order_by('name')
 
         queryset = Tag.objects.filter(is_active=True).order_by('name')
         search_cap = search.capitalize()
@@ -94,19 +99,48 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
                 args=[text, all_tags],
                 kwargs={'top_n': 5, 'threshold': 0.5}
             )
-            suggested_names = result.get(timeout=120)
-
-            tags = Tag.objects.filter(name__in=suggested_names, is_active=True)
-            tags_dict = {tag.name: tag for tag in tags}
-            sorted_tags = [tags_dict[name] for name in suggested_names if name in tags_dict]
-            serializer = TagSerializer(sorted_tags, many=True, context={'request': request})
-            return Response({'tags': serializer.data})
+            # НЕ блокируем воркер: отдаём task_id, клиент опросит /suggest/status/
+            return Response({
+                'task_id': result.id,
+                'status': 'processing',
+                'message': 'Обработка текста с помощью ИИ. Повторите запрос через несколько секунд.',
+            })
 
         except Exception as e:
             return Response(
                 {'tags': [], 'detail': f'Ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @action(detail=False, methods=['get'], url_path='suggest/status')
+    def suggest_status(self, request):
+        """Polling-эндпоинт для получения результата suggest_tags.
+        Параметр: task_id — id Celery-таски из ответа /suggest/.
+        """
+        task_id = request.query_params.get('task_id')
+        if not task_id:
+            raise ValidationError({'task_id': 'Обязательный параметр'})
+
+        from celery.result import AsyncResult
+        result = AsyncResult(task_id)
+
+        if result.state == 'PENDING':
+            return Response({'task_id': task_id, 'status': 'processing'})
+        elif result.state == 'SUCCESS':
+            suggested_names = result.result
+            tags = Tag.objects.filter(name__in=suggested_names, is_active=True)
+            tags_dict = {tag.name: tag for tag in tags}
+            sorted_tags = [tags_dict[name] for name in suggested_names if name in tags_dict]
+            serializer = TagSerializer(sorted_tags, many=True, context={'request': request})
+            return Response({'task_id': task_id, 'status': 'done', 'tags': serializer.data})
+        else:
+            # FAILURE, REVOKED, etc.
+            return Response({
+                'task_id': task_id,
+                'status': 'error',
+                'detail': str(result.result) if result.result else 'Неизвестная ошибка',
+                'tags': [],
+            })
 
 
     @action(detail=False, methods=['post'], url_path='request_tag')
@@ -166,8 +200,8 @@ class TagViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         tag_request.reviewed_by = request.user
         tag_request.save()
         from django.core.cache import cache
-        cache.delete('tag_embeddings_v2')
-        cache.delete('tags_list')
+        cache.delete('tag_embeddings_v3')
+        cache.delete('tag_list_ids')
 
 
         return Response({

@@ -2,25 +2,38 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://147.45.219.171/api/v1/",
+    baseURL: "http://localhost:8000/api/v1/",
 });
 
 let isRefreshing = false;
 let failedQueue = [];
 
-const processedQueue = (error, token = null) => {
-    failedQueue.forEach(prom => {
-        if (error){
-            prom.reject(error);
-        } else {
-            prom.resolve(token);
-        }
-    });
-    failedQueue = [];
-};
+// ---------------------------------------------------------------------------
+// AbortController реестр — позволяет отменить все незавершённые запросы
+// при быстрой навигации. Каждый axios-запрос автоматически получает signal.
+// ---------------------------------------------------------------------------
+const _pendingControllers = new Set();
 
-// Полная очистка auth-данных + уведомление React-приложения,
-// чтобы оно сразу обновило UI (без перезагрузки страницы).
+/** Создать и зарегистрировать AbortController (для ручного управления). */
+export function createAbortController() {
+    const ctrl = new AbortController();
+    _pendingControllers.add(ctrl);
+    return ctrl;
+}
+
+/** Отменить все незавершённые запросы (вызывать при unmount / навигации). */
+export function abortAllPendingRequests() {
+    _pendingControllers.forEach(c => c.abort());
+    _pendingControllers.clear();
+}
+
+function _unregister(ctrl) {
+    _pendingControllers.delete(ctrl);
+}
+
+// ---------------------------------------------------------------------------
+// Очистка auth-данных при истечении сессии
+// ---------------------------------------------------------------------------
 const handleAuthExpired = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -33,6 +46,9 @@ const handleAuthExpired = () => {
     }
 };
 
+// ---------------------------------------------------------------------------
+// Request interceptor: токен + AbortController
+// ---------------------------------------------------------------------------
 api.interceptors.request.use(
     (config) => {
         if (config.url.includes('token/')) {
@@ -43,6 +59,15 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        // Автоматический AbortController: если внешний signal не передан —
+        // создаём и привязываем. Запрос отменится при abortAllPendingRequests().
+        if (!config.signal) {
+            const ctrl = createAbortController();
+            config.signal = ctrl.signal;
+            config._metaAbortCtrl = ctrl;
+        }
+
         return config;
     },
     (error) => {
@@ -50,10 +75,23 @@ api.interceptors.request.use(
     }
 );
 
+// ---------------------------------------------------------------------------
+// Response interceptor: refresh-токен + cleanup
+// ---------------------------------------------------------------------------
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Убираем контроллер из реестра после успешного ответа
+        _unregister(response.config._metaAbortCtrl);
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
+        _unregister(originalRequest._metaAbortCtrl);
+
+        // Отменённый запрос — тихо пропускаем, не показываем ошибку
+        if (axios.isCancel(error)) {
+            return Promise.reject(error);
+        }
 
         if (originalRequest.url.includes('token/')) {
             return Promise.reject(error);
@@ -83,13 +121,13 @@ api.interceptors.response.use(
         isRefreshing = true;
 
         try {
-            const refreshToken = localStorage.getItem('refreshToken');
+            const refreshToken = localStorage.getItem("refreshToken");
 
             if (!refreshToken) {
                 throw new Error(`Refresh token: отсутствует`);
             }
 
-            const response = await axios.post('http://147.45.219.171/api/v1/token/refresh/', {
+            const response = await axios.post('http://localhost:8000/api/v1/token/refresh/', {
                 refresh: refreshToken,
             });
 
@@ -112,5 +150,16 @@ api.interceptors.response.use(
         }
     }
 );
+
+const processedQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error){
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 export default api;

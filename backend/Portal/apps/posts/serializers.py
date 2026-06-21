@@ -92,7 +92,16 @@ class PostSerializer(serializers.ModelSerializer):
         return tags
 
     def get_likes_count(self, obj):
-        return obj.likes.count()
+        # В list-выборке приходит annotate(likes_count_ann=...), без N+1.
+        # В прочих случаях аккуратно падаем на prefetch'нутый related.
+        count = getattr(obj, 'likes_count_ann', None)
+        if count is not None:
+            return count
+        # Если prefetch_related('likes') уже выполнен — берём из кэша, без доп. запроса
+        try:
+            return len(obj.likes.all())
+        except Exception:
+            return obj.likes.count()
 
     def get_is_liked(self, obj):
         return obj.id in self.context.get('liked_ids', set())

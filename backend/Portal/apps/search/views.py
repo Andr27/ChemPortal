@@ -37,16 +37,19 @@ class GlobalSearchView(APIView):
     def _search_posts(self, query, limit):
         from apps.posts.models import Post
 
-        search_vector = SearchVector('title', weight='A') + SearchVector('body', weight='B')
         search_query = SearchQuery(query, config='russian')
 
+        # Используем предрасчитанное search_vector с GIN-индексом
+        # вместо рантайм SearchVector, который сканирует всю таблицу.
         posts = Post.objects.annotate(
-            rank=SearchRank(search_vector, search_query)
+            rank=SearchRank('search_vector', search_query)
         ).filter(
             rank__gt=0.01,
             status=ModerationStatus.PUBLISHED
         ).order_by('-rank')[:limit]
 
+        # Fallback: для постов, у которых search_vector ещё не заполнен (старые данные),
+        # используем быстрый ILIKE.
         if not posts.exists():
             posts = Post.objects.filter(
                 Q(title__icontains=query) | Q(body__icontains=query),
@@ -152,13 +155,23 @@ class GlobalSearchView(APIView):
         ]
 
     def _semantic_search(self, query: str, search_type: str, limit: int) -> dict:
+        import hashlib
+        from django.core.cache import cache
         from apps.tags.ml import encode
         from pgvector.django import CosineDistance
 
-        try:
-            query_vector = encode(["query: " + query])[0].tolist()
-        except Exception:
-            return {}
+        # Кэшируем эмбеддинг запроса: один и тот же поисковый запрос — один инференс.
+        # Срок жизни короткий — популярные повторяющиеся запросы отдадутся мгновенно.
+        query_hash = hashlib.md5(query.encode('utf-8')).hexdigest()
+        cache_key = f'semantic_query_v1:{query_hash}'
+        query_vector = cache.get(cache_key)
+
+        if query_vector is None:
+            try:
+                query_vector = encode(["query: " + query])[0].tolist()
+            except Exception:
+                return {}
+            cache.set(cache_key, query_vector, timeout=1800)
 
         results = {}
 
